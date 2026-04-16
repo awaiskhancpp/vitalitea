@@ -11,8 +11,8 @@ interface SkincareSectionProps {
 export default function SkincareSection({ heading, body, cta, image }: SkincareSectionProps) {
   return (
     <section className="relative bg-[#F5F1E8] py-20 pt-[125px]">
-      <div className="mx-auto w-full max-w-[1440px] px-[100px]">
-        <div className="grid grid-cols-1 items-center gap-5 lg:grid-cols-[779px_608px]">
+      <div className="mx-auto w-full max-w-[1440px] px-6 lg:px-[100px]">
+        <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-[55fr_45fr]">
           {/* Text — left col (order-1), matching left:119px from Figma */}
           <div className="order-1">
             <h2 className="mb-6 max-w-[387px] font-['Cormorant_Garamond'] text-[40px] font-bold leading-[1.21] text-black">
@@ -35,15 +35,7 @@ export default function SkincareSection({ heading, body, cta, image }: SkincareS
 
           {/* Image — right col, w:608 h:538 r:20px (order-2) */}
           <div className="order-2 flex justify-end">
-            <div
-              className="relative overflow-hidden bg-amber-50"
-              style={{
-                width: '100%',
-                maxWidth: '608px',
-                height: '538px',
-                borderRadius: '20px',
-              }}
-            >
+            <div className="relative w-full overflow-hidden rounded-[20px] bg-amber-50 aspect-[608/538]">
               {image?.url ? (
                 <Image src={image.url} alt={image.alt} fill className="object-cover" />
               ) : (

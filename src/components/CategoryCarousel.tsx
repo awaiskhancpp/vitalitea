@@ -54,8 +54,7 @@ export default function CategoryCarousel({ categories }: { categories: Category[
             <Link
               href="/shop"
               key={cat.id}
-              className="group relative overflow-hidden rounded-[20px] bg-[#D9D9D9]"
-              style={{ height: '500px' }}
+              className="group relative overflow-hidden rounded-[20px] bg-[#D9D9D9] aspect-[3/4]"
             >
               <img
                 src={getCategoryImage(cat, activePage * CARDS_PER_PAGE + i)}

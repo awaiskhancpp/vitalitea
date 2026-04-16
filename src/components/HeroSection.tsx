@@ -9,24 +9,25 @@ interface HeroProps {
   image?: { url: string; alt: string } | null
 }
 
-export default function HeroSection({
-  heading,
-  subtext,
-  primaryCta,
-  secondaryCta,
-}: HeroProps) {
+export default function HeroSection({ heading, subtext, primaryCta, secondaryCta }: HeroProps) {
   return (
     <section className="relative mx-auto h-[840px] w-full max-w-[1440px] overflow-hidden bg-[#F5F1E8]">
-      <Image src="/hero-bg-521122.png" alt="Hero background" fill priority className="object-fill" />
-      <div className="relative z-10">
-        <h1 className="absolute left-[100px] top-[242px] max-w-[602px] font-['Cormorant_Garamond'] text-[60px] font-bold leading-[58px] text-black">
+      <Image
+        src="/hero-bg-521122.png"
+        alt="Hero background"
+        fill
+        priority
+        className="object-fill md:object-cover"
+      />
+      <div className="relative z-10 px-6 lg:px-0">
+        <h1 className="absolute left-[6.9%] top-[242px] max-w-[42%] font-['Cormorant_Garamond'] text-[60px] font-bold leading-[58px] text-black">
           {heading}
         </h1>
-        <p className="absolute left-[100px] top-[377px] max-w-[584px] font-['Inter'] text-[20px] leading-[1.21] text-black/50">
+        <p className="absolute left-[6.9%] top-[377px] max-w-[40%] font-['Inter'] text-[20px] leading-[1.21] text-black/50">
           {subtext ||
             'Everyday essentials that help people slow down, reset, and reconnect. From proper skin wellness and teas, to movement tools and sensory products.'}
         </p>
-        <div className="absolute left-[100px] top-[533px] flex gap-[18px]">
+        <div className="absolute left-[6.9%] top-[533px] flex gap-[18px]">
           <Link
             href="/shop"
             className="inline-flex h-[44px] min-w-[248px] items-center justify-center rounded-full bg-[#627E5C] px-[30px] font-['Inter'] text-[20px] font-medium text-white"

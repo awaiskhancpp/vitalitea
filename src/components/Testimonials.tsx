@@ -84,21 +84,6 @@ export default function Testimonials({ testimonials }: { testimonials: Testimoni
                     />
                   </svg>
                 </button>
-
-                <button
-                  onClick={() => setActive((a) => (a + 1) % items.length)}
-                  className="group flex h-10 w-10 items-center justify-center rounded-full bg-transparent border border-black/20 hover:border-black transition-colors"
-                >
-                  <svg width="8" height="14" viewBox="0 0 8 14" fill="none" className="rotate-180">
-                    <path
-                      d="M7 1L1 7L7 13"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </button>
               </div>
             </div>
           </div>

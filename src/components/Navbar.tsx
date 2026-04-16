@@ -164,7 +164,6 @@ export default function Navbar({ links }: NavbarProps) {
                 height={18}
                 style={{ flexShrink: 0 }}
               />
-              <div style={{ width: '1px', height: '15px', background: '#000', flexShrink: 0 }} />
               <input
                 type="text"
                 placeholder="Search..."

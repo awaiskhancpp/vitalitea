@@ -51,7 +51,7 @@ export default function FeaturedProducts({ products }: { products: Product[] }) 
 
   return (
     <section className="bg-[#F5F1E8] py-20">
-      <div className="mx-auto w-full max-w-[1440px] px-[94px]">
+      <div className="mx-auto w-full max-w-[1440px] px-6 lg:px-[94px]">
         <div className="mb-7">
           <h2 className="font-['Cormorant_Garamond'] text-[50px] font-bold leading-[1.21] text-black">
             Our Products
@@ -64,7 +64,7 @@ export default function FeaturedProducts({ products }: { products: Product[] }) 
               key={product.id}
               className="overflow-hidden rounded-[20px] bg-white shadow-[4px_4px_10px_rgba(0,0,0,0.12)]"
             >
-              <div className="relative h-[352px] overflow-hidden rounded-t-[20px] bg-[#efefef]">
+              <div className="relative aspect-[4/3] overflow-hidden rounded-t-[20px] bg-[#efefef]">
                 {product.image?.url ? (
                   <Image
                     src={product.image.url}
