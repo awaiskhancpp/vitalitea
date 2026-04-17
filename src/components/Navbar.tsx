@@ -39,7 +39,7 @@ export default function Navbar({ links }: NavbarProps) {
   }
 
   return (
-    <nav className="absolute left-0 right-0 top-[42px] z-40 bg-transparent">
+    <nav className="absolute left-0 right-0 top-[42px] z-40 w-full bg-transparent">
       <div className="mx-auto w-full max-w-[1440px] px-[100px]">
         <div className="flex h-[65px] items-center justify-between">
           {/* Logo */}
