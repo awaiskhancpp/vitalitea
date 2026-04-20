@@ -35,53 +35,80 @@ const FALLBACK: Testimonial[] = [
 export default function Testimonials({ testimonials }: { testimonials: Testimonial[] }) {
   const [active, setActive] = useState(0)
   const items = testimonials.length > 0 ? testimonials : FALLBACK
+  const total = items.length
+
+  const prev = () => setActive((a) => (a - 1 + total) % total)
+  const next = () => setActive((a) => (a + 1) % total)
 
   return (
-    <section className="bg-[#F5F1E8] py-20 font-sans">
-      <div className="mx-auto w-full max-w-[1440px] px-6 lg:px-[101px]">
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[490px_1fr] items-stretch">
-          {/* Left Orange Card */}
-          <div className="flex min-h-[350px] items-center justify-center rounded-[27px] bg-gradient-to-b from-[#DEA270] to-[#DF9448] p-10">
-            <p className="text-center font-['Cormorant_Garamond'] text-[40px] lg:text-[50px] italic leading-tight text-white">
+    <section className="bg-[#F5F1E8] py-16 lg:py-20">
+      <div className="w-full px-6 sm:px-10 lg:px-[6.94%]">
+        <div className="grid grid-cols-1 items-stretch gap-6 lg:flex lg:gap-6">
+          <div
+            className="flex min-h-[200px] w-full items-center justify-center rounded-[27px] p-8 lg:min-h-[297px] lg:flex-[490]"
+            style={{ background: 'linear-gradient(180deg, #DEA270 0%, #DF9448 100%)' }}
+          >
+            <p
+              className="text-center font-['Cormorant_Garamond'] font-normal italic text-white"
+              style={{
+                fontSize: 'clamp(32px, 3.5vw, 50px)',
+                lineHeight: '0.86em',
+              }}
+            >
               Love at first sip...
             </p>
           </div>
-
-          {/* Right Content Card */}
-          <div className="relative flex flex-col justify-between rounded-[27px] border border-[#6F5846]/30 bg-[#F5F1E8] p-8 lg:p-12">
+          <div
+            className="relative flex min-h-[200px] w-full flex-col justify-between rounded-[27px] bg-[#F5F1E8] p-8 lg:min-h-[297px] lg:flex-[732] lg:p-10"
+            style={{ border: '1px solid #6F5846' }}
+          >
             <div>
-              {/* Quote Icon */}
-              <span className="block font-serif text-[60px] leading-none text-black">“</span>
-
-              <blockquote className="mt-2 text-[18px] lg:text-[22px] leading-relaxed text-[#202020]">
+              <span className="block font-serif text-[50px] leading-none text-black">"</span>
+              <blockquote
+                className="font-['Inter'] font-medium leading-relaxed text-[#202020]"
+                style={{ fontSize: 'clamp(15px, 1.4vw, 20px)' }}
+              >
                 {items[active].quote}
               </blockquote>
-
-              <p className="mt-6 text-[18px] font-medium text-[#8D8C8C]">
-                — {items[active].author}
+              <p
+                className="mt-3 font-['Host_Grotesk'] font-medium text-[#8D8C8C]"
+                style={{ fontSize: 'clamp(14px, 1.2vw, 20px)' }}
+              >
+                - {items[active].author}
               </p>
             </div>
-
-            {/* Bottom Row: Trustpilot & Nav */}
-            <div className="mt-12 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="text-[18px] font-bold text-[#202020]">★ Trustpilot</span>
+            <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
+              <div className="flex items-center gap-1.5">
+                <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
+                  <path
+                    d="M11 2l2.39 4.84L19 7.63l-4 3.9.94 5.5L11 14.27 6.06 17.03 7 11.53 3 7.63l5.61-.79L11 2z"
+                    fill="#202020"
+                  />
+                </svg>
+                <span className="font-['Host_Grotesk'] text-[22px] font-medium text-[#202020]">
+                  Trustpilot
+                </span>
               </div>
-
-              {/* Navigation */}
-              <div className="flex items-center gap-6">
+              <div className="flex items-center gap-4">
                 <button
-                  onClick={() => setActive((a) => (a - 1 + items.length) % items.length)}
-                  className="group flex h-10 w-10 items-center justify-center rounded-full bg-transparent border border-black/20 hover:border-black transition-colors"
+                  onClick={prev}
+                  aria-label="Previous"
+                  className="flex h-10 w-10 items-center justify-center rounded-full transition-opacity hover:opacity-60"
                 >
-                  <svg width="8" height="14" viewBox="0 0 8 14" fill="none">
-                    <path
-                      d="M7 1L1 7L7 13"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
+                  <svg width="10" height="18" viewBox="0 0 10 18" fill="none">
+                    <path d="M9.207 0.354L0.707 8.854L9.207 17.354" stroke="black" />
+                  </svg>
+                </button>
+                <span className="font-['Poppins'] text-[20px] font-medium text-[#8D8C8C]">
+                  {active + 1}&nbsp;/&nbsp;{total}
+                </span>
+                <button
+                  onClick={next}
+                  aria-label="Next"
+                  className="flex h-10 w-10 items-center justify-center rounded-full transition-opacity hover:opacity-60"
+                >
+                  <svg width="10" height="18" viewBox="0 0 10 18" fill="none">
+                    <path d="M0.793 0.354L9.293 8.854L0.793 17.354" stroke="black" />
                   </svg>
                 </button>
               </div>

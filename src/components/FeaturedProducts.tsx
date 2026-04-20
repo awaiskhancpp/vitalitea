@@ -10,98 +10,113 @@ interface Product {
   price: number
   slug: string
   image?: { url: string; alt: string } | null
-  emoji?: string
 }
 
 const FALLBACK_PRODUCTS: Product[] = [
   {
     id: '1',
     name: 'Black Velvet Room Spray',
-    description: 'A luxurious room spray with a deep, velvety scent.',
-    price: 24.99,
+    description:
+      'Embark on an enchanting journey. Smoky black tea, fresh bergamot and spicy bay leaves....',
+    price: 35.96,
     slug: 'black-velvet-room-spray',
-    emoji: '🌑',
   },
   {
     id: '2',
-    name: 'Black Velvet Fragrance Oil',
-    description: 'Pure fragrance oil for diffusers and home use.',
-    price: 19.99,
-    slug: 'black-velvet-fragrance-oil',
-    emoji: '🖤',
+    name: 'Black Velvet',
+    description:
+      'Embark on an enchanting journey. Smoky black tea, fresh bergamot and spicy bay leaves....',
+    price: 31.46,
+    slug: 'black-velvet',
   },
   {
     id: '3',
     name: 'Black Velvet Reed Diffuser',
-    description: 'Long-lasting reed diffuser for continuous fragrance.',
-    price: 34.99,
+    description:
+      'Embark on an enchanting journey. Smoky black tea, fresh bergamot and spicy bay leaves...',
+    price: 35.96,
     slug: 'black-velvet-reed-diffuser',
-    emoji: '🕯️',
+  },
+  {
+    id: '4',
+    name: 'Black Velvet Candle',
+    description:
+      'Embark on an enchanting journey. Smoky black tea, fresh bergamot and spicy bay leaves...',
+    price: 29.99,
+    slug: 'black-velvet-candle',
   },
 ]
 
+const FALLBACK_IMAGES = [
+  '/product-room-spray.png',
+  '/product-black-velvet.png',
+  '/product-reed-diffuser-47986c.png',
+]
+
+const CARDS_PER_PAGE = 3
+
 export default function FeaturedProducts({ products }: { products: Product[] }) {
-  const [active, setActive] = useState(0)
+  const [activePage, setActivePage] = useState(0)
   const items = products.length > 0 ? products : FALLBACK_PRODUCTS
-  const figmaFallbackImages = [
-    '/product-room-spray.png',
-    '/product-black-velvet.png',
-    '/product-reed-diffuser-47986c.png',
-  ]
+  const totalPages = Math.ceil(items.length / CARDS_PER_PAGE)
+  const pageItems = items.slice(
+    activePage * CARDS_PER_PAGE,
+    activePage * CARDS_PER_PAGE + CARDS_PER_PAGE,
+  )
 
   return (
-    <section className="bg-[#F5F1E8] py-20">
-      <div className="mx-auto w-full max-w-[1440px] px-6 lg:px-[94px]">
-        <div className="mb-7">
-          <h2 className="font-['Cormorant_Garamond'] text-[50px] font-bold leading-[1.21] text-black">
-            Our Products
-          </h2>
-        </div>
-
-        <div className="grid grid-cols-1 gap-7 lg:grid-cols-3">
-          {items.slice(0, 3).map((product, index) => (
+    <section className="bg-[#F5F1E8] py-16 lg:py-20">
+      <div className="w-full px-6 sm:px-10 lg:px-[6.94%]">
+        <h2
+          className="mb-7 font-['Cormorant_Garamond'] font-bold leading-[1.21] text-black"
+          style={{ fontSize: 'clamp(32px, 3.5vw, 50px)' }}
+        >
+          Our Products
+        </h2>
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {pageItems.map((product, index) => (
             <div
               key={product.id}
-              className="overflow-hidden rounded-[20px] bg-white shadow-[4px_4px_10px_rgba(0,0,0,0.12)]"
+              className="flex flex-col overflow-hidden rounded-[20px] bg-white"
+              style={{ boxShadow: '4px 4px 10px 0px rgba(0,0,0,0.12)' }}
             >
-              <div className="relative aspect-[4/3] overflow-hidden rounded-t-[20px] bg-[#efefef]">
-                {product.image?.url ? (
-                  <Image
-                    src={product.image.url}
-                    alt={product.image.alt}
-                    fill
-                    className="object-cover"
-                  />
-                ) : (
-                  <Image
-                    src={figmaFallbackImages[index] ?? '/product-room-spray.png'}
-                    alt={product.name}
-                    fill
-                    className="object-cover"
-                  />
-                )}
+              <div
+                className="relative w-full overflow-hidden rounded-t-[20px] bg-[#efefef]"
+                style={{ aspectRatio: '400/352' }}
+              >
+                <Image
+                  src={product.image?.url || FALLBACK_IMAGES[index % FALLBACK_IMAGES.length]}
+                  alt={product.image?.alt ?? product.name}
+                  fill
+                  className="object-cover"
+                />
               </div>
-              <div className="h-[216px] rounded-b-[20px] px-[22px] py-[18px]">
+              <div className="flex flex-1 flex-col rounded-b-[20px] px-[22px] py-[18px]">
                 <h3 className="font-['Cormorant'] text-[30px] font-bold leading-[1.21] text-black">
                   {product.name}
                 </h3>
-                <p className="mt-[2px] line-clamp-2 text-[14px] leading-[1.15] text-black/50">
+                <p
+                  className="mt-1 line-clamp-2 font-['Martel_Sans'] text-[14px] leading-[1.14]"
+                  style={{ color: 'rgba(0,0,0,0.5)' }}
+                >
                   {product.description}
                 </p>
-                <div className="mt-[18px] flex items-center justify-between">
-                  <span className="font-['Martel_Sans'] text-[16px] text-black">
+                <div className="mt-4 flex items-center justify-between">
+                  <span className="font-['Martel_Sans'] text-[16px] font-normal leading-[1.824] text-black">
                     ${Number(product.price).toFixed(2)}
                   </span>
                   <Link
-                    href={`/shop/${product.slug}`}
-                    className="inline-flex h-[28px] items-center rounded-full border border-[#DADADA] px-[15px] font-['Martel_Sans'] text-[12px] text-black"
+                    href="#"
+                    className="inline-flex items-center rounded-full font-['Martel_Sans'] text-[12px] font-normal text-black"
+                    style={{ border: '1px solid #DADADA', padding: '3px 15px' }}
                   >
                     Select Options
                   </Link>
                 </div>
                 <Link
-                  href={`/shop/${product.slug}`}
-                  className="mt-2 inline-flex h-[47px] w-full items-center justify-center rounded-full bg-[#627E5C] font-['Martel_Sans'] text-[15px] font-extrabold text-white md:w-[366px]"
+                  href="#"
+                  className="mt-auto inline-flex w-full items-center justify-center rounded-full bg-[#627E5C] font-['Martel_Sans'] text-[15px] font-extrabold text-white transition-opacity hover:opacity-90"
+                  style={{ padding: '10px 0' }}
                 >
                   Shop Now
                 </Link>
@@ -109,26 +124,20 @@ export default function FeaturedProducts({ products }: { products: Product[] }) 
             </div>
           ))}
         </div>
-
-        {items.length > 3 && (
-          <div className="mt-10 flex justify-center gap-2">
-            {Array.from({ length: Math.ceil(items.length / 3) }).map((_, i) => (
+        {totalPages > 1 && (
+          <div className="mt-10 flex items-center justify-center gap-[10px]">
+            {Array.from({ length: totalPages }).map((_, i) => (
               <button
                 key={i}
-                onClick={() => setActive(i)}
-                aria-label={`Go to products page ${i + 1}`}
-                className={`h-[11px] w-[11px] rounded-full ${i === active ? 'bg-[#222]' : 'bg-[#d0d0d0]'}`}
+                onClick={() => setActivePage(i)}
+                aria-label={`Page ${i + 1}`}
+                className={`h-[11px] shrink-0 rounded-full border-none p-0 transition-all duration-300 ${
+                  i === activePage ? 'w-[33px] bg-[#627E5C]' : 'w-[11px] bg-black/50'
+                }`}
               />
             ))}
           </div>
         )}
-
-        <div className="mt-5 flex items-center justify-end gap-2 pr-14">
-          <span className="font-['Poppins'] text-[20px] text-[#8D8C8C]">
-            {active + 1} / {Math.ceil(items.length / 3)}
-          </span>
-          <Image src="/chevron-right.svg" alt="Next products" width={9} height={17} />
-        </div>
       </div>
     </section>
   )

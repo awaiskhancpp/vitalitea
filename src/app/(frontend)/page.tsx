@@ -107,7 +107,7 @@ export default async function HomePage() {
       <Newsletter
         heading={newsletter?.heading ?? 'Join the Ritual.'}
         subtext={
-          newsletter?.subtext ?? 'Get 10% off your first order and early access to new collections.'
+          newsletter?.subtext ?? 'Get 10% off your first order and early access to new collections'
         }
         backgroundImage={newsletter?.backgroundImage as { url: string } | null}
       />
