@@ -6,50 +6,68 @@ interface BrandStoryProps {
   image?: { url: string; alt: string } | null
 }
 
+const DEFAULT_BODY =
+  "Our daily lives are non-stop and hectic. It's time to stop and relax. VitaliTea's unique store has full sense experience features and products that indulge all five senses, revitalizing, relaxing, and transporting you to another place."
+
 export default function BrandStory({ heading, body, image }: BrandStoryProps) {
   const expImg = image?.url ?? '/experience-image.png'
   const expAlt = image?.alt ?? 'Experience VitaliTea'
+  const expBody = body || DEFAULT_BODY
 
   return (
     <>
-      <section className="relative bg-[#F5F1E8] pb-0  lg:pb-[125px]">
-        <div className="w-full px-6 py-16 sm:px-10 lg:hidden">
-          <h3
-            className="font-['Cormorant_Garamond'] font-bold leading-[1.21] text-black"
-            style={{ fontSize: 'clamp(28px, 3.5vw, 50px)' }}
-          >
-            {heading}
-          </h3>
-          <p
-            className="mt-4 font-['Inter'] leading-[1.21]"
-            style={{ fontSize: 'clamp(15px, 1.4vw, 20px)', color: 'rgba(0,0,0,0.7)' }}
-          >
-            {body ||
-              "Our daily lives are non-stop and hectic. It's time to stop and relax. VitaliTea's unique store has full sense experience features and products that indulge all five senses."}
-          </p>
-          <button
-            className="mt-8 rounded-full bg-[#627E5C] font-['Inter'] text-[18px] font-medium text-white transition-opacity hover:opacity-90"
-            style={{ padding: '10px 40px' }}
-          >
-            Learn More
-          </button>
+      <section className="relative bg-[#F5F1E8] pb-[60px] sm:pb-[80px] lg:pb-[125px]">
+        <div className="lg:hidden">
+          <div className="px-6 pt-[60px] pb-10 sm:px-10 sm:pt-[100px] sm:pb-14">
+            <h3
+              className="font-['Cormorant_Garamond'] font-bold leading-[1.21] text-black"
+              style={{ fontSize: 'clamp(28px, 3.5vw, 50px)' }}
+            >
+              {heading}
+            </h3>
+            <p
+              className="mt-4 font-['Inter'] leading-[1.21]"
+              style={{ fontSize: 'clamp(15px, 1.39vw, 20px)', color: 'rgba(0,0,0,0.7)' }}
+            >
+              {expBody}
+            </p>
+            <button
+              className="mt-6 rounded-full bg-[#627E5C] font-['Inter'] text-[16px] font-medium text-white transition-opacity hover:opacity-90"
+              style={{ padding: '10px 40px' }}
+            >
+              Learn More
+            </button>
+          </div>
           <div
-            className="relative mt-8 aspect-[703/610] w-full overflow-hidden"
-            style={{ borderRadius: '40px 0 0 40px' }}
+            className="relative overflow-hidden"
+            style={{
+              aspectRatio: '703 / 610',
+              borderRadius: '20px 0 0 20px',
+            }}
           >
-            <Image src={expImg} alt={expAlt} fill className="object-cover" />
+            <Image src={expImg} alt={expAlt} fill className="object-cover object-center" />
           </div>
         </div>
+
         <div className="hidden w-full lg:block" style={{ minHeight: 677 }}>
           <div
             className="absolute inset-y-0 overflow-hidden"
-            style={{ left: '51.25%', right: 0, top: 0, bottom: 0, borderRadius: '40px 0 0 40px' }}
+            style={{
+              left: '51.25%',
+              right: 0,
+              borderRadius: '20px 0 0 20px',
+            }}
           >
             <Image src={expImg} alt={expAlt} fill className="object-cover object-center" />
           </div>
           <div
             className="relative z-10 flex flex-col"
-            style={{ width: '51.25%', paddingLeft: '6.94%', paddingTop: 243, paddingBottom: 180 }}
+            style={{
+              width: '51.25%',
+              paddingLeft: '6.94%',
+              paddingTop: 243,
+              paddingBottom: 127,
+            }}
           >
             <h3
               className="font-['Cormorant_Garamond'] font-bold text-black"
@@ -61,8 +79,7 @@ export default function BrandStory({ heading, body, image }: BrandStoryProps) {
               className="mt-1 font-['Inter'] text-[20px] leading-[1.21]"
               style={{ color: 'rgba(0,0,0,0.7)', maxWidth: 512 }}
             >
-              {body ||
-                "Our daily lives are non-stop and hectic. It's time to stop and relax. VitaliTea's unique store has full sense experience features and products that indulge all five senses, revitalizing, relaxing, and transporting you to another place."}
+              {expBody}
             </p>
             <button
               className="mt-8 w-fit rounded-full bg-[#627E5C] font-['Inter'] text-[20px] font-medium text-white transition-opacity hover:opacity-90"
@@ -73,49 +90,54 @@ export default function BrandStory({ heading, body, image }: BrandStoryProps) {
           </div>
         </div>
       </section>
-      <section className="relative w-fulloverflow-hidden bg-[#F5F1E8] pt-37">
-        <Image src="/market-bg.png" alt="Market background" fill className="object-cover" />
 
-        <div className="relative z-10 w-full px-6 py-14 sm:px-10 lg:px-[6.94%] lg:pb-[186px] lg:pt-[130px]">
-          <div className="pointer-events-none absolute object-contain bottom-0 left-0 opacity-[0.09]">
-            <Image src="/logo1.png" alt="" width={427} height={200} />
-          </div>
-
+      <section className="relative w-full overflow-hidden bg-[#F5F1E8] lg:pt-20 min-h-[480px] sm:min-h-[560px]">
+        <Image
+          src="/market-bg.png"
+          alt="Market background"
+          fill
+          className="object-cover object-center"
+          sizes="100vw"
+        />
+        <div className="pointer-events-none absolute bottom-0 left-0 z-0 opacity-[0.09]">
+          <Image src="/logo1.png" alt="" width={427} height={200} />
+        </div>
+        <div className="relative z-10 w-full px-6 pt-[50px] pb-[80px] sm:px-10 sm:pt-[80px] sm:pb-[120px] lg:px-[6.94%] lg:pt-[130px] lg:pb-[186px]">
           <h2
             className="font-['Cormorant_Garamond'] font-bold leading-[1.21] text-black lg:max-w-[536px]"
-            style={{ fontSize: 'clamp(26px, 2.8vw, 40px)' }}
+            style={{ fontSize: 'clamp(26px, 2.78vw, 40px)' }}
           >
             The Expanding Health-Conscious Consumer Market
           </h2>
-
           <p
             className="mt-4 font-['Inter'] leading-[1.21] lg:max-w-[632px]"
-            style={{ fontSize: 'clamp(15px, 1.4vw, 20px)', color: 'rgba(0,0,0,0.7)' }}
+            style={{ fontSize: 'clamp(15px, 1.39vw, 20px)', color: 'rgba(0,0,0,0.7)' }}
           >
             An increasing focus on mental health and wellness with at-home natural remedies,
             combined with a significant rise in the preference for spa therapies due to hectic
             lifestyles, drives the demand for health-conscious and organic products.
           </p>
           <button
-            className="mt-8 rounded-full bg-[#627E5C] font-['Inter'] text-[20px] font-medium text-white transition-opacity hover:opacity-90 lg:mt-2"
-            style={{ padding: '10px 80px' }}
+            className="mt-6 rounded-full bg-[#627E5C] font-['Inter'] font-medium text-white transition-opacity hover:opacity-90 lg:mt-20"
+            style={{ fontSize: 'clamp(15px, 1.2vw, 20px)', padding: '10px 80px' }}
           >
             Learn More
           </button>
         </div>
       </section>
-      <section className="bg-[#F5F1E8] pb-20 pt-16 lg:pb-24 lg:pt-[125px]">
+
+      <section className="bg-[#F5F1E8] pb-16 pt-12 sm:pb-20 sm:pt-16 lg:pb-24 lg:pt-[125px]">
         <div className="w-full px-6 sm:px-10 lg:px-[6.94%]">
           <div className="text-center">
             <h3
               className="font-['Cormorant_Garamond'] font-bold leading-[1.21] text-black"
-              style={{ fontSize: 'clamp(28px, 2.8vw, 40px)' }}
+              style={{ fontSize: 'clamp(26px, 2.78vw, 40px)' }}
             >
               Why Choose VitaliTea Wellness
             </h3>
             <p
-              className="mx-auto mt-5 max-w-[932px] font-['Inter'] leading-[1.21] text-black/70"
-              style={{ fontSize: 'clamp(15px, 1.4vw, 20px)' }}
+              className="mx-auto mt-4 max-w-[932px] font-['Inter'] leading-[1.21] text-black/70"
+              style={{ fontSize: 'clamp(14px, 1.4vw, 20px)' }}
             >
               Vitalitea Wellness is designed around a complete lifestyle, supporting your body,
               mind, and environment through intentional rituals. From restoring and relaxing to
@@ -123,7 +145,7 @@ export default function BrandStory({ heading, body, image }: BrandStoryProps) {
               renewed, and aligned.
             </p>
           </div>
-          <div className="mt-14 hidden items-end gap-5 lg:flex">
+          <div className="mt-12 hidden items-end gap-5 lg:flex">
             <div className="min-w-0 flex-[379] overflow-hidden rounded-[20px]">
               <div className="relative w-full" style={{ aspectRatio: '379/346' }}>
                 <Image
@@ -188,8 +210,7 @@ export default function BrandStory({ heading, body, image }: BrandStoryProps) {
               </div>
             </div>
           </div>
-
-          <div className="mt-14 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:hidden">
+          <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:hidden">
             {[
               {
                 src: '/why-skincare-tea.png',
@@ -212,11 +233,11 @@ export default function BrandStory({ heading, body, image }: BrandStoryProps) {
                   <Image src={item.src} alt={item.label} fill className="object-cover" />
                 </div>
                 <div className="bg-[#627E5C] px-4 py-5 text-center">
-                  <p className="font-['Cormorant_Garamond'] text-[20px] font-bold text-white">
+                  <p className="font-['Cormorant_Garamond'] text-[18px] font-bold text-white">
                     {item.label}
                   </p>
                   <p
-                    className="font-['Inter'] text-[14px] leading-[1.4]"
+                    className="mt-1 font-['Inter'] text-[13px] leading-[1.4]"
                     style={{ color: 'rgba(255,255,255,0.5)' }}
                   >
                     {item.sub}
