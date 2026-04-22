@@ -68,71 +68,42 @@ export default function FeaturedProducts({ products }: { products: Product[] }) 
     <section className="bg-[#F5F1E8] py-16 lg:py-20">
       <div className="w-full px-6 sm:px-10 lg:px-[6.94%]">
         <h2
-          className="mb-7 font-['Cormorant_Garamond'] font-bold leading-[1.21] text-black"
-          style={{ fontSize: 'clamp(32px, 3.5vw, 50px)' }}
+          className="mb-7 font-['Cormorant_Garamond'] font-bold leading-[1.21] text-black lg:mb-[clamp(32px,6.25vw,90px)]"
+          style={{ fontSize: 'clamp(32px, 3.47vw, 50px)' }}
         >
           Our Products
         </h2>
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:hidden">
+          {pageItems.map((product, index) => (
+            <ProductCard key={product.id} product={product} index={index} />
+          ))}
+        </div>
+        <div
+          className="hidden lg:grid"
+          style={{
+            gridTemplateColumns: '400fr 20fr 400fr 28fr 400fr',
+          }}
+        >
           {pageItems.map((product, index) => (
             <div
               key={product.id}
-              className="flex flex-col overflow-hidden rounded-[20px] bg-white"
-              style={{ boxShadow: '4px 4px 10px 0px rgba(0,0,0,0.12)' }}
+              style={{
+                gridColumn: index === 0 ? 1 : index === 1 ? 3 : 5,
+              }}
             >
-              <div
-                className="relative w-full overflow-hidden rounded-t-[20px] bg-[#efefef]"
-                style={{ aspectRatio: '400/352' }}
-              >
-                <Image
-                  src={product.image?.url || FALLBACK_IMAGES[index % FALLBACK_IMAGES.length]}
-                  alt={product.image?.alt ?? product.name}
-                  fill
-                  className="object-cover"
-                />
-              </div>
-              <div className="flex flex-1 flex-col rounded-b-[20px] px-[22px] py-[18px]">
-                <h3 className="font-['Cormorant'] text-[30px] font-bold leading-[1.21] text-black">
-                  {product.name}
-                </h3>
-                <p
-                  className="mt-1 line-clamp-2 font-['Martel_Sans'] text-[14px] leading-[1.14]"
-                  style={{ color: 'rgba(0,0,0,0.5)' }}
-                >
-                  {product.description}
-                </p>
-                <div className="mt-4 flex items-center justify-between">
-                  <span className="font-['Martel_Sans'] text-[16px] font-normal leading-[1.824] text-black">
-                    ${Number(product.price).toFixed(2)}
-                  </span>
-                  <Link
-                    href="#"
-                    className="inline-flex items-center rounded-full font-['Martel_Sans'] text-[12px] font-normal text-black"
-                    style={{ border: '1px solid #DADADA', padding: '3px 15px' }}
-                  >
-                    Select Options
-                  </Link>
-                </div>
-                <Link
-                  href="#"
-                  className="mt-auto inline-flex w-full items-center justify-center rounded-full bg-[#627E5C] font-['Martel_Sans'] text-[15px] font-extrabold text-white transition-opacity hover:opacity-90"
-                  style={{ padding: '10px 0' }}
-                >
-                  Shop Now
-                </Link>
-              </div>
+              <ProductCard product={product} index={index} />
             </div>
           ))}
         </div>
         {totalPages > 1 && (
-          <div className="mt-10 flex items-center justify-center gap-[10px]">
+          <div className="mt-10 flex items-center justify-center gap-[10px] lg:mt-[clamp(40px,4.17vw,60px)]">
             {Array.from({ length: totalPages }).map((_, i) => (
               <button
                 key={i}
                 onClick={() => setActivePage(i)}
                 aria-label={`Page ${i + 1}`}
                 className={`h-[11px] shrink-0 rounded-full border-none p-0 transition-all duration-300 ${
-                  i === activePage ? 'w-[33px] bg-[#627E5C]' : 'w-[11px] bg-black/50'
+                  i === activePage ? 'w-[65.65px] bg-[#627E5C]' : 'w-[11px] bg-black/50'
                 }`}
               />
             ))}
@@ -140,5 +111,57 @@ export default function FeaturedProducts({ products }: { products: Product[] }) 
         )}
       </div>
     </section>
+  )
+}
+
+function ProductCard({ product, index }: { product: Product; index: number }) {
+  return (
+    <div
+      className="flex h-full flex-col overflow-hidden rounded-[20px] bg-white"
+      style={{ boxShadow: '4px 4px 10px 0px rgba(0,0,0,0.12)' }}
+    >
+      <div
+        className="relative w-full overflow-hidden rounded-t-[20px] bg-[#efefef]"
+        style={{ aspectRatio: '400/352' }}
+      >
+        <Image
+          src={product.image?.url || FALLBACK_IMAGES[index % FALLBACK_IMAGES.length]}
+          alt={product.image?.alt ?? product.name}
+          fill
+          className="object-cover"
+          sizes="(min-width: 1024px) 28vw, (min-width: 640px) 46vw, 100vw"
+        />
+      </div>
+      <div className="flex flex-1 flex-col rounded-b-[20px] px-[22px] py-[18px]">
+        <h3 className="font-['Cormorant'] text-[30px] font-bold leading-[1.21] text-black">
+          {product.name}
+        </h3>
+        <p
+          className="mt-1 line-clamp-2 font-['Martel_Sans'] text-[14px] leading-[1.14]"
+          style={{ color: 'rgba(0,0,0,0.5)' }}
+        >
+          {product.description}
+        </p>
+        <div className="mb-3 mt-4 flex items-center justify-between">
+          <span className="font-['Martel_Sans'] text-[16px] font-normal leading-[1.824] text-black">
+            ${Number(product.price).toFixed(2)}
+          </span>
+          <Link
+            href="#"
+            className="inline-flex items-center rounded-full font-['Martel_Sans'] text-[12px] font-normal text-black"
+            style={{ border: '1px solid #DADADA', padding: '3px 15px' }}
+          >
+            Select Options
+          </Link>
+        </div>
+        <Link
+          href="#"
+          className="mt-auto inline-flex w-full items-center justify-center self-center whitespace-nowrap rounded-full bg-[#627E5C] font-['Martel_Sans'] text-[15px] font-extrabold text-white transition-opacity hover:opacity-90"
+          style={{ padding: '10px 80px' }}
+        >
+          Shop Now
+        </Link>
+      </div>
+    </div>
   )
 }

@@ -24,8 +24,6 @@ const FALLBACK_IMAGES = [
   '/shop-card-yoga.png',
 ]
 
-const CARD_W = 399
-const CARD_GAP = 17
 const CARDS_PER_PAGE = 3
 
 export default function CategoryCarousel({ categories }: { categories: Category[] }) {
@@ -37,27 +35,34 @@ export default function CategoryCarousel({ categories }: { categories: Category[
     cat.image?.url?.trim() ? cat.image.url : FALLBACK_IMAGES[i % FALLBACK_IMAGES.length]
 
   const totalPages = Math.ceil(items.length / CARDS_PER_PAGE)
-  const offset = activePage * CARDS_PER_PAGE * (CARD_W + CARD_GAP)
+  const pageShift = activePage * CARDS_PER_PAGE
 
   return (
-    <section className="relative overflow-hidden bg-[#F5F1E8] py-[88px]">
-      <div className="pointer-events-none absolute right-0 top-0 opacity-[0.12]">
-        <Image src="/logo1.png" alt="" width={493} height={232} aria-hidden="true" />
+    <section className="relative overflow-hidden bg-[#F5F1E8] py-[88px] lg:py-[6.11vw]">
+      <div
+        className="pointer-events-none absolute opacity-[0.12]"
+        style={{ right: 0, top: '3.47vw', width: '34.24vw', aspectRatio: '493/232' }}
+      >
+        <Image src="/logo1.png" alt="" fill aria-hidden="true" className="object-contain object-right-top" />
       </div>
+
       <div className="hidden lg:block">
         <div className="pl-[2.64%]">
           <div
             className="flex transition-transform duration-500 ease-in-out"
-            style={{ gap: CARD_GAP, transform: `translateX(-${offset}px)` }}
+            style={{
+              gap: '1.18vw',
+              transform: `translateX(calc(-1 * ${pageShift} * (27.71vw + 1.18vw)))`,
+            }}
           >
             {items.map((cat, i) => (
               <Link
                 key={cat.id}
                 href="/shop"
                 className="group relative shrink-0 overflow-hidden rounded-[20px]"
-                style={{ width: CARD_W, height: 500 }}
+                style={{ width: '27.71vw', aspectRatio: '399/500' }}
               >
-                <div className="relative h-[384px] overflow-hidden rounded-t-[20px]">
+                <div className="relative overflow-hidden rounded-t-[20px]" style={{ aspectRatio: '399/384' }}>
                   <img
                     src={getImage(cat, i)}
                     alt={cat.image?.alt ?? cat.name}
@@ -65,8 +70,14 @@ export default function CategoryCarousel({ categories }: { categories: Category[
                     loading="lazy"
                   />
                 </div>
-                <div className="flex h-[116px] items-center justify-center rounded-b-[20px] bg-[#627E5C]">
-                  <p className="px-6 text-center font-['Cormorant_Garamond'] text-[35px] font-bold leading-tight text-white">
+                <div
+                  className="flex items-center justify-center rounded-b-[20px] bg-[#627E5C]"
+                  style={{ height: '8.05vw' }}
+                >
+                  <p
+                    className="px-[2vw] text-center font-['Cormorant_Garamond'] font-bold leading-[1.211] text-white"
+                    style={{ fontSize: 'clamp(22px, 2.43vw, 35px)' }}
+                  >
                     {cat.name}
                   </p>
                 </div>
@@ -75,20 +86,21 @@ export default function CategoryCarousel({ categories }: { categories: Category[
           </div>
         </div>
         {totalPages > 1 && (
-          <div className="mt-14 flex items-center justify-center gap-[10px] pb-2">
+          <div className="mt-[3.89vw] flex items-center justify-center gap-[10px] pb-2">
             {Array.from({ length: totalPages }).map((_, i) => (
               <button
                 key={i}
                 onClick={() => setActivePage(i)}
                 aria-label={`Go to page ${i + 1}`}
                 className={`h-[11px] shrink-0 rounded-full border-none p-0 transition-all duration-300 ${
-                  i === activePage ? 'w-[33px] bg-[#627E5C]' : 'w-[11px] bg-black/50'
+                  i === activePage ? 'w-[65.65px] bg-[#627E5C]' : 'w-[11px] bg-black/50'
                 }`}
               />
             ))}
           </div>
         )}
       </div>
+
       <div className="hidden gap-5 px-6 sm:grid sm:grid-cols-2 sm:px-10 lg:hidden">
         {items.map((cat, i) => (
           <Link key={cat.id} href="/shop" className="group overflow-hidden rounded-[20px]">
@@ -108,6 +120,7 @@ export default function CategoryCarousel({ categories }: { categories: Category[
           </Link>
         ))}
       </div>
+
       <div className="grid grid-cols-1 gap-4 px-6 sm:hidden">
         {items.map((cat, i) => (
           <Link key={cat.id} href="/shop" className="group overflow-hidden rounded-[20px]">

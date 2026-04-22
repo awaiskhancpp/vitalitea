@@ -91,18 +91,18 @@ export default function BrandStory({ heading, body, image }: BrandStoryProps) {
         </div>
       </section>
 
-      <section className="relative w-full overflow-hidden bg-[#F5F1E8] lg:pt-20 min-h-[480px] sm:min-h-[560px]">
+      <section className="relative w-full overflow-hidden bg-[#F5F1E8] min-h-[480px] sm:min-h-[560px]">
         <Image
           src="/market-bg.png"
           alt="Market background"
           fill
-          className="object-cover object-center"
+          className="object-fit object-center"
           sizes="100vw"
         />
         <div className="pointer-events-none absolute bottom-0 left-0 z-0 opacity-[0.09]">
           <Image src="/logo1.png" alt="" width={427} height={200} />
         </div>
-        <div className="relative z-10 w-full px-6 pt-[50px] pb-[80px] sm:px-10 sm:pt-[80px] sm:pb-[120px] lg:px-[6.94%] lg:pt-[130px] lg:pb-[186px]">
+        <div className="relative z-10 w-full px-6 pt-[50px] pb-[80px] sm:px-10 sm:pt-[80px] sm:pb-[120px] lg:px-[6.94%] lg:pt-[90px] lg:pb-[186px]">
           <h2
             className="font-['Cormorant_Garamond'] font-bold leading-[1.21] text-black lg:max-w-[536px]"
             style={{ fontSize: 'clamp(26px, 2.78vw, 40px)' }}

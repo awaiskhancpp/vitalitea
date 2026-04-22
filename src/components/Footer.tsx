@@ -37,7 +37,7 @@ export default function Footer({ about, quickLinks, phone, email, hours }: Foote
               alt="Vitali Tea"
               className="h-[65px] w-[139px] object-contain brightness-0 invert"
             />
-            <p className="mt-8 font-['Inter'] text-[16px] leading-[1.21] text-white lg:mt-[96px] lg:max-w-[530px]">
+            <p className="mt-7 font-['Inter'] text-[16px] leading-[1.21] text-white lg:max-w-[530px]">
               {about ||
                 'VitaliTea is a new and unique retail brand that provides an attainable healthy lifestyle experience for our customers. We carry diverse lineup products that promote health and well-being from the inside out. Step into our boutique and be transported to a place of vitality and serenity.'}
             </p>
@@ -47,7 +47,7 @@ export default function Footer({ about, quickLinks, phone, email, hours }: Foote
             <h4 className="font-['Cormorant_Garamond'] text-[20px] font-bold leading-[1.55]">
               Use Full Links
             </h4>
-            <div className="mt-3 h-px w-[79px] bg-white" />
+            <div className="mt-[15px] h-px w-[79px] bg-white" />
             <ul
               className="mt-6 font-['Inter'] text-[16px] font-normal"
               style={{ lineHeight: '2.3125em' }}
@@ -65,7 +65,7 @@ export default function Footer({ about, quickLinks, phone, email, hours }: Foote
             <h4 className="font-['Cormorant_Garamond'] text-[20px] font-bold leading-[1.55]">
               Contact Us
             </h4>
-            <div className="mt-3 h-px w-[79px] bg-white" />
+            <div className="mt-[15px] h-px w-[79px] bg-white" />
             <div className="mt-6 space-y-6 font-['Inter'] text-[16px] leading-[1.21] text-white">
               <p>Number: {phone || '1-888-546-9704'}</p>
               <p>E-mail: {email || 'info@vitalitea.us'}</p>

@@ -40,7 +40,7 @@ export default function BentoGrid() {
 
   return (
     <section className="bg-[#F5F1E8] py-16 lg:py-20">
-      <div className="w-full px-6 sm:px-10 lg:px-[6.94%]">
+      <div className="w-full px-6 sm:px-10 lg:pl-[6.94%] lg:pr-[6.39%]">
         <div className="flex flex-col gap-3 sm:hidden">
           {TILES.map((tile) => (
             <Link
@@ -70,6 +70,7 @@ export default function BentoGrid() {
             <TileArrowWhite />
           </Link>
         </div>
+
         <div className="hidden gap-3 sm:grid sm:grid-cols-2 lg:hidden">
           {TILES.map((tile) => (
             <Link
@@ -97,15 +98,15 @@ export default function BentoGrid() {
             <TileArrowWhite />
           </Link>
         </div>
-        <div className="hidden lg:flex lg:flex-col" style={{ gap: 18 }}>
-          {/* Rows 1 & 2 */}
+
+        <div className="hidden lg:flex lg:flex-col" style={{ gap: 'clamp(12px, 1.25vw, 18px)' }}>
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(4, 1fr)',
-              gridTemplateRows: '199px 199px',
-              columnGap: 12,
-              rowGap: 16,
+              gridTemplateColumns: '304fr 304fr 616fr',
+              gridTemplateRows: 'clamp(140px, 13.82vw, 199px) clamp(140px, 13.82vw, 199px)',
+              columnGap: 'clamp(8px, 0.83vw, 12px)',
+              rowGap: 'clamp(10px, 1.25vw, 18px)',
             }}
           >
             <Link
@@ -141,7 +142,7 @@ export default function BentoGrid() {
             <Link
               href="#"
               className="group relative overflow-hidden rounded-[22px]"
-              style={{ gridColumn: '3 / 5', gridRow: '1' }}
+              style={{ gridColumn: '3', gridRow: '1' }}
             >
               <Image
                 src="/cat-yoga.png"
@@ -156,7 +157,7 @@ export default function BentoGrid() {
             <Link
               href="#"
               className="group relative overflow-hidden rounded-[22px]"
-              style={{ gridColumn: '3 / 5', gridRow: '2' }}
+              style={{ gridColumn: '3', gridRow: '2' }}
             >
               <Image
                 src="/cat-teaware-63561d.png"
@@ -173,8 +174,8 @@ export default function BentoGrid() {
             style={{
               display: 'grid',
               gridTemplateColumns: '410fr 410fr 395fr',
-              gap: 16,
-              minHeight: 224,
+              gap: 'clamp(10px, 1.11vw, 16px)',
+              minHeight: 'clamp(160px, 15.56vw, 224px)',
             }}
           >
             <Link href="#" className="group relative overflow-hidden rounded-[22px]">
@@ -203,7 +204,10 @@ export default function BentoGrid() {
               href="#"
               className="group relative flex items-center justify-center rounded-[22px] bg-[#627E5C] transition-opacity hover:opacity-90"
             >
-              <p className="text-center font-['Cormorant_Garamond'] text-[40px] font-bold leading-none text-white">
+              <p
+                className="text-center font-['Cormorant_Garamond'] font-bold leading-none text-white"
+                style={{ fontSize: 'clamp(28px, 2.78vw, 40px)' }}
+              >
                 View All
                 <br />
                 Products

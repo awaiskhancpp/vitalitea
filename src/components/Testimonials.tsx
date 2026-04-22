@@ -71,7 +71,7 @@ export default function Testimonials({ testimonials }: { testimonials: Testimoni
                 {items[active].quote}
               </blockquote>
               <p
-                className="mt-3 font-['Host_Grotesk'] font-medium text-[#8D8C8C]"
+                className="mt-3 font-['Host_Grotesk'] font-medium leading-[1.33] text-[#8D8C8C]"
                 style={{ fontSize: 'clamp(14px, 1.2vw, 20px)' }}
               >
                 - {items[active].author}
@@ -99,7 +99,7 @@ export default function Testimonials({ testimonials }: { testimonials: Testimoni
                     <path d="M9.207 0.354L0.707 8.854L9.207 17.354" stroke="black" />
                   </svg>
                 </button>
-                <span className="font-['Poppins'] text-[20px] font-medium text-[#8D8C8C]">
+                <span className="font-['Poppins'] text-[20px] font-medium leading-[1.5] text-[#8D8C8C]">
                   {active + 1}&nbsp;/&nbsp;{total}
                 </span>
                 <button
