@@ -25,6 +25,7 @@
     "@tailwindcss/postcss": "^4.2.2",
     "cross-env": "^7.0.3",
     "dotenv": "16.4.7",
+    "flowbite": "^4.0.1",
     "graphql": "^16.8.1",
     "next": "16.2.3",
     "payload": "3.83.0",
