@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useLayoutEffect, useCallback } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 
@@ -27,7 +27,6 @@ const FALLBACK_IMAGES = [
 
 const CARDS_PER_PAGE = 3
 
-// Dot pills shared between mobile (per-card) and desktop (per-page)
 function Dots({
   count,
   active,
@@ -44,7 +43,7 @@ function Dots({
           key={i}
           type="button"
           aria-label={`Slide ${i + 1}`}
-          aria-current={i === active}
+          aria-current={i === active ? 'true' : 'false'}
           className={`h-[11.44px] shrink-0 rounded-full border-none p-0 transition-all duration-300 ${
             i === active ? 'w-[65.65px] bg-[#627E5C]' : 'w-[11px] bg-black/50'
           }`}
@@ -57,6 +56,8 @@ function Dots({
 
 export default function CategoryCarousel({ categories }: { categories: Category[] }) {
   const [index, setIndex] = useState(0)
+  const [stepPx, setStepPx] = useState(0)
+  const trackRef = useRef<HTMLDivElement>(null)
   const touchStartX = useRef(0)
   const touchDelta = useRef(0)
 
@@ -66,6 +67,32 @@ export default function CategoryCarousel({ categories }: { categories: Category[
 
   const totalPages = Math.ceil(items.length / CARDS_PER_PAGE)
   const lastIndex = items.length - 1
+
+  const measureStep = useCallback(() => {
+    const track = trackRef.current
+    if (!track) return
+    const first = track.firstElementChild as HTMLElement | null
+    if (!first) return
+    const gap = parseFloat(getComputedStyle(track).gap) || 0
+    setStepPx(first.getBoundingClientRect().width + gap)
+  }, [])
+
+  useLayoutEffect(() => {
+    measureStep()
+    const track = trackRef.current
+    if (!track) return
+    const ro = new ResizeObserver(() => measureStep())
+    ro.observe(track)
+    window.addEventListener('resize', measureStep)
+    return () => {
+      ro.disconnect()
+      window.removeEventListener('resize', measureStep)
+    }
+  }, [items.length, measureStep])
+
+  useLayoutEffect(() => {
+    setIndex((i) => Math.min(i, lastIndex))
+  }, [lastIndex])
 
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX
@@ -79,16 +106,11 @@ export default function CategoryCarousel({ categories }: { categories: Category[
     else if (touchDelta.current > 50) setIndex((i) => Math.max(i - 1, 0))
   }
 
-  return (
-    <section className="relative overflow-hidden bg-[#F5F1E8] py-[88px]">
-      <style>{`
-        #cat-track { --card: 85vw; --gap: 12px; }
-        @media (min-width: 1024px) {
-          #cat-track { --card: 27.7083vw; --gap: 1.1806vw; }
-        }
-      `}</style>
+  const translate =
+    stepPx > 0 ? `translate3d(${-index * stepPx}px,0,0)` : 'translate3d(0,0,0)'
 
-      {/* Watermark */}
+  return (
+    <section className="relative overflow-hidden bg-[#F5F1E8] py-[clamp(56px,6.11vw,88px)]">
       <div
         className="pointer-events-none absolute right-0 top-0 z-0 opacity-[0.12]"
         style={{ width: 'min(493px, 34.24vw)', aspectRatio: '493/232' }}
@@ -103,7 +125,6 @@ export default function CategoryCarousel({ categories }: { categories: Category[
         />
       </div>
 
-      {/* Carousel */}
       <div
         className="relative z-10"
         role="region"
@@ -111,26 +132,26 @@ export default function CategoryCarousel({ categories }: { categories: Category[
         aria-label="Shop by category"
         data-carousel="slide"
       >
-        {/* Track */}
         <div
-          className="overflow-hidden pl-[4vw] lg:pl-[2.639vw]"
+          className="overflow-hidden pl-[max(1.5rem,2.639vw)]"
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
         >
           <div
-            id="cat-track"
+            ref={trackRef}
             className="flex transition-transform duration-500 ease-in-out"
             style={{
-              gap: 'var(--gap)',
-              transform: `translateX(calc(${-index} * (var(--card) + var(--gap))))`,
+              gap: 'clamp(12px, 1.181vw, 18px)',
+              transform: translate,
+              willChange: 'transform',
             }}
           >
             {items.map((cat, i) => (
               <div
                 key={cat.id}
                 data-carousel-item
-                className="w-[85vw] shrink-0 lg:w-[27.7083vw]"
+                className="w-[min(85vw,400px)] shrink-0 lg:w-[27.7083vw]"
                 aria-hidden={i !== index}
               >
                 <Link
@@ -160,7 +181,6 @@ export default function CategoryCarousel({ categories }: { categories: Category[
           </div>
         </div>
 
-        {/* Dots — mobile: one per card / desktop: one per page */}
         {items.length > 1 && (
           <div className="mt-14 flex items-center justify-center gap-[10px] pb-2">
             <div className="flex items-center gap-[10px] lg:hidden">

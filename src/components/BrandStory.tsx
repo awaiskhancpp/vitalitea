@@ -1,5 +1,12 @@
 import Image from 'next/image'
 
+/**
+ * Layout references from Figma `4151:2` (cached exports; live API may 429):
+ * Experience desktop: band min-height 677, image 703×610 @ ~51.25% width, copy pl ~6.94%, title ~40px, body 20px.
+ * Experience mobile stack: image aspect 703/610, rounded 20px 0 0 20px; copy gutters align with px-page.
+ * Market: `aspect-[1440/651]` band; photo as CSS `background-image`; copy left. Learn More sits on a `flex-1` spacer with `padding-bottom` ≈ logo bitmap height so the pill aligns with the watermark leaves (logo 427×200, bottom-left).
+ * Why Choose cards: image areas 379×346 | 441×402 | 379×346; green bars ~93 / 96 / 93 px.
+ */
 interface BrandStoryProps {
   heading: string
   body: string
@@ -9,6 +16,44 @@ interface BrandStoryProps {
 const DEFAULT_BODY =
   "Our daily lives are non-stop and hectic. It's time to stop and relax. VitaliTea's unique store has full sense experience features and products that indulge all five senses, revitalizing, relaxing, and transporting you to another place."
 
+const WHY = [
+  {
+    src: '/why-skincare-tea.png',
+    label: 'Skincare & Teas',
+    sub: 'Nourish and renew your body and skin from within.',
+    imageAspect: 379 / 346,
+    titleClass:
+      "font-['Cormorant_Garamond'] text-[20px] font-bold text-white md:text-[20px] lg:text-[20px]",
+    subClass: "font-['Inter'] text-[14px] leading-[1.21]",
+    barMinH: 'min-h-[93px]',
+  },
+  {
+    src: '/why-candles.png',
+    label: 'Candles & Essential Oils',
+    sub: 'Create a calm, sensory space that restores balance',
+    imageAspect: 441 / 402,
+    titleClass:
+      "font-['Cormorant_Garamond'] text-[20px] font-bold text-white md:text-[22px] lg:text-[24px]",
+    subClass: "font-['Inter'] text-[14px] leading-[1.21] md:text-[15px] lg:text-[16px]",
+    barMinH: 'min-h-[96px]',
+  },
+  {
+    src: '/why-yoga.png',
+    label: 'Yoga mat, Towels, and Activewear',
+    sub: 'Nourish and renew your body and skin from within.',
+    imageAspect: 379 / 346,
+    titleClass:
+      "font-['Cormorant_Garamond'] text-[20px] font-bold text-white md:text-[20px] lg:text-[20px]",
+    subClass: "font-['Inter'] text-[14px] leading-[1.21]",
+    barMinH: 'min-h-[93px]',
+  },
+] as const
+
+const MARKET_BG_URL = '/market-bg.png'
+
+/** Logo watermark is 427×200; leaves peak near the top of the bitmap. Match button to that line. */
+const MARKET_COPY_BOTTOM_PAD = 'max(1rem, calc(min(100vw, 427px) * 200 / 427 - 6px))'
+
 export default function BrandStory({ heading, body, image }: BrandStoryProps) {
   const expImg = image?.url ?? '/experience-image.png'
   const expAlt = image?.alt ?? 'Experience VitaliTea'
@@ -16,7 +61,7 @@ export default function BrandStory({ heading, body, image }: BrandStoryProps) {
 
   return (
     <>
-      <section className="relative bg-[#F5F1E8] pb-[60px] sm:pb-[80px] lg:pb-[125px]">
+      <section className="relative bg-[#F5F1E8] pb-10 sm:pb-16 lg:pb-[125px]">
         <div className="lg:hidden">
           <div className="px-6 pt-[60px] pb-10 sm:px-10 sm:pt-[100px] sm:pb-14">
             <h3
@@ -32,8 +77,8 @@ export default function BrandStory({ heading, body, image }: BrandStoryProps) {
               {expBody}
             </p>
             <button
-              className="mt-6 rounded-full bg-[#627E5C] font-['Inter'] text-[16px] font-medium text-white transition-opacity hover:opacity-90"
-              style={{ padding: '10px 40px' }}
+              type="button"
+              className="mt-6 rounded-full bg-[#627E5C] px-10 py-2.5 font-['Inter'] text-[16px] font-medium text-white transition-opacity hover:opacity-90"
             >
               Learn More
             </button>
@@ -82,8 +127,8 @@ export default function BrandStory({ heading, body, image }: BrandStoryProps) {
               {expBody}
             </p>
             <button
-              className="mt-8 w-fit rounded-full bg-[#627E5C] font-['Inter'] text-[20px] font-medium text-white transition-opacity hover:opacity-90"
-              style={{ padding: '10px 80px' }}
+              type="button"
+              className="mt-8 w-fit rounded-full bg-[#627E5C] px-20 py-2.5 font-['Inter'] text-[20px] font-medium text-white transition-opacity hover:opacity-90"
             >
               Learn More
             </button>
@@ -91,43 +136,54 @@ export default function BrandStory({ heading, body, image }: BrandStoryProps) {
         </div>
       </section>
 
-      <section className="relative w-full overflow-hidden bg-[#F5F1E8] min-h-[480px] sm:min-h-[560px]">
-        <Image
-          src="/market-bg.png"
-          alt="Market background"
-          fill
-          className="object-fit object-center"
-          sizes="100vw"
-        />
-        <div className="pointer-events-none absolute bottom-0 left-0 z-0 opacity-[0.09]">
-          <Image src="/logo1.png" alt="" width={427} height={200} />
-        </div>
-        <div className="relative z-10 w-full px-6 pt-[50px] pb-[80px] sm:px-10 sm:pt-[80px] sm:pb-[120px] lg:px-[6.94%] lg:pt-[90px] lg:pb-[186px]">
-          <h2
-            className="font-['Cormorant_Garamond'] font-bold leading-[1.21] text-black lg:max-w-[536px]"
-            style={{ fontSize: 'clamp(26px, 2.78vw, 40px)' }}
+      <section className="relative w-full bg-[#F5F1E8] pt-8 sm:pt-12 lg:pt-16">
+        <div className="relative aspect-[1440/651] w-full overflow-hidden">
+          <div
+            className="absolute inset-0 bg-cover bg-[center_40%] bg-no-repeat sm:bg-center"
+            style={{ backgroundImage: `url(${MARKET_BG_URL})` }}
+            aria-hidden
+          />
+          <div className="pointer-events-none absolute bottom-0 left-0 z-[1] w-[min(100%,427px)] opacity-[0.09]">
+            <Image
+              src="/logo1.png"
+              alt=""
+              width={427}
+              height={200}
+              className="h-auto w-full object-contain object-left-bottom"
+            />
+          </div>
+          <div
+            className="absolute inset-0 z-10 flex h-full flex-col items-start justify-start px-6 pt-[50px] text-left sm:px-10 sm:pt-[80px] lg:px-[6.94%] lg:pt-[90px]"
+            style={{ paddingBottom: MARKET_COPY_BOTTOM_PAD }}
           >
-            The Expanding Health-Conscious Consumer Market
-          </h2>
-          <p
-            className="mt-4 font-['Inter'] leading-[1.21] lg:max-w-[632px]"
-            style={{ fontSize: 'clamp(15px, 1.39vw, 20px)', color: 'rgba(0,0,0,0.7)' }}
-          >
-            An increasing focus on mental health and wellness with at-home natural remedies,
-            combined with a significant rise in the preference for spa therapies due to hectic
-            lifestyles, drives the demand for health-conscious and organic products.
-          </p>
-          <button
-            className="mt-6 rounded-full bg-[#627E5C] font-['Inter'] font-medium text-white transition-opacity hover:opacity-90 lg:mt-20"
-            style={{ fontSize: 'clamp(15px, 1.2vw, 20px)', padding: '10px 80px' }}
-          >
-            Learn More
-          </button>
+            <h2
+              className="max-w-[536px] font-['Cormorant_Garamond'] pt-20 pb-10 font-bold leading-[1.21] text-black"
+              style={{ fontSize: 'clamp(26px, 2.78vw, 40px)' }}
+            >
+              The Expanding Health-Conscious Consumer Market
+            </h2>
+            <p
+              className="mt-4 max-w-[632px] font-['Inter'] leading-[1.21]"
+              style={{ fontSize: 'clamp(15px, 1.39vw, 20px)', color: 'rgba(0,0,0,0.7)' }}
+            >
+              An increasing focus on mental health and wellness with at-home natural remedies,
+              combined with a significant rise in the preference for spa therapies due to hectic
+              lifestyles, drives the demand for health-conscious and organic products.
+            </p>
+            <div className="min-h-2 w-full flex-1" aria-hidden />
+            <button
+              type="button"
+              className="w-fit shrink-0 rounded-full bg-[#627E5C] px-10 py-2.5 font-['Inter'] text-[16px] font-medium text-white transition-opacity hover:opacity-90 lg:px-20 lg:py-2.5 lg:text-[20px]"
+            >
+              Learn More
+            </button>
+          </div>
         </div>
       </section>
 
+      {/* Why Choose — Figma image ratios; md+ uses staggered row like desktop */}
       <section className="bg-[#F5F1E8] pb-16 pt-12 sm:pb-20 sm:pt-16 lg:pb-24 lg:pt-[125px]">
-        <div className="w-full px-6 sm:px-10 lg:px-[6.94%]">
+        <div className="w-full px-page">
           <div className="text-center">
             <h3
               className="font-['Cormorant_Garamond'] font-bold leading-[1.21] text-black"
@@ -145,101 +201,49 @@ export default function BrandStory({ heading, body, image }: BrandStoryProps) {
               renewed, and aligned.
             </p>
           </div>
-          <div className="mt-12 hidden items-end gap-5 lg:flex">
-            <div className="min-w-0 flex-[379] overflow-hidden rounded-[20px]">
-              <div className="relative w-full" style={{ aspectRatio: '379/346' }}>
-                <Image
-                  src="/why-skincare-tea.png"
-                  alt="Skincare & Teas"
-                  fill
-                  className="object-cover"
-                />
-              </div>
-              <div className="flex min-h-[93px] flex-col items-center justify-center bg-[#627E5C] px-4 text-center">
-                <p className="font-['Cormorant_Garamond'] text-[20px] font-bold text-white">
-                  Skincare & Teas
-                </p>
-                <p
-                  className="font-['Inter'] text-[14px] leading-[1.21]"
-                  style={{ color: 'rgba(255,255,255,0.5)' }}
-                >
-                  Nourish and renew your body and skin from within.
-                </p>
-              </div>
-            </div>
-            <div className="-mt-7 min-w-0 flex-[441] overflow-hidden rounded-[20px]">
-              <div className="relative w-full" style={{ aspectRatio: '441/402' }}>
-                <Image
-                  src="/why-candles.png"
-                  alt="Candles & Essential Oils"
-                  fill
-                  className="object-cover"
-                />
-              </div>
-              <div className="flex min-h-[96px] flex-col items-center justify-center bg-[#627E5C] px-4 text-center">
-                <p className="font-['Cormorant_Garamond'] text-[24px] font-bold text-white">
-                  Candles & Essential Oils
-                </p>
-                <p
-                  className="font-['Inter'] text-[16px] leading-[1.21]"
-                  style={{ color: 'rgba(255,255,255,0.5)' }}
-                >
-                  Create a calm, sensory space that restores balance
-                </p>
-              </div>
-            </div>
-            <div className="min-w-0 flex-[379] overflow-hidden rounded-[20px]">
-              <div className="relative w-full" style={{ aspectRatio: '379/346' }}>
-                <Image
-                  src="/why-yoga.png"
-                  alt="Yoga mat, Towels, and Activewear"
-                  fill
-                  className="object-cover"
-                />
-              </div>
-              <div className="flex min-h-[93px] flex-col items-center justify-center bg-[#627E5C] px-4 text-center">
-                <p className="font-['Cormorant_Garamond'] text-[20px] font-bold text-white">
-                  Yoga mat, Towels, and Activewear
-                </p>
-                <p
-                  className="font-['Inter'] text-[14px] leading-[1.21]"
-                  style={{ color: 'rgba(255,255,255,0.5)' }}
-                >
-                  Nourish and renew your body and skin from within.
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:hidden">
-            {[
-              {
-                src: '/why-skincare-tea.png',
-                label: 'Skincare & Teas',
-                sub: 'Nourish and renew your body and skin from within.',
-              },
-              {
-                src: '/why-candles.png',
-                label: 'Candles & Essential Oils',
-                sub: 'Create a calm, sensory space that restores balance',
-              },
-              {
-                src: '/why-yoga.png',
-                label: 'Yoga mat, Towels, and Activewear',
-                sub: 'Nourish and renew your body and skin from within.',
-              },
-            ].map((item) => (
-              <div key={item.label} className="overflow-hidden rounded-[20px]">
-                <div className="relative aspect-[4/3]">
-                  <Image src={item.src} alt={item.label} fill className="object-cover" />
+          <div className="mt-12 hidden items-end gap-3 min-[900px]:gap-4 lg:gap-5 md:flex">
+            {WHY.map((item, idx) => (
+              <div
+                key={item.label}
+                className={`min-w-0 overflow-hidden rounded-[20px] ${idx === 1 ? 'md:-mt-6 lg:-mt-7' : ''} ${idx === 0 ? 'md:flex-[379]' : idx === 1 ? 'md:flex-[441]' : 'md:flex-[379]'}`}
+              >
+                <div className="relative w-full" style={{ aspectRatio: item.imageAspect }}>
+                  <Image
+                    src={item.src}
+                    alt={item.label}
+                    fill
+                    className="object-cover"
+                    sizes="(min-width: 768px) 33vw, 100vw"
+                  />
                 </div>
-                <div className="bg-[#627E5C] px-4 py-5 text-center">
-                  <p className="font-['Cormorant_Garamond'] text-[18px] font-bold text-white">
-                    {item.label}
+                <div
+                  className={`flex flex-col items-center justify-center bg-[#627E5C] px-4 text-center ${item.barMinH}`}
+                >
+                  <p className={item.titleClass}>{item.label}</p>
+                  <p className={`mt-1 ${item.subClass}`} style={{ color: 'rgba(255,255,255,0.5)' }}>
+                    {item.sub}
                   </p>
-                  <p
-                    className="mt-1 font-['Inter'] text-[13px] leading-[1.4]"
-                    style={{ color: 'rgba(255,255,255,0.5)' }}
-                  >
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="mt-10 grid grid-cols-1 gap-5 md:hidden">
+            {WHY.map((item) => (
+              <div key={item.label} className="overflow-hidden rounded-[20px]">
+                <div className="relative w-full" style={{ aspectRatio: item.imageAspect }}>
+                  <Image
+                    src={item.src}
+                    alt={item.label}
+                    fill
+                    className="object-cover"
+                    sizes="100vw"
+                  />
+                </div>
+                <div
+                  className={`flex flex-col items-center justify-center bg-[#627E5C] px-4 py-5 text-center ${item.barMinH}`}
+                >
+                  <p className={item.titleClass}>{item.label}</p>
+                  <p className={`mt-1 ${item.subClass}`} style={{ color: 'rgba(255,255,255,0.5)' }}>
                     {item.sub}
                   </p>
                 </div>

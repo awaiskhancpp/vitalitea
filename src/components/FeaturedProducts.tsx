@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useRef, useLayoutEffect, useCallback } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 
@@ -57,12 +57,61 @@ const CARDS_PER_PAGE = 3
 
 export default function FeaturedProducts({ products }: { products: Product[] }) {
   const [activePage, setActivePage] = useState(0)
+  const [mobileIndex, setMobileIndex] = useState(0)
+  const [stepPx, setStepPx] = useState(0)
+  const mobileTrackRef = useRef<HTMLDivElement>(null)
+  const touchStartX = useRef(0)
+  const touchDelta = useRef(0)
+
   const items = products.length > 0 ? products : FALLBACK_PRODUCTS
   const totalPages = Math.ceil(items.length / CARDS_PER_PAGE)
   const pageItems = items.slice(
     activePage * CARDS_PER_PAGE,
     activePage * CARDS_PER_PAGE + CARDS_PER_PAGE,
   )
+
+  const lastMobile = items.length - 1
+
+  const measureStep = useCallback(() => {
+    const track = mobileTrackRef.current
+    if (!track) return
+    const first = track.firstElementChild as HTMLElement | null
+    if (!first) return
+    const gap = parseFloat(getComputedStyle(track).gap) || 0
+    setStepPx(first.getBoundingClientRect().width + gap)
+  }, [])
+
+  useLayoutEffect(() => {
+    measureStep()
+    const track = mobileTrackRef.current
+    if (!track) return
+    const ro = new ResizeObserver(() => measureStep())
+    ro.observe(track)
+    window.addEventListener('resize', measureStep)
+    return () => {
+      ro.disconnect()
+      window.removeEventListener('resize', measureStep)
+    }
+  }, [items.length, measureStep])
+
+  useLayoutEffect(() => {
+    setMobileIndex((i) => Math.min(i, lastMobile))
+  }, [lastMobile])
+
+  const onMobileTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX
+    touchDelta.current = 0
+  }
+  const onMobileTouchMove = (e: React.TouchEvent) => {
+    touchDelta.current = e.touches[0].clientX - touchStartX.current
+  }
+  const onMobileTouchEnd = () => {
+    if (touchDelta.current < -50) setMobileIndex((i) => Math.min(i + 1, lastMobile))
+    else if (touchDelta.current > 50) setMobileIndex((i) => Math.max(i - 1, 0))
+  }
+
+  const mobileTranslate =
+    stepPx > 0 ? `translate3d(${-mobileIndex * stepPx}px,0,0)` : 'translate3d(0,0,0)'
 
   return (
     <section className="bg-[#F5F1E8] py-16 lg:py-20">
@@ -73,11 +122,44 @@ export default function FeaturedProducts({ products }: { products: Product[] }) 
         >
           Our Products
         </h2>
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:hidden">
-          {pageItems.map((product, index) => (
-            <ProductCard key={product.id} product={product} index={index} />
-          ))}
+
+        <div className="lg:hidden">
+          <div
+            className="overflow-hidden"
+            onTouchStart={onMobileTouchStart}
+            onTouchMove={onMobileTouchMove}
+            onTouchEnd={onMobileTouchEnd}
+          >
+            <div
+              ref={mobileTrackRef}
+              className="flex gap-5 transition-transform duration-500 ease-in-out"
+              style={{ transform: mobileTranslate, willChange: 'transform' }}
+            >
+              {items.map((product, i) => (
+                <div key={product.id} className="w-full min-w-0 shrink-0">
+                  <ProductCard product={product} index={i} />
+                </div>
+              ))}
+            </div>
+          </div>
+          {items.length > 1 && (
+            <div className="mt-10 flex items-center justify-center gap-[10px]">
+              {items.map((_, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => setMobileIndex(i)}
+                  aria-label={`Product ${i + 1}`}
+                  aria-current={i === mobileIndex ? 'true' : 'false'}
+                  className={`h-[11px] shrink-0 rounded-full border-none p-0 transition-all duration-300 ${
+                    i === mobileIndex ? 'w-[65.65px] bg-[#627E5C]' : 'w-[11px] bg-black/50'
+                  }`}
+                />
+              ))}
+            </div>
+          )}
         </div>
+
         <div
           className="hidden lg:grid"
           style={{
@@ -91,15 +173,16 @@ export default function FeaturedProducts({ products }: { products: Product[] }) 
                 gridColumn: index === 0 ? 1 : index === 1 ? 3 : 5,
               }}
             >
-              <ProductCard product={product} index={index} />
+              <ProductCard product={product} index={activePage * CARDS_PER_PAGE + index} />
             </div>
           ))}
         </div>
         {totalPages > 1 && (
-          <div className="mt-10 flex items-center justify-center gap-[10px] lg:mt-[clamp(40px,4.17vw,60px)]">
+          <div className="mt-10 hidden items-center justify-center gap-[10px] lg:mt-[clamp(40px,4.17vw,60px)] lg:flex">
             {Array.from({ length: totalPages }).map((_, i) => (
               <button
                 key={i}
+                type="button"
                 onClick={() => setActivePage(i)}
                 aria-label={`Page ${i + 1}`}
                 className={`h-[11px] shrink-0 rounded-full border-none p-0 transition-all duration-300 ${
