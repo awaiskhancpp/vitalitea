@@ -59,6 +59,7 @@ export async function GET(request: Request) {
           orderNumber: string
           status: string
           total: number
+          id: string | number
         }
       }
     }
