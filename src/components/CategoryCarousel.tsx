@@ -106,14 +106,13 @@ export default function CategoryCarousel({ categories }: { categories: Category[
     else if (touchDelta.current > 50) setIndex((i) => Math.max(i - 1, 0))
   }
 
-  const translate =
-    stepPx > 0 ? `translate3d(${-index * stepPx}px,0,0)` : 'translate3d(0,0,0)'
+  const translate = stepPx > 0 ? `translate3d(${-index * stepPx}px,0,0)` : 'translate3d(0,0,0)'
 
   return (
-    <section className="relative overflow-hidden bg-[#F5F1E8] py-[clamp(2.5rem,6.11vw,5.5rem)]">
+    <section className="relative overflow-hidden bg-[#F5F1E8] py-[clamp(56px,6.11vw,88px)]">
       <div
-        className="pointer-events-none absolute right-0 top-0 z-0 max-w-[min(100%,31rem)] opacity-[0.12]"
-        style={{ width: 'min(100%, 34.24vw)', aspectRatio: '493/232' }}
+        className="pointer-events-none absolute right-0 top-0 z-0 opacity-[0.12]"
+        style={{ width: 'min(493px, 34.24vw)', aspectRatio: '493/232' }}
         aria-hidden="true"
       >
         <Image
@@ -126,7 +125,7 @@ export default function CategoryCarousel({ categories }: { categories: Category[
       </div>
 
       <div
-        className="relative z-10 w-full"
+        className="relative z-10"
         role="region"
         aria-roledescription="carousel"
         aria-label="Shop by category"

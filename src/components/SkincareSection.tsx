@@ -11,8 +11,8 @@ interface SkincareSectionProps {
 export default function SkincareSection({ heading, body, cta, image }: SkincareSectionProps) {
   return (
     <section className="bg-[#F5F1E8]">
-      <div className="app-container flex w-full max-w-full flex-col gap-0 py-10 sm:py-12 md:flex-row md:items-stretch md:py-14 lg:items-stretch lg:py-16">
-        <div className="order-2 w-full min-w-0 pt-0 md:order-1 md:flex md:w-1/2 md:flex-col md:justify-center md:pr-4 md:pt-0 lg:w-[min(52%,32rem)] lg:max-w-2xl lg:pr-8 lg:py-0">
+      <div className="flex w-full flex-col lg:flex-row lg:items-stretch lg:pl-[1.24%] lg:pr-[1.2%]">
+        <div className="order-2 w-full px-6 pb-16 pt-10 sm:px-10 sm:pb-20 sm:pt-14 lg:order-1 lg:w-[54.08%] lg:py-[6.6vw] lg:pl-[7.01%] lg:pr-[2%]">
           <h2
             className="mb-5 w-full min-w-0 max-w-md font-['Cormorant_Garamond'] font-bold leading-[1.21] text-black"
             style={{ fontSize: 'clamp(1.5rem, 2.78vw, 2.5rem)' }}
