@@ -78,7 +78,7 @@ export default function BrandStory({ heading, body, image }: BrandStoryProps) {
             </p>
             <button
               type="button"
-              className="mt-6 rounded-full bg-[#627E5C] px-8 py-2.5 font-['Inter'] font-medium text-white transition-opacity hover:opacity-90 sm:px-10"
+              className="mt-6 rounded-full bg-[#627E5C] px-10 py-2.5 font-['Inter'] text-[16px] font-medium text-white transition-opacity hover:opacity-90"
               style={{ fontSize: 'clamp(0.875rem,1.11vw,1rem)' }}
             >
               Learn More
@@ -95,10 +95,7 @@ export default function BrandStory({ heading, body, image }: BrandStoryProps) {
           </div>
         </div>
 
-        <div
-          className="relative mx-auto hidden w-full max-w-[1440px] lg:block"
-          style={{ minHeight: 677 }}
-        >
+        <div className="hidden w-full lg:block" style={{ minHeight: 677 }}>
           <div
             className="absolute inset-y-0 overflow-hidden"
             style={{
@@ -116,7 +113,7 @@ export default function BrandStory({ heading, body, image }: BrandStoryProps) {
             />
           </div>
           <div
-            className="relative z-10 flex min-w-0 max-w-full flex-col"
+            className="relative z-10 flex flex-col"
             style={{
               width: '51.25%',
               paddingLeft: '6.94%',

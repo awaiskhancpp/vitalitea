@@ -39,8 +39,8 @@ export default function BentoGrid() {
   ]
 
   return (
-    <section className="bg-[#F5F1E8] py-[clamp(2.5rem,4.2vw,5rem)] lg:py-[clamp(3rem,5vw,5rem)]">
-      <div className="app-container">
+    <section className="bg-[#F5F1E8] py-16 lg:py-20">
+      <div className="w-full px-6 sm:px-10 lg:pl-[6.94%] lg:pr-[6.39%]">
         <div className="flex flex-col gap-3 sm:hidden">
           {TILES.map((tile) => (
             <Link
