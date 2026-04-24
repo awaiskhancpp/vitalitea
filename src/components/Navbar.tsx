@@ -3,6 +3,8 @@ import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import type { MouseEvent as ReactMouseEvent } from 'react'
+import { usePathname } from 'next/navigation'
+import { useCart } from '@/contexts/CartContext'
 
 interface NavLink {
   label: string
@@ -15,8 +17,9 @@ interface NavbarProps {
 export default function Navbar({ links }: NavbarProps) {
   const [menuOpen, setMenuOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
-  const [cartCount] = useState(0)
   const searchBarRef = useRef<HTMLDivElement | null>(null)
+  const pathname = usePathname()
+  const { itemCount } = useCart()
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent | ReactMouseEvent) => {
@@ -33,8 +36,14 @@ export default function Navbar({ links }: NavbarProps) {
 
   const handleLinkClick = () => setMenuOpen(false)
 
+  const isShop = pathname === '/shop' || pathname?.startsWith('/shop/')
+  // Home/landing: transparent so the hero (`-mt-[105px]` in HeroSection) shows under the bar again.
+  // Shop: cream to match the page.
+  const navBarBg = isShop ? 'bg-[#F5F1E8]' : 'bg-transparent'
+  const mobileMenuBg = isShop ? 'bg-[#F5F1E8]' : 'bg-white/95'
+
   return (
-    <nav className="absolute inset-x-0 top-0 z-40 w-full bg-transparent">
+    <nav className={`relative inset-x-0 top-0 z-40 w-full ${navBarBg}`}>
       <div className="flex w-full items-center justify-between px-6 pt-[42px] sm:px-10 lg:px-[6.94%]">
         <Link href="/" className="flex flex-shrink-0 items-center">
           <Image
@@ -50,7 +59,12 @@ export default function Navbar({ links }: NavbarProps) {
             <Link
               key={link.href}
               href={link.href}
-              className="whitespace-nowrap font-['Host_Grotesk'] text-base font-normal leading-5 text-black transition-colors hover:text-[#627E5C]"
+              className={`whitespace-nowrap font-['Host_Grotesk'] text-base font-normal leading-5 transition-colors hover:text-[#627E5C]
+      ${
+        pathname === link.href
+          ? 'rounded-[13.62px] px-[18px] bg-[#627E5C] py-1.5 text-white font-normal leading-[100%]'
+          : 'text-black'
+      }`}
             >
               {link.label}
             </Link>
@@ -75,14 +89,18 @@ export default function Navbar({ links }: NavbarProps) {
 
           <div className="h-4 w-px shrink-0 bg-black" />
 
-          <button aria-label="Cart" className="relative rounded-full transition-colors">
-            <Image src="/cart.png" alt="Cart" width={23} height={23} />
-            {cartCount > 0 && (
-              <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-[#627E5C] text-xs text-white">
-                {cartCount}
+          <Link
+            href="/cart"
+            aria-label="View cart"
+            className="relative inline-flex rounded-full transition-colors"
+          >
+            <Image src="/cart.png" alt="" width={23} height={23} />
+            {itemCount > 0 && (
+              <span className="absolute -right-1 -top-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[#627E5C] px-1 text-[11px] font-medium text-white">
+                {itemCount > 99 ? '99+' : itemCount}
               </span>
             )}
-          </button>
+          </Link>
         </div>
         <div className="flex items-center gap-2 md:hidden">
           <button
@@ -99,12 +117,18 @@ export default function Navbar({ links }: NavbarProps) {
               />
             </svg>
           </button>
-          <button
-            aria-label="Cart"
-            className="relative rounded-full p-2 transition-colors hover:bg-gray-100"
+          <Link
+            href="/cart"
+            aria-label="View cart"
+            className="relative flex rounded-full p-2 transition-colors hover:bg-gray-100"
           >
-            <Image src="/cart.png" alt="Cart" width={23} height={23} />
-          </button>
+            <Image src="/cart.png" alt="" width={23} height={23} />
+            {itemCount > 0 && (
+              <span className="absolute right-0 top-1 flex h-[16px] min-w-[16px] items-center justify-center rounded-full bg-[#627E5C] px-0.5 text-[10px] font-medium text-white">
+                {itemCount > 99 ? '99+' : itemCount}
+              </span>
+            )}
+          </Link>
           <button
             onClick={() => setMenuOpen(!menuOpen)}
             className="rounded-full p-2 transition-colors hover:bg-gray-100"
@@ -145,7 +169,9 @@ export default function Navbar({ links }: NavbarProps) {
         </div>
       )}
       {menuOpen && (
-        <div className="flex w-full flex-col gap-4 border-t border-gray-100 bg-white/95 px-6 py-4 md:hidden">
+        <div
+          className={`flex w-full flex-col gap-4 border-t border-gray-100 px-6 py-4 md:hidden ${mobileMenuBg}`}
+        >
           {links.map((link) => (
             <Link
               key={link.href}

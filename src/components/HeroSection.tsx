@@ -25,7 +25,7 @@ export default function HeroSection({
     'Everyday essentials that help people slow down, reset, and reconnect. From proper skin wellness and teas, to movement tools and sensory products.'
 
   return (
-    <section className="relative min-h-screen w-full overflow-hidden bg-[#F5F1E8]">
+    <section className="-mt-[105px] relative min-h-screen w-full overflow-hidden bg-[#F5F1E8]">
       <div className="absolute inset-0">
         <Image
           src={image?.url ?? '/hero-bg-521122.png'}
@@ -43,7 +43,7 @@ export default function HeroSection({
       />
 
       <div className="absolute inset-0 z-10 flex w-full flex-col justify-center px-6 py-16 sm:px-10 sm:py-20 lg:justify-start lg:px-[6.94%] lg:pb-16 lg:pt-[clamp(160px,16.8vw,242px)]">
-        <div className="pointer-events-auto flex max-w-full flex-col pt-40">
+        <div className="pointer-events-auto flex max-w-full flex-col ">
           <h1
             className="max-w-[90%] font-['Cormorant_Garamond'] font-bold text-black sm:max-w-[70%] lg:max-w-[602px]"
             style={{ fontSize: 'clamp(32px, 4.17vw, 60px)', lineHeight: '0.97em' }}

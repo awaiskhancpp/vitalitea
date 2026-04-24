@@ -1,12 +1,4 @@
-import {
-  getHomepage,
-  getHeader,
-  getFooter,
-  getFeaturedProducts,
-  getCategories,
-  getTestimonials,
-} from '@/lib/payload'
-import Navbar from '@/components/Navbar'
+import { getHomepage, getFeaturedProducts, getCategories, getTestimonials } from '@/lib/payload'
 import HeroSection from '@/components/HeroSection'
 import SkincareSection from '@/components/SkincareSection'
 import CategoryCarousel from '@/components/CategoryCarousel'
@@ -14,14 +6,10 @@ import BentoGrid from '@/components/BentoGrid'
 import FeaturedProducts from '@/components/FeaturedProducts'
 import BrandStory from '@/components/BrandStory'
 import Testimonials from '@/components/Testimonials'
-import Newsletter from '@/components/Newsletter'
-import Footer from '@/components/Footer'
 
 export default async function HomePage() {
-  const [homepage, header, footer, products, categories, testimonials] = await Promise.all([
+  const [homepage, products, categories, testimonials] = await Promise.all([
     getHomepage(),
-    getHeader(),
-    getFooter(),
     getFeaturedProducts(),
     getCategories(),
     getTestimonials(),
@@ -45,15 +33,9 @@ export default async function HomePage() {
     body: string
     image?: { url: string; alt: string } | null
   }
-  const newsletter = homepage.newsletter as {
-    heading: string
-    subtext: string
-    backgroundImage?: { url: string } | null
-  }
 
   return (
-    <main>
-      <Navbar links={(header.navLinks as { label: string; href: string }[]) ?? []} />
+    <>
       <HeroSection
         heading={hero?.heading ?? 'Intentional Wellness for Everyday Life.'}
         subtext={hero?.subtext ?? ''}
@@ -104,20 +86,6 @@ export default async function HomePage() {
           }[]
         }
       />
-      <Newsletter
-        heading={newsletter?.heading ?? 'Join the Ritual.'}
-        subtext={
-          newsletter?.subtext ?? 'Get 10% off your first order and early access to new collections'
-        }
-        backgroundImage={newsletter?.backgroundImage as { url: string } | null}
-      />
-      <Footer
-        about={footer.about as string}
-        quickLinks={footer.quickLinks as { label: string; href: string }[]}
-        phone={footer.phone as string}
-        email={footer.email as string}
-        hours={footer.hours as string}
-      />
-    </main>
+    </>
   )
 }

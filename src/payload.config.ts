@@ -11,14 +11,14 @@ import { Header } from './globals/Header'
 import { Footer } from './globals/Footer'
 import { Homepage } from './globals/Homepage'
 import { Users } from './collections/Users'
-
+import Shop from './collections/Shop'
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 const connectionString = process.env.DATABASE_URI || process.env.DATABASE_URL || ''
 
 export default buildConfig({
   admin: { user: 'users' },
-  collections: [Media, Products, Categories, Testimonials, Users],
+  collections: [Media, Products, Categories, Testimonials, Users, Shop],
   globals: [Header, Footer, Homepage],
   editor: lexicalEditor({}),
   secret: process.env.PAYLOAD_SECRET || 'your-secret-here',

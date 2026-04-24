@@ -32,7 +32,14 @@ const FALLBACK: Testimonial[] = [
   },
 ]
 
-export default function Testimonials({ testimonials }: { testimonials: Testimonial[] }) {
+export default function Testimonials({
+  testimonials,
+  backgroundClassName = 'bg-[#F5F1E8]',
+}: {
+  testimonials: Testimonial[]
+  /** Optional override; default matches shop/home cream surface. */
+  backgroundClassName?: string
+}) {
   const [active, setActive] = useState(0)
   const items = testimonials.length > 0 ? testimonials : FALLBACK
   const total = items.length
@@ -41,7 +48,7 @@ export default function Testimonials({ testimonials }: { testimonials: Testimoni
   const next = () => setActive((a) => (a + 1) % total)
 
   return (
-    <section className="bg-[#F5F1E8] py-16 lg:py-20">
+    <section className={`w-full ${backgroundClassName} py-16 lg:py-20`}>
       <div className="w-full px-6 sm:px-10 lg:px-[6.94%]">
         <div className="grid grid-cols-1 items-stretch gap-6 lg:flex lg:gap-6">
           <div
