@@ -50,8 +50,8 @@ export default async function Shop() {
          */}
         <section className="mt-6 px-4 sm:mt-10 sm:px-6 lg:mt-[50px] lg:px-[6.94%] 2xl:px-[3%]">
           <div className="mx-auto w-full max-w-[1240px]">
-            <div className="relative w-full overflow-hidden rounded-[20px] border border-[#A3A3A3] bg-[#F5F1E8] sm:rounded-[24px] lg:rounded-[27px]">
-              <div className="relative w-full min-h-[220px] aspect-[1240/355] sm:min-h-[260px] lg:aspect-auto lg:h-[355px] lg:min-h-0">
+            <div className="w-full overflow-hidden rounded-[20px] border border-[#A3A3A3] bg-[#F5F1E8] sm:rounded-[24px] lg:rounded-[27px]">
+              <div className="w-full min-h-[220px] aspect-[1240/355] sm:min-h-[260px] lg:aspect-auto lg:h-[355px] lg:min-h-0">
                 <Image
                   src="/shopbanner.png"
                   alt="Shop"
@@ -97,7 +97,7 @@ export default async function Shop() {
           <ShopClient products={products} />
         </div>
       </div>
-      <section className="w-full bg-[#F5F1E8] px-4 sm:px-6 lg:px-[6.94%] 2xl:px-[3%]">
+      {/* <section className="w-full bg-[#F5F1E8] px-4 sm:px-6 lg:px-[6.94%] 2xl:px-[3%]">
         <div className="mx-auto flex w-full max-w-[min(100%,100rem)] flex-col lg:min-h-[min(651px,85vh)] lg:flex-row lg:items-stretch">
           <div className="relative flex w-full flex-col justify-center bg-[#F5F1E8] px-4 py-10 sm:px-6 sm:py-12 lg:w-[min(53%,764px)] lg:max-w-[764px] lg:flex-shrink-0 lg:px-0 lg:py-0 xl:w-[764px]">
             <div className="lg:pl-[clamp(1.5rem,6.94vw,100px)] lg:pt-[clamp(2rem,10vw,130px)]">
@@ -132,7 +132,7 @@ export default async function Shop() {
                 className="h-auto w-full"
               />
             </div>
-          </div>
+          </div> 
 
           <div className="relative w-full min-w-0 flex-1 bg-[#F5F1E8] min-h-[min(50vh,420px)] sm:min-h-[420px] lg:min-h-[min(651px,85vh)]">
             <Image
@@ -144,6 +144,58 @@ export default async function Shop() {
             />
           </div>
         </div>
+      </section>  */}
+      <section className="grid grid-cols-2 ">
+        <div className="flex flex-col justify-center gap-4">
+          <h1
+            className="font-['Cormorant_Garamond']
+              font-bold
+              leading-none
+              tracking-normal
+              text-[clamp(28px,3vw,40px)]
+              max-w-122.5
+              pb-2
+            "
+          >
+            The Expanding Health-Conscious Consumer Market
+          </h1>
+          <p
+            className="font-['Host_Grotesk']
+              font-normal
+              leading-none
+              tracking-normal
+              text-[clamp(15px,1.4vw,20px)]
+              text-black/50
+              max-w-158
+              pb-4"
+          >
+            An increasing focus on mental health and wellness with at-home natural remedies,
+            combined with a significant rise in the preferer for spa therapies due to hectic
+            lifestyles, drives the demand for health-conscious and organic products.
+          </p>
+          <button
+            className="inline-flex items-center justify-center
+              rounded-full
+              bg-[#627E5C]
+              px-8 lg:px-16
+              py-2.5
+              gap-2
+              text-white
+              text-sm lg:text-base
+              font-medium
+              transition-opacity hover:opacity-90 w-66"
+          >
+            Learn More
+          </button>
+          {/* <Image src="/footer-logo.png" alt="VitaliTea" width={427} height={200} /> */}
+        </div>
+        <Image
+          src="/selectedtranquil.png"
+          alt="Tranquil body butter product in spa setting"
+          className="object-cover object-center"
+          width={676}
+          height={651}
+        />
       </section>
 
       <Testimonials testimonials={FALLBACK} />

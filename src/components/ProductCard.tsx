@@ -23,7 +23,7 @@ export default function ProductCard({
   image,
   fallbackImage = '/product-black-velvet.png',
 }: ProductCardProps) {
-  const { addItem } = useCart()
+  const { addItem, openCartDrawer } = useCart()
 
   const raw = typeof image?.url === 'string' ? image.url.trim() : ''
   const normalized = !raw
@@ -45,8 +45,9 @@ export default function ProductCard({
         imageUrl: imageSrc,
         imageAlt,
       })
+      openCartDrawer()
     },
-    [addItem, id, slug, name, price, imageSrc, imageAlt],
+    [addItem, openCartDrawer, id, slug, name, price, imageSrc, imageAlt],
   )
 
   return (

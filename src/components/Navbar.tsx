@@ -19,7 +19,7 @@ export default function Navbar({ links }: NavbarProps) {
   const [searchOpen, setSearchOpen] = useState(false)
   const searchBarRef = useRef<HTMLDivElement | null>(null)
   const pathname = usePathname()
-  const { itemCount } = useCart()
+  const { itemCount, openCartDrawer } = useCart()
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent | ReactMouseEvent) => {
@@ -89,10 +89,11 @@ export default function Navbar({ links }: NavbarProps) {
 
           <div className="h-4 w-px shrink-0 bg-black" />
 
-          <Link
-            href="/cart"
-            aria-label="View cart"
-            className="relative inline-flex rounded-full transition-colors"
+          <button
+            type="button"
+            onClick={openCartDrawer}
+            aria-label="Open shopping bag"
+            className="relative inline-flex cursor-pointer rounded-full border-0 bg-transparent p-0 transition-opacity hover:opacity-80"
           >
             <Image src="/cart.png" alt="" width={23} height={23} />
             {itemCount > 0 && (
@@ -100,7 +101,7 @@ export default function Navbar({ links }: NavbarProps) {
                 {itemCount > 99 ? '99+' : itemCount}
               </span>
             )}
-          </Link>
+          </button>
         </div>
         <div className="flex items-center gap-2 md:hidden">
           <button
@@ -117,9 +118,10 @@ export default function Navbar({ links }: NavbarProps) {
               />
             </svg>
           </button>
-          <Link
-            href="/cart"
-            aria-label="View cart"
+          <button
+            type="button"
+            onClick={openCartDrawer}
+            aria-label="Open shopping bag"
             className="relative flex rounded-full p-2 transition-colors hover:bg-gray-100"
           >
             <Image src="/cart.png" alt="" width={23} height={23} />
@@ -128,7 +130,7 @@ export default function Navbar({ links }: NavbarProps) {
                 {itemCount > 99 ? '99+' : itemCount}
               </span>
             )}
-          </Link>
+          </button>
           <button
             onClick={() => setMenuOpen(!menuOpen)}
             className="rounded-full p-2 transition-colors hover:bg-gray-100"
