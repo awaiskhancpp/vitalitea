@@ -133,7 +133,7 @@ export default function CategoryCarousel({ categories }: { categories: Category[
         data-carousel="slide"
       >
         <div
-          className="app-container overflow-hidden pl-0"
+          className="app-container !pl-0 overflow-hidden"
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}

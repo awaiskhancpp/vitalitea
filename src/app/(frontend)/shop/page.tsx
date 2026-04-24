@@ -122,8 +122,8 @@ export default async function Shop() {
         </div>
       </section>  */}
       <section className="w-full py-10 sm:py-12 lg:py-16">
-        <div className="app-container grid w-full min-w-0 max-w-full grid-cols-1 items-center gap-8 lg:grid-cols-2 lg:gap-10">
-          <div className="min-w-0 order-2 flex flex-col justify-center lg:order-1">
+        <div className="grid w-full min-w-0 max-w-full grid-cols-1 items-center gap-8 lg:grid-cols-2 lg:gap-10">
+          <div className="min-w-0 order-2 flex flex-col pl-20 justify-center lg:order-1">
             <h2
               className="w-full min-w-0 max-w-2xl pb-2 font-['Cormorant_Garamond'] font-bold leading-tight tracking-normal text-black"
               style={{ fontSize: 'clamp(1.5rem,2.8vw,2.5rem)' }}

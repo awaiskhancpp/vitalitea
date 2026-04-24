@@ -12,7 +12,7 @@ export default function ShopClient({ products }: { products: Product[] }) {
         Our Products
       </h2>
 
-      <div className="grid w-full min-w-0 auto-rows-fr grid-cols-1 items-stretch gap-x-[clamp(1rem,1.18vw,1.25rem)] gap-y-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-y-8">
+      <div className="grid w-full min-w-0 auto-rows-fr grid-cols-1 space-around items-stretch gap-x-[clamp(1rem,1.18vw,1.25rem)] gap-y-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-y-8">
         {products.map((product) => (
           <div key={product.id} className="flex h-full min-h-0 min-w-0 w-full max-w-full">
             <ProductCard
