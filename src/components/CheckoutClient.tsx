@@ -3,7 +3,8 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { PayPalButtons } from '@paypal/react-paypal-js'
 import { useCart } from '@/contexts/CartContext'
 
 const PK_STATES: { value: string; label: string }[] = [
@@ -19,8 +20,6 @@ const inputClass =
   "w-full rounded-lg border border-[#D1C9BE] bg-white px-3.5 py-2.5 font-['Host_Grotesk'] text-sm text-[#3B3B3B] shadow-sm outline-none transition-[border-color,box-shadow] placeholder:text-neutral-400 focus:border-[#627E5C] focus:ring-2 focus:ring-[#627E5C]/20"
 const labelClass = "mb-1.5 block font-['Host_Grotesk'] text-sm font-semibold text-[#3B3B3B]"
 
-type ShippingMethod = 'free' | 'express'
-
 const emailOk = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim())
 
 /** Trimmed non-empty */
@@ -35,6 +34,7 @@ const FIELD_SCROLL_ORDER = [
   'state',
   'zip',
   'phone',
+  'shippingRegion',
   'billFirst',
   'billLast',
   'billAddress',
@@ -59,6 +59,7 @@ function validateCheckoutFields(args: {
   billCity: string
   billState: string
   billZip: string
+  shippingRegionId: string
 }): Record<string, string> {
   const e: Record<string, string> = {}
   if (!req(args.email)) e.email = 'Email is required'
@@ -70,6 +71,7 @@ function validateCheckoutFields(args: {
   if (!args.state || !args.state.trim()) e.state = 'Select a state'
   if (!req(args.zip)) e.zip = 'ZIP code is required'
   if (!req(args.phone)) e.phone = 'Phone number is required'
+  if (!args.shippingRegionId) e.shippingRegion = 'Select a shipping zone for rates'
   if (!args.sameAsShipping) {
     if (!req(args.billFirst)) e.billFirst = 'First name is required'
     if (!req(args.billLast)) e.billLast = 'Last name is required'
@@ -119,10 +121,23 @@ export default function CheckoutClient() {
   const [billState, setBillState] = useState('')
   const [billZip, setBillZip] = useState('')
   const [billCountry, setBillCountry] = useState('Pk')
-  const [shippingMethod, setShippingMethod] = useState<ShippingMethod>('free')
+  const [regions, setRegions] = useState<{ id: string; name: string; rate: number }[]>([])
+  const [shippingRegionId, setShippingRegionId] = useState('')
+  const [couponCode, setCouponCode] = useState('')
+  const [quote, setQuote] = useState<{
+    subtotal: number
+    discount: number
+    shipping: number
+    total: number
+  } | null>(null)
+  const [quoteError, setQuoteError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
-  const [submitted, setSubmitted] = useState(false)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
+  const [payError, setPayError] = useState<string | null>(null)
+  const lastPaypalPayloadRef = useRef<{ orderId: string } | null>(null)
+  const payPalEnabled = Boolean(
+    typeof process !== 'undefined' && process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID,
+  )
 
   const clearFieldError = useCallback((key: string) => {
     setFieldErrors((p) => {
@@ -134,55 +149,88 @@ export default function CheckoutClient() {
   }, [])
 
   useEffect(() => {
-    if (ready && itemCount === 0 && !submitted) {
+    if (ready && itemCount === 0) {
       router.replace('/bag')
     }
-  }, [ready, itemCount, router, submitted])
+  }, [ready, itemCount, router])
 
-  const shippingCost = useMemo(() => (shippingMethod === 'express' ? 15 : 0), [shippingMethod])
-  const orderTotal = subtotal + shippingCost
+  useEffect(() => {
+    fetch('/api/shipping-regions')
+      .then((r) => r.json())
+      .then(
+        (d: {
+          regions: { id: string; name: string; rate: number }[]
+        }) => {
+          setRegions(d.regions || [])
+        },
+      )
+      .catch(() => setRegions([]))
+  }, [])
 
-  const onSubmit = useCallback(
-    (e: React.FormEvent) => {
-      e.preventDefault()
-      const nextErrors = validateCheckoutFields({
-        email,
-        firstName,
-        lastName,
-        address,
-        city,
-        state,
-        zip,
-        phone,
-        sameAsShipping,
-        billFirst,
-        billLast,
-        billAddress,
-        billCity,
-        billState,
-        billZip,
+  useEffect(() => {
+    if (regions.length && !shippingRegionId) {
+      setShippingRegionId(regions[0].id)
+    }
+  }, [regions, shippingRegionId])
+
+  useEffect(() => {
+    if (!ready || !items.length || !shippingRegionId) return
+    const controller = new AbortController()
+    const t = window.setTimeout(() => {
+      setQuoteError(null)
+      fetch('/api/checkout/quote', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          items: items.map((i) => ({
+            id: i.id,
+            slug: i.slug,
+            name: i.name,
+            price: i.price,
+            quantity: i.quantity,
+            imageUrl: i.imageUrl,
+            imageAlt: i.imageAlt,
+          })),
+          shippingRegionId,
+          couponCode: couponCode.trim() || null,
+        }),
+        signal: controller.signal,
       })
-      setFieldErrors(nextErrors)
-      if (Object.keys(nextErrors).length > 0) {
-        const firstId = FIELD_SCROLL_ORDER.find((k) => nextErrors[k])
-        if (firstId && typeof document !== 'undefined') {
-          window.requestAnimationFrame(() => {
-            document.getElementById(firstId)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-            ;(document.getElementById(firstId) as HTMLInputElement | HTMLSelectElement | null)?.focus?.()
-          })
-        }
-        return
-      }
-      setSubmitting(true)
-      window.setTimeout(() => {
-        setSubmitting(false)
-        clear()
-        setSubmitted(true)
-        setFieldErrors({})
-      }, 800)
-    },
-    [
-      clear,
+        .then(async (r) => {
+          if (!r.ok) {
+            const j = (await r.json().catch(() => ({}))) as { error?: string }
+            setQuoteError(j.error || 'Could not update totals')
+            setQuote(null)
+            return
+          }
+          return r.json() as Promise<{
+            subtotal: number
+            discount: number
+            shipping: number
+            total: number
+          }>
+        })
+        .then((d) => {
+          if (d) {
+            setQuote(d)
+            setQuoteError(null)
+          }
+        })
+        .catch(() => {})
+    }, 400)
+    return () => {
+      clearTimeout(t)
+      controller.abort()
+    }
+  }, [ready, items, shippingRegionId, couponCode])
+
+  const qSub = quote?.subtotal ?? subtotal
+  const qDisc = quote?.discount ?? 0
+  const qShip = quote?.shipping ?? 0
+  const qTotal = quote?.total ?? subtotal
+
+  const getValidationErrors = useCallback((): Record<string, string> => {
+    return validateCheckoutFields({
       email,
       firstName,
       lastName,
@@ -198,41 +246,205 @@ export default function CheckoutClient() {
       billCity,
       billState,
       billZip,
+      shippingRegionId,
+    })
+  }, [
+    email,
+    firstName,
+    lastName,
+    address,
+    city,
+    state,
+    zip,
+    phone,
+    sameAsShipping,
+    billFirst,
+    billLast,
+    billAddress,
+    billCity,
+    billState,
+    billZip,
+    shippingRegionId,
+  ])
+
+  const buildDraftBody = useCallback(
+    (paymentMethod: 'stripe' | 'paypal') => ({
+      items: items.map((i) => ({
+        id: i.id,
+        slug: i.slug,
+        name: i.name,
+        price: i.price,
+        quantity: i.quantity,
+        imageUrl: i.imageUrl,
+        imageAlt: i.imageAlt,
+      })),
+      shippingRegionId,
+      couponCode: couponCode.trim() || null,
+      paymentMethod,
+      sameAsShipping,
+      shippingAddress: {
+        email,
+        firstName,
+        lastName,
+        address,
+        address2,
+        city,
+        state,
+        zip,
+        country,
+        phone,
+      },
+      billingAddress: sameAsShipping
+        ? undefined
+        : {
+            email,
+            firstName: billFirst,
+            lastName: billLast,
+            address: billAddress,
+            city: billCity,
+            state: billState,
+            zip: billZip,
+            country: billCountry,
+            phone,
+          },
+    }),
+    [
+      items,
+      shippingRegionId,
+      couponCode,
+      sameAsShipping,
+      email,
+      firstName,
+      lastName,
+      address,
+      address2,
+      city,
+      state,
+      zip,
+      country,
+      phone,
+      billFirst,
+      billLast,
+      billAddress,
+      billCity,
+      billState,
+      billZip,
+      billCountry,
     ],
+  )
+
+  const scrollToFirstError = (nextErrors: Record<string, string>) => {
+    const firstId = FIELD_SCROLL_ORDER.find((k) => nextErrors[k])
+    if (firstId && typeof document !== 'undefined') {
+      window.requestAnimationFrame(() => {
+        document.getElementById(firstId === 'shippingRegion' ? 'shippingRegion' : firstId)?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        })
+        ;(document.getElementById(
+          firstId === 'shippingRegion' ? 'shippingRegion' : firstId,
+        ) as HTMLInputElement | HTMLSelectElement | null)?.focus?.()
+      })
+    }
+  }
+
+  const payWithStripe = useCallback(async () => {
+    setPayError(null)
+    const nextErrors = getValidationErrors()
+    setFieldErrors(nextErrors)
+    if (Object.keys(nextErrors).length > 0) {
+      scrollToFirstError(nextErrors)
+      return
+    }
+    setSubmitting(true)
+    try {
+      const draftRes = await fetch('/api/orders/draft', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(buildDraftBody('stripe')),
+      })
+      if (!draftRes.ok) {
+        const j = (await draftRes.json().catch(() => ({}))) as { error?: string }
+        setPayError(j.error || 'Could not start checkout')
+        return
+      }
+      const { orderId } = (await draftRes.json()) as { orderId: string }
+      const sessionRes = await fetch('/api/checkout/stripe-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId }),
+      })
+      if (!sessionRes.ok) {
+        const j = (await sessionRes.json().catch(() => ({}))) as { error?: string }
+        setPayError(j.error || 'Could not start Stripe')
+        return
+      }
+      const { url } = (await sessionRes.json()) as { url: string }
+      if (url) window.location.href = url
+    } catch (e) {
+      setPayError(e instanceof Error ? e.message : 'Payment failed to start')
+    } finally {
+      setSubmitting(false)
+    }
+  }, [getValidationErrors, buildDraftBody])
+
+  const startPaypalOrder = useCallback(async () => {
+    setPayError(null)
+    const nextErrors = getValidationErrors()
+    if (Object.keys(nextErrors).length > 0) {
+      setFieldErrors(nextErrors)
+      scrollToFirstError(nextErrors)
+      throw new Error('validation')
+    }
+    const body = { ...buildDraftBody('paypal') } as Record<string, unknown>
+    delete body.paymentMethod
+    const res = await fetch('/api/checkout/paypal-prepare', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    })
+    if (!res.ok) {
+      const j = (await res.json().catch(() => ({}))) as { error?: string }
+      setPayError(j.error || 'Could not start PayPal')
+      throw new Error('prepare')
+    }
+    const j = (await res.json()) as { orderId: string; paypalOrderId: string }
+    lastPaypalPayloadRef.current = { orderId: j.orderId }
+    return j.paypalOrderId
+  }, [getValidationErrors, buildDraftBody])
+
+  const onPaypalApprove = useCallback(
+    async (data: { orderID: string }) => {
+      const oid = lastPaypalPayloadRef.current?.orderId
+      if (!oid) {
+        setPayError('Session expired — try again')
+        return
+      }
+      setSubmitting(true)
+      try {
+        const res = await fetch('/api/checkout/paypal-capture', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ orderId: oid, paypalOrderId: data.orderID }),
+        })
+        if (!res.ok) {
+          const j = (await res.json().catch(() => ({}))) as { error?: string }
+          setPayError(j.error || 'Payment capture failed')
+          return
+        }
+        clear()
+        router.push(`/checkout/success?orderId=${encodeURIComponent(oid)}`)
+      } finally {
+        setSubmitting(false)
+      }
+    },
+    [clear, router],
   )
 
   if (!ready) {
     return (
       <div className="min-h-[50vh] w-full bg-[#F5F1E8] px-4 py-20 sm:px-6">
         <p className="text-center font-['Host_Grotesk'] text-neutral-500">Loading checkout…</p>
-      </div>
-    )
-  }
-
-  if (submitted) {
-    return (
-      <div className="min-h-screen w-full bg-[#F5F1E8] px-4 py-16 sm:px-6 sm:py-20">
-        <div className="mx-auto max-w-md rounded-2xl border border-[#D1C9BE] bg-white p-8 text-center shadow-sm">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#627E5C]/12 text-[#627E5C]">
-            <CheckIcon className="h-8 w-8" />
-          </div>
-          <h1 className="mt-5 font-['Cormorant_Garamond'] text-3xl font-bold text-[#3B3B3B]">
-            Your order has been placed
-          </h1>
-          <p className="mt-2 font-['Host_Grotesk'] text-sm font-medium text-[#4a6b45]">
-            We&rsquo;ll send a confirmation to your email shortly.
-          </p>
-          <p className="mt-3 font-['Host_Grotesk'] text-sm leading-relaxed text-neutral-600">
-            This is a demo store — no payment was processed. In production, your payment and order
-            would be sent to your backend.
-          </p>
-          <Link
-            href="/shop"
-            className="mt-8 inline-flex h-12 w-full items-center justify-center rounded-full bg-[#627E5C] font-['Host_Grotesk'] text-sm font-semibold text-white transition-opacity hover:opacity-90"
-          >
-            Continue shopping
-          </Link>
-        </div>
       </div>
     )
   }
@@ -255,7 +467,11 @@ export default function CheckoutClient() {
         </div>
 
         <div className="grid gap-10 lg:grid-cols-12 lg:gap-12 xl:gap-16">
-          <form onSubmit={onSubmit} className="min-w-0 space-y-10 lg:col-span-7" noValidate>
+          <form
+            onSubmit={(e) => e.preventDefault()}
+            className="min-w-0 space-y-10 lg:col-span-7"
+            noValidate
+          >
             <h1 className="font-['Cormorant_Garamond'] text-[clamp(1.75rem,4vw,2.25rem)] font-bold text-[#3B3B3B]">
               Checkout
             </h1>
@@ -647,77 +863,76 @@ export default function CheckoutClient() {
 
             <section className="space-y-4">
               <h2 className="border-b border-[#E5E0D8] pb-2 font-['Host_Grotesk'] text-base font-bold text-[#3B3B3B]">
-                Shipping method
+                Shipping zone &amp; offers
               </h2>
-              <div className="space-y-3" role="radiogroup" aria-label="Shipping method">
-                <label
-                  className={`flex cursor-pointer items-start justify-between gap-4 rounded-xl border-2 p-4 transition-colors sm:items-center ${
-                    shippingMethod === 'free'
-                      ? 'border-[#3B3B3B] bg-white shadow-sm'
-                      : 'border-[#D1C9BE] bg-white/80 hover:border-[#627E5C]/40'
-                  }`}
-                >
-                  <div className="flex min-w-0 items-start gap-3 sm:items-center">
-                    <input
-                      type="radio"
-                      name="shipping"
-                      className="mt-1 h-4 w-4 text-[#627E5C] focus:ring-[#627E5C]/30 sm:mt-0"
-                      checked={shippingMethod === 'free'}
-                      onChange={() => setShippingMethod('free')}
-                    />
-                    <div>
-                      <p className="font-['Host_Grotesk'] text-sm font-semibold text-[#3B3B3B]">
-                        Free shipping
-                      </p>
-                      <p className="mt-0.5 font-['Host_Grotesk'] text-xs text-neutral-500">
-                        5–7 business days
-                      </p>
-                    </div>
-                  </div>
-                  <span className="shrink-0 font-['Martel_Sans'] text-sm font-semibold text-[#3B3B3B]">
-                    FREE
-                  </span>
+              <div>
+                <label htmlFor="shippingRegion" className={labelClass}>
+                  Shipping rate region <span className="text-red-600">*</span>
                 </label>
-                <label
-                  className={`flex cursor-pointer items-start justify-between gap-4 rounded-xl border-2 p-4 transition-colors sm:items-center ${
-                    shippingMethod === 'express'
-                      ? 'border-[#3B3B3B] bg-white shadow-sm'
-                      : 'border-[#D1C9BE] bg-white/80 hover:border-[#627E5C]/40'
-                  }`}
+                <select
+                  id="shippingRegion"
+                  value={shippingRegionId}
+                  onChange={(e) => {
+                    setShippingRegionId(e.target.value)
+                    clearFieldError('shippingRegion')
+                  }}
+                  className={fieldClass(inputClass, !!fieldErrors.shippingRegion)}
+                  aria-invalid={!!fieldErrors.shippingRegion}
                 >
-                  <div className="flex min-w-0 items-start gap-3 sm:items-center">
-                    <input
-                      type="radio"
-                      name="shipping"
-                      className="mt-1 h-4 w-4 text-[#627E5C] focus:ring-[#627E5C]/30 sm:mt-0"
-                      checked={shippingMethod === 'express'}
-                      onChange={() => setShippingMethod('express')}
-                    />
-                    <p className="font-['Host_Grotesk'] text-sm font-semibold text-[#3B3B3B]">
-                      2-day express
-                    </p>
-                  </div>
-                  <span className="shrink-0 font-['Martel_Sans'] text-sm font-semibold text-[#3B3B3B]">
-                    $15.00
-                  </span>
+                  {regions.length === 0 && <option value="">Loading regions…</option>}
+                  {regions.map((r) => (
+                    <option key={r.id} value={r.id}>
+                      {r.name} — ${r.rate.toFixed(2)}
+                    </option>
+                  ))}
+                </select>
+                <InputError id="shippingRegion" message={fieldErrors.shippingRegion} />
+                <p className="mt-1.5 text-xs text-neutral-500">
+                  Choose the zone that matches your delivery area. Total updates automatically.
+                </p>
+              </div>
+              <div>
+                <label htmlFor="coupon" className={labelClass}>
+                  Coupon code <span className="font-normal text-neutral-500">(optional)</span>
                 </label>
+                <input
+                  id="coupon"
+                  value={couponCode}
+                  onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                  className={inputClass}
+                  placeholder="e.g. WELCOME10"
+                  autoComplete="off"
+                />
+                {quoteError && <p className="mt-1.5 text-sm text-amber-800">{quoteError}</p>}
               </div>
             </section>
 
             <div className="lg:hidden">
               <OrderSummaryBlock
                 items={items}
-                subtotal={subtotal}
-                shippingCost={shippingCost}
-                orderTotal={orderTotal}
+                subtotal={qSub}
+                discount={qDisc}
+                shippingCost={qShip}
+                orderTotal={qTotal}
               />
             </div>
 
-            <div className="pt-2">
+            {payError && (
+              <div
+                role="alert"
+                className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 font-['Host_Grotesk'] text-sm text-red-800"
+              >
+                {payError}
+              </div>
+            )}
+
+            <div className="space-y-4 pt-2">
+              <p className="font-['Host_Grotesk'] text-sm font-bold text-[#3B3B3B]">Pay</p>
               <button
-                type="submit"
-                disabled={submitting}
-                className="flex h-14 w-full items-center justify-center gap-2 rounded-full bg-[#627E5C] font-['Host_Grotesk'] text-sm font-bold text-white transition-opacity enabled:hover:opacity-90 disabled:cursor-wait disabled:opacity-80"
+                type="button"
+                onClick={payWithStripe}
+                disabled={submitting || !quote}
+                className="flex h-14 w-full items-center justify-center gap-2 rounded-full bg-[#627E5C] font-['Host_Grotesk'] text-sm font-bold text-white transition-opacity enabled:hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {submitting && (
                   <span
@@ -725,11 +940,32 @@ export default function CheckoutClient() {
                     aria-hidden
                   />
                 )}
-                {submitting ? 'Placing order…' : 'Place order'}
+                Pay with card (Stripe)
               </button>
-              <p className="mt-3 flex items-center justify-center gap-1.5 text-xs text-neutral-500">
+              {payPalEnabled && (
+                <div className="min-h-[48px] w-full max-w-md">
+                  <PayPalButtons
+                    style={{ layout: 'vertical', shape: 'rect', label: 'pay' }}
+                    disabled={submitting || !quote}
+                    createOrder={startPaypalOrder}
+                    onApprove={async (data) => {
+                      await onPaypalApprove({ orderID: data.orderID })
+                    }}
+                    onError={(err) => {
+                      const msg =
+                        err && typeof err === 'object' && 'message' in err
+                          ? String((err as { message: unknown }).message)
+                          : 'PayPal error'
+                      setPayError(msg)
+                    }}
+                  />
+                </div>
+              )}
+              <p className="flex items-center justify-center gap-1.5 text-xs text-neutral-500">
                 <LockIcon className="h-3.5 w-3.5 text-[#627E5C]" />
-                <span className="font-['Host_Grotesk']">Secure checkout (demo — no charge)</span>
+                <span className="font-['Host_Grotesk']">
+                  Secure payments via Stripe or PayPal. Tax may apply.
+                </span>
               </p>
             </div>
           </form>
@@ -738,9 +974,10 @@ export default function CheckoutClient() {
             <div className="lg:sticky lg:top-28">
               <OrderSummaryBlock
                 items={items}
-                subtotal={subtotal}
-                shippingCost={shippingCost}
-                orderTotal={orderTotal}
+                subtotal={qSub}
+                discount={qDisc}
+                shippingCost={qShip}
+                orderTotal={qTotal}
                 isSidebar
               />
             </div>
@@ -754,6 +991,7 @@ export default function CheckoutClient() {
 function OrderSummaryBlock({
   items,
   subtotal,
+  discount = 0,
   shippingCost,
   orderTotal,
   isSidebar,
@@ -767,6 +1005,7 @@ function OrderSummaryBlock({
     imageAlt: string
   }[]
   subtotal: number
+  discount?: number
   shippingCost: number
   orderTotal: number
   isSidebar?: boolean
@@ -814,6 +1053,12 @@ function OrderSummaryBlock({
           <span>Subtotal</span>
           <span className="font-semibold">${subtotal.toFixed(2)}</span>
         </div>
+        {discount > 0 && (
+          <div className="flex items-center justify-between font-['Host_Grotesk'] text-sm text-[#627E5C]">
+            <span>Discount</span>
+            <span className="font-semibold">−${discount.toFixed(2)}</span>
+          </div>
+        )}
         <div className="flex items-center justify-between font-['Host_Grotesk'] text-sm text-[#3B3B3B]">
           <span>Shipping</span>
           <span className="font-semibold">
@@ -826,21 +1071,6 @@ function OrderSummaryBlock({
         </div>
       </div>
     </aside>
-  )
-}
-
-function CheckIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-      strokeWidth="2"
-      aria-hidden
-    >
-      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-    </svg>
   )
 }
 

@@ -11,14 +11,29 @@ import { Header } from './globals/Header'
 import { Footer } from './globals/Footer'
 import { Homepage } from './globals/Homepage'
 import { Users } from './collections/Users'
-import Shop from './collections/Shop'
+import { ShippingRegions } from './collections/ShippingRegions'
+import { Coupons } from './collections/Coupons'
+import { Orders } from './collections/Orders'
+import { seedOrderCommerce } from './lib/seedOrderCommerce'
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 const connectionString = process.env.DATABASE_URI || process.env.DATABASE_URL || ''
 
 export default buildConfig({
   admin: { user: 'users' },
-  collections: [Media, Products, Categories, Testimonials, Users, Shop],
+  collections: [
+    Media,
+    Products,
+    Categories,
+    Testimonials,
+    Users,
+    ShippingRegions,
+    Coupons,
+    Orders,
+  ],
+  onInit: async (payload) => {
+    await seedOrderCommerce(payload)
+  },
   globals: [Header, Footer, Homepage],
   editor: lexicalEditor({}),
   secret: process.env.PAYLOAD_SECRET || 'your-secret-here',

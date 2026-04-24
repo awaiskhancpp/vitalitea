@@ -72,7 +72,9 @@ export interface Config {
     categories: Category;
     testimonials: Testimonial;
     users: User;
-    shop: Shop;
+    'shipping-regions': ShippingRegion;
+    coupons: Coupon;
+    orders: Order;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -85,7 +87,9 @@ export interface Config {
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     testimonials: TestimonialsSelect<false> | TestimonialsSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
-    shop: ShopSelect<false> | ShopSelect<true>;
+    'shipping-regions': ShippingRegionsSelect<false> | ShippingRegionsSelect<true>;
+    coupons: CouponsSelect<false> | CouponsSelect<true>;
+    orders: OrdersSelect<false> | OrdersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -247,14 +251,105 @@ export interface User {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "shop".
+ * via the `definition` "shipping-regions".
  */
-export interface Shop {
+export interface ShippingRegion {
   id: number;
-  title: string;
-  description?: string | null;
-  price?: number | null;
-  image?: (number | null) | Media;
+  name: string;
+  country: string;
+  stateCode?: string | null;
+  /**
+   * USD
+   */
+  rate: number;
+  isActive?: boolean | null;
+  sort?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "coupons".
+ */
+export interface Coupon {
+  id: number;
+  /**
+   * Stored uppercase
+   */
+  code: string;
+  discountType: 'percent' | 'fixed';
+  /**
+   * Percent 0–100 or fixed rupees
+   */
+  value: number;
+  minSubtotal?: number | null;
+  /**
+   * Cap for percent discounts (optional)
+   */
+  maxDiscount?: number | null;
+  isActive?: boolean | null;
+  expiresAt?: string | null;
+  maxRedemptions?: number | null;
+  usedCount?: number | null;
+  /**
+   * Empty = valid for all regions
+   */
+  allowedRegions?: (number | ShippingRegion)[] | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "orders".
+ */
+export interface Order {
+  id: number;
+  orderNumber?: string | null;
+  status: 'awaiting_payment' | 'paid' | 'failed' | 'cancelled' | 'shipped';
+  email: string;
+  lineItems?:
+    | {
+        productId?: string | null;
+        slug?: string | null;
+        name: string;
+        price: number;
+        quantity: number;
+        imageUrl?: string | null;
+        imageAlt?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  subtotal: number;
+  discount?: number | null;
+  shipping: number;
+  total: number;
+  currency?: string | null;
+  shippingRegion?: (number | null) | ShippingRegion;
+  coupon?: (number | null) | Coupon;
+  couponCodeSnapshot?: string | null;
+  shippingAddress:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  billingAddress?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  paymentMethod?: ('stripe' | 'paypal') | null;
+  stripePaymentIntentId?: string | null;
+  stripeSessionId?: string | null;
+  paypalOrderId?: string | null;
+  paypalCaptureId?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -303,8 +398,16 @@ export interface PayloadLockedDocument {
         value: number | User;
       } | null)
     | ({
-        relationTo: 'shop';
-        value: number | Shop;
+        relationTo: 'shipping-regions';
+        value: number | ShippingRegion;
+      } | null)
+    | ({
+        relationTo: 'coupons';
+        value: number | Coupon;
+      } | null)
+    | ({
+        relationTo: 'orders';
+        value: number | Order;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -463,13 +566,71 @@ export interface UsersSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "shop_select".
+ * via the `definition` "shipping-regions_select".
  */
-export interface ShopSelect<T extends boolean = true> {
-  title?: T;
-  description?: T;
-  price?: T;
-  image?: T;
+export interface ShippingRegionsSelect<T extends boolean = true> {
+  name?: T;
+  country?: T;
+  stateCode?: T;
+  rate?: T;
+  isActive?: T;
+  sort?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "coupons_select".
+ */
+export interface CouponsSelect<T extends boolean = true> {
+  code?: T;
+  discountType?: T;
+  value?: T;
+  minSubtotal?: T;
+  maxDiscount?: T;
+  isActive?: T;
+  expiresAt?: T;
+  maxRedemptions?: T;
+  usedCount?: T;
+  allowedRegions?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "orders_select".
+ */
+export interface OrdersSelect<T extends boolean = true> {
+  orderNumber?: T;
+  status?: T;
+  email?: T;
+  lineItems?:
+    | T
+    | {
+        productId?: T;
+        slug?: T;
+        name?: T;
+        price?: T;
+        quantity?: T;
+        imageUrl?: T;
+        imageAlt?: T;
+        id?: T;
+      };
+  subtotal?: T;
+  discount?: T;
+  shipping?: T;
+  total?: T;
+  currency?: T;
+  shippingRegion?: T;
+  coupon?: T;
+  couponCodeSnapshot?: T;
+  shippingAddress?: T;
+  billingAddress?: T;
+  paymentMethod?: T;
+  stripePaymentIntentId?: T;
+  stripeSessionId?: T;
+  paypalOrderId?: T;
+  paypalCaptureId?: T;
   updatedAt?: T;
   createdAt?: T;
 }
