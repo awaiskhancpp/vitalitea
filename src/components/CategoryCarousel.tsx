@@ -110,30 +110,30 @@ export default function CategoryCarousel({ categories }: { categories: Category[
     stepPx > 0 ? `translate3d(${-index * stepPx}px,0,0)` : 'translate3d(0,0,0)'
 
   return (
-    <section className="relative overflow-hidden bg-[#F5F1E8] py-[clamp(56px,6.11vw,88px)]">
+    <section className="relative overflow-hidden bg-[#F5F1E8] py-[clamp(2.5rem,6.11vw,5.5rem)]">
       <div
-        className="pointer-events-none absolute right-0 top-0 z-0 opacity-[0.12]"
-        style={{ width: 'min(493px, 34.24vw)', aspectRatio: '493/232' }}
+        className="pointer-events-none absolute right-0 top-0 z-0 max-w-[min(100%,31rem)] opacity-[0.12]"
+        style={{ width: 'min(100%, 34.24vw)', aspectRatio: '493/232' }}
         aria-hidden="true"
       >
         <Image
           src="/logo1.png"
           alt=""
           fill
-          sizes="min(493px, 34.24vw)"
+          sizes="(max-width: 1440px) 34vw, 493px"
           className="object-contain object-right-top"
         />
       </div>
 
       <div
-        className="relative z-10"
+        className="relative z-10 w-full"
         role="region"
         aria-roledescription="carousel"
         aria-label="Shop by category"
         data-carousel="slide"
       >
         <div
-          className="overflow-hidden pl-[max(1.5rem,2.639vw)]"
+          className="app-container overflow-hidden pl-0"
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
@@ -151,7 +151,7 @@ export default function CategoryCarousel({ categories }: { categories: Category[
               <div
                 key={cat.id}
                 data-carousel-item
-                className="w-[min(85vw,400px)] shrink-0 lg:w-[27.7083vw]"
+                className="w-[min(85vw,25rem)] shrink-0 lg:w-[min(25rem,27.7083vw)]"
                 aria-hidden={i !== index}
               >
                 <Link

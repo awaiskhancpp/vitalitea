@@ -78,7 +78,8 @@ export default function BrandStory({ heading, body, image }: BrandStoryProps) {
             </p>
             <button
               type="button"
-              className="mt-6 rounded-full bg-[#627E5C] px-10 py-2.5 font-['Inter'] text-[16px] font-medium text-white transition-opacity hover:opacity-90"
+              className="mt-6 rounded-full bg-[#627E5C] px-8 py-2.5 font-['Inter'] font-medium text-white transition-opacity hover:opacity-90 sm:px-10"
+              style={{ fontSize: 'clamp(0.875rem,1.11vw,1rem)' }}
             >
               Learn More
             </button>
@@ -94,7 +95,10 @@ export default function BrandStory({ heading, body, image }: BrandStoryProps) {
           </div>
         </div>
 
-        <div className="hidden w-full lg:block" style={{ minHeight: 677 }}>
+        <div
+          className="relative mx-auto hidden w-full max-w-[1440px] lg:block"
+          style={{ minHeight: 677 }}
+        >
           <div
             className="absolute inset-y-0 overflow-hidden"
             style={{
@@ -103,32 +107,39 @@ export default function BrandStory({ heading, body, image }: BrandStoryProps) {
               borderRadius: '20px 0 0 20px',
             }}
           >
-            <Image src={expImg} alt={expAlt} fill className="object-cover object-center" />
+            <Image
+              src={expImg}
+              alt={expAlt}
+              fill
+              className="object-cover object-center"
+              sizes="(min-width: 1024px) 50vw, 0"
+            />
           </div>
           <div
-            className="relative z-10 flex flex-col"
+            className="relative z-10 flex min-w-0 max-w-full flex-col"
             style={{
               width: '51.25%',
               paddingLeft: '6.94%',
-              paddingTop: 243,
-              paddingBottom: 127,
+              paddingTop: 'clamp(8rem, 12.2vw, 15.2rem)',
+              paddingBottom: 'clamp(3rem, 6.1vw, 7.9rem)',
             }}
           >
             <h3
-              className="font-['Cormorant_Garamond'] font-bold text-black"
-              style={{ fontSize: 'clamp(36px, 3.5vw, 50px)', lineHeight: '1.21em' }}
+              className="min-w-0 max-w-full font-['Cormorant_Garamond'] font-bold text-black"
+              style={{ fontSize: 'clamp(1.5rem, 2.5vw, 3.125rem)', lineHeight: '1.21em' }}
             >
               {heading}
             </h3>
             <p
-              className="mt-1 font-['Inter'] text-[20px] leading-[1.21]"
-              style={{ color: 'rgba(0,0,0,0.7)', maxWidth: 512 }}
+              className="mt-1 min-w-0 max-w-md font-['Inter'] leading-[1.21] sm:max-w-lg lg:max-w-lg"
+              style={{ fontSize: 'clamp(0.875rem, 1.39vw, 1.25rem)', color: 'rgba(0,0,0,0.7)' }}
             >
               {expBody}
             </p>
             <button
               type="button"
-              className="mt-8 w-fit rounded-full bg-[#627E5C] px-20 py-2.5 font-['Inter'] text-[20px] font-medium text-white transition-opacity hover:opacity-90"
+              className="mt-8 w-fit min-w-0 max-w-full rounded-full bg-[#627E5C] px-8 py-2.5 font-['Inter'] font-medium text-white transition-opacity hover:opacity-90 sm:px-12 lg:px-20"
+              style={{ fontSize: 'clamp(0.875rem, 1.39vw, 1.25rem)' }}
             >
               Learn More
             </button>
@@ -137,13 +148,13 @@ export default function BrandStory({ heading, body, image }: BrandStoryProps) {
       </section>
 
       <section className="relative w-full bg-[#F5F1E8] pt-8 sm:pt-12 lg:pt-16">
-        <div className="relative aspect-[1440/651] w-full overflow-hidden">
+        <div className="relative aspect-[1440/651] w-full min-h-0 max-w-full overflow-hidden">
           <div
             className="absolute inset-0 bg-cover bg-[center_40%] bg-no-repeat sm:bg-center"
             style={{ backgroundImage: `url(${MARKET_BG_URL})` }}
             aria-hidden
           />
-          <div className="pointer-events-none absolute bottom-0 left-0 z-[1] w-[min(100%,427px)] opacity-[0.09]">
+          <div className="pointer-events-none absolute bottom-0 left-0 z-[1] w-[min(100%,27rem)] max-w-[40%] opacity-[0.09]">
             <Image
               src="/logo1.png"
               alt=""
@@ -152,38 +163,41 @@ export default function BrandStory({ heading, body, image }: BrandStoryProps) {
               className="h-auto w-full object-contain object-left-bottom"
             />
           </div>
-          <div
-            className="absolute inset-0 z-10 flex h-full flex-col items-start justify-start px-6 pt-[50px] text-left sm:px-10 sm:pt-[80px] lg:px-[6.94%] lg:pt-[90px]"
-            style={{ paddingBottom: MARKET_COPY_BOTTOM_PAD }}
-          >
-            <h2
-              className="max-w-[536px] font-['Cormorant_Garamond'] pt-20 pb-10 font-bold leading-[1.21] text-black"
-              style={{ fontSize: 'clamp(26px, 2.78vw, 40px)' }}
+          <div className="absolute inset-0 z-10 flex min-h-0 w-full min-w-0 sm:px-20">
+            <div
+              className="app-container flex h-full min-h-0 w-full min-w-0 max-w-full flex-col items-start justify-start pt-10 text-left sm:pt-12 lg:pt-[min(5.625rem,6.25vw)]"
+              style={{ paddingBottom: MARKET_COPY_BOTTOM_PAD }}
             >
-              The Expanding Health-Conscious Consumer Market
-            </h2>
-            <p
-              className="mt-4 max-w-[632px] font-['Inter'] leading-[1.21]"
-              style={{ fontSize: 'clamp(15px, 1.39vw, 20px)', color: 'rgba(0,0,0,0.7)' }}
-            >
-              An increasing focus on mental health and wellness with at-home natural remedies,
-              combined with a significant rise in the preference for spa therapies due to hectic
-              lifestyles, drives the demand for health-conscious and organic products.
-            </p>
-            <div className="min-h-2 w-full flex-1" aria-hidden />
-            <button
-              type="button"
-              className="w-fit shrink-0 rounded-full bg-[#627E5C] px-10 py-2.5 font-['Inter'] text-[16px] font-medium text-white transition-opacity hover:opacity-90 lg:px-20 lg:py-2.5 lg:text-[20px]"
-            >
-              Learn More
-            </button>
+              <h2
+                className="max-w-full font-['Cormorant_Garamond']  pt-4 font-bold leading-[1.21] text-black sm:max-w-lg sm:pt-6 lg:max-w-[min(100%,33.5rem)]"
+                style={{ fontSize: 'clamp(1.5rem, 2.78vw, 2.5rem)' }}
+              >
+                The Expanding Health-Conscious Consumer Market
+              </h2>
+              <p
+                className="mt-4 max-w-full font-['Inter'] leading-[1.21] sm:max-w-xl lg:max-w-[39.5rem]"
+                style={{ fontSize: 'clamp(0.875rem, 1.39vw, 1.25rem)', color: 'rgba(0,0,0,0.7)' }}
+              >
+                An increasing focus on mental health and wellness with at-home natural remedies,
+                combined with a significant rise in the preference for spa therapies due to hectic
+                lifestyles, drives the demand for health-conscious and organic products.
+              </p>
+              <div className="min-h-2 w-full flex-1" aria-hidden />
+              <button
+                type="button"
+                className="w-fit min-w-0 max-w-full shrink-0 rounded-full bg-[#627E5C] px-8 py-2.5 font-['Inter'] font-medium text-white transition-opacity hover:opacity-90 sm:px-10 lg:px-20"
+                style={{ fontSize: 'clamp(0.875rem, 1.39vw, 1.25rem)' }}
+              >
+                Learn More
+              </button>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Why Choose — Figma image ratios; md+ uses staggered row like desktop */}
-      <section className="bg-[#F5F1E8] pb-16 pt-12 sm:pb-20 sm:pt-16 lg:pb-24 lg:pt-[125px]">
-        <div className="w-full px-page">
+      <section className="bg-[#F5F1E8] pb-16 pt-12 sm:pb-20 sm:pt-16 lg:pb-24 lg:pt-[clamp(3rem,8.7vw,7.8rem)]">
+        <div className="app-container w-full">
           <div className="text-center">
             <h3
               className="font-['Cormorant_Garamond'] font-bold leading-[1.21] text-black"

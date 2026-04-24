@@ -39,6 +39,7 @@ export const Homepage: GlobalConfig = {
       type: 'group',
       fields: [
         { name: 'heading', type: 'text', defaultValue: 'Join the Ritual.' },
+        { name: 'subtext', type: 'text', defaultValue: 'Get 10% off your first order.' },
         { name: 'backgroundImage', type: 'upload', relationTo: 'media' },
       ],
     },

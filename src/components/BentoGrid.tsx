@@ -39,8 +39,8 @@ export default function BentoGrid() {
   ]
 
   return (
-    <section className="bg-[#F5F1E8] py-16 lg:py-20">
-      <div className="w-full px-6 sm:px-10 lg:pl-[6.94%] lg:pr-[6.39%]">
+    <section className="bg-[#F5F1E8] py-[clamp(2.5rem,4.2vw,5rem)] lg:py-[clamp(3rem,5vw,5rem)]">
+      <div className="app-container">
         <div className="flex flex-col gap-3 sm:hidden">
           {TILES.map((tile) => (
             <Link
@@ -62,7 +62,10 @@ export default function BentoGrid() {
             href="#"
             className="group relative flex h-32 items-center justify-center rounded-[22px] bg-[#627E5C]"
           >
-            <p className="text-center font-['Cormorant_Garamond'] text-[32px] font-bold leading-none text-white">
+            <p
+              className="text-center font-['Cormorant_Garamond'] font-bold leading-none text-white"
+              style={{ fontSize: 'clamp(1.5rem,4.2vw,2.25rem)' }}
+            >
               View All
               <br />
               Products
@@ -92,7 +95,10 @@ export default function BentoGrid() {
             href="#"
             className="group relative col-span-2 flex h-36 items-center justify-center rounded-[22px] bg-[#627E5C]"
           >
-            <p className="text-center font-['Cormorant_Garamond'] text-[36px] font-bold leading-none text-white">
+            <p
+              className="text-center font-['Cormorant_Garamond'] font-bold leading-none text-white"
+              style={{ fontSize: 'clamp(1.625rem,4.5vw,2.5rem)' }}
+            >
               View All Products
             </p>
             <TileArrowWhite />
@@ -111,7 +117,7 @@ export default function BentoGrid() {
           >
             <Link
               href="#"
-              className="group relative overflow-hidden rounded-[22px]"
+              className="group relative z-0 row-span-2 block h-full min-h-0 w-full min-w-0 overflow-hidden rounded-[22px]"
               style={{ gridColumn: '1', gridRow: '1 / 3' }}
             >
               <Image
@@ -119,6 +125,7 @@ export default function BentoGrid() {
                 alt="Herbal Tea"
                 fill
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
+                sizes="(min-width: 1024px) 22vw, 100vw"
               />
               <TileLabel label="Herbal Tea" />
               <TileArrow />
@@ -126,7 +133,7 @@ export default function BentoGrid() {
 
             <Link
               href="#"
-              className="group relative overflow-hidden rounded-[22px]"
+              className="group relative z-0 row-span-2 block h-full min-h-0 w-full min-w-0 overflow-hidden rounded-[22px]"
               style={{ gridColumn: '2', gridRow: '1 / 3' }}
             >
               <Image
@@ -134,6 +141,7 @@ export default function BentoGrid() {
                 alt="Manuka Honey"
                 fill
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
+                sizes="(min-width: 1024px) 22vw, 100vw"
               />
               <TileLabel label="Manuka Honey" />
               <TileArrow />
@@ -141,7 +149,7 @@ export default function BentoGrid() {
 
             <Link
               href="#"
-              className="group relative overflow-hidden rounded-[22px]"
+              className="group relative z-0 block h-full min-h-0 w-full min-w-0 overflow-hidden rounded-[22px]"
               style={{ gridColumn: '3', gridRow: '1' }}
             >
               <Image
@@ -149,6 +157,7 @@ export default function BentoGrid() {
                 alt="Yoga"
                 fill
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
+                sizes="(min-width: 1024px) 24vw, 100vw"
               />
               <TileLabel label="Yoga" />
               <TileArrow />
@@ -156,7 +165,7 @@ export default function BentoGrid() {
 
             <Link
               href="#"
-              className="group relative overflow-hidden rounded-[22px]"
+              className="group relative z-0 block h-full min-h-0 w-full min-w-0 overflow-hidden rounded-[22px]"
               style={{ gridColumn: '3', gridRow: '2' }}
             >
               <Image
@@ -164,6 +173,7 @@ export default function BentoGrid() {
                 alt="Teaware"
                 fill
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
+                sizes="(min-width: 1024px) 24vw, 100vw"
               />
               <TileLabel label="Teaware" />
               <TileArrow />
@@ -178,23 +188,31 @@ export default function BentoGrid() {
               minHeight: 'clamp(160px, 15.56vw, 224px)',
             }}
           >
-            <Link href="#" className="group relative overflow-hidden rounded-[22px]">
+            <Link
+              href="#"
+              className="group relative z-0 block h-full min-h-[clamp(8rem,15.56vw,14rem)] w-full min-w-0 overflow-hidden rounded-[22px]"
+            >
               <Image
                 src="/cat-oil-candles.png"
                 alt="Oil & Candles"
                 fill
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
+                sizes="(min-width: 1024px) 30vw, 100vw"
               />
               <TileLabel label="Oil & Candles" />
               <TileArrow />
             </Link>
 
-            <Link href="#" className="group relative overflow-hidden rounded-[22px]">
+            <Link
+              href="#"
+              className="group relative z-0 block h-full min-h-[clamp(8rem,15.56vw,14rem)] w-full min-w-0 overflow-hidden rounded-[22px]"
+            >
               <Image
                 src="/cat-skin-wellness-6d4092.png"
                 alt="Skin Wellness"
                 fill
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
+                sizes="(min-width: 1024px) 30vw, 100vw"
               />
               <TileLabel label="Skin Wellness" />
               <TileArrow />

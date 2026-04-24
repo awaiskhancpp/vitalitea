@@ -37,16 +37,15 @@ export default function Navbar({ links }: NavbarProps) {
   const handleLinkClick = () => setMenuOpen(false)
 
   const isShop = pathname === '/shop' || pathname?.startsWith('/shop/')
-  const isCreamPage = isShop || pathname === '/bag' || pathname === '/checkout'
   // Home/landing: transparent so the hero (`-mt-[105px]` in HeroSection) shows under the bar again.
-  // Shop, bag, checkout: same cream as those pages.
-  const navBarBg = isCreamPage ? 'bg-[#F5F1E8]' : 'bg-transparent'
-  const mobileMenuBg = isCreamPage ? 'bg-[#F5F1E8]' : 'bg-white/95'
+  // Shop: cream to match the page.
+  const navBarBg = isShop ? 'bg-[#F5F1E8]' : 'bg-transparent'
+  const mobileMenuBg = isShop ? 'bg-[#F5F1E8]' : 'bg-white/95'
 
   return (
-    <nav className={`sticky top-0 z-50 w-full ${navBarBg}`}>
-      <div className="flex w-full items-center justify-between px-6 pt-[42px] sm:px-10 lg:px-[6.94%]">
-        <Link href="/" className="flex flex-shrink-0 items-center">
+    <nav className={`relative inset-x-0 top-0 z-40 w-full ${navBarBg}`}>
+      <div className="flex w-full items-center justify-between px-6 pt-[32px] sm:px-10 lg:px-[6.94%]">
+        <Link href="/" className="flex shrink-0 items-center">
           <Image
             src="/logo.png"
             alt="VitaliTea Logo"

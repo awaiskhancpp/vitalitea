@@ -43,7 +43,6 @@ export default function ProductCard({
       addInFlight.current = true
       setIsAdding(true)
       try {
-        // Minimum time so the in-button loading state is visible (e‑commerce style “processing”)
         const minDisplay = new Promise((r) => setTimeout(r, 520))
         const line = {
           id: String(id),
@@ -64,47 +63,53 @@ export default function ProductCard({
   )
 
   return (
-    /* No overflow-hidden here — shadow renders freely without clipping the image */
-    <div className="w-full max-w-[400px] rounded-[20px] overflow-hidden">
-      {/* Image — overflow-hidden + top radius here only, so image fills 400×352 fully */}
-      <div className="relative w-full aspect-[400/352]">
-        <Image src={imageSrc} alt={imageAlt} className="object-cover object-center" fill />
+    <div className="flex h-full min-h-0 w-full min-w-0 max-w-full flex-col overflow-hidden rounded-[20px] bg-white shadow-[4px_4px_10px_0px_rgba(0,0,0,0.12)]">
+      <div className="relative aspect-square w-full shrink-0 overflow-hidden rounded-t-[20px] bg-[#e8e4dd]">
+        <Image
+          src={imageSrc}
+          alt={imageAlt}
+          className="object-cover object-center"
+          fill
+          sizes="(min-width: 1024px) min(28vw, 400px), (min-width: 640px) 45vw, 100vw"
+        />
       </div>
 
-      {/* Content — 216px tall, green gradient, bottom radius */}
-      <div className="flex h-54 flex-col bg-[linear-gradient(180deg,rgba(24,23,23,0.2)_0%,rgba(84,101,125,0.16)_51.92%,rgba(102,102,102,0.2)_66.35%),linear-gradient(0deg,#627E5C,#627E5C)] px-5 pb-4 pt-4">
-        {/* Name */}
-        <h3 className="line-clamp-2 font-['Cormorant_Garamond'] text-[30px] font-bold leading-none text-white">
+      <div className="flex min-h-52 flex-1 flex-col rounded-b-[20px] bg-[linear-gradient(180deg,rgba(24,23,23,0.2)_0%,rgba(84,101,125,0.16)_51.92%,rgba(102,102,102,0.2)_66.35%),linear-gradient(0deg,#627E5C,#627E5C)] px-4 pb-4 pt-4 sm:px-5">
+        <h3
+          className="line-clamp-2 min-w-0 shrink-0 font-['Cormorant_Garamond'] font-bold leading-tight text-white"
+          style={{ fontSize: 'clamp(1.25rem, 2.08vw, 1.875rem)' }}
+        >
           {name}
         </h3>
-
-        {/* Description */}
-        <p className="mt-1.5 line-clamp-2 font-['Martel_Sans'] text-[14px] font-normal leading-[1.3] tracking-normal text-white/70">
+        <p
+          className="mt-1.5 pb-1line-clamp-2 min-w-0 shrink-0 font-['Martel_Sans'] font-normal leading-[1.3] text-white/70"
+          style={{ fontSize: 'clamp(0.8125rem, 0.97vw, 0.875rem)' }}
+        >
           {description}
         </p>
-
-        {/* Price + Select Options */}
-        <div className="mt-6.25 flex items-center justify-between">
-          <span className="font-['Martel_Sans'] text-[16px] text-white">
+        <div className=" flex min-w-0 shrink-0 flex-wrap items-center justify-between gap-2 mt-6 sm:mt-4">
+          <span
+            className="font-['Martel_Sans'] text-white"
+            style={{ fontSize: 'clamp(0.875rem, 1.11vw, 1rem)' }}
+          >
             ${Number(price).toFixed(2)}
           </span>
-
           <Link
             href={`/shop/${encodeURIComponent(slug)}`}
-            className="rounded-full border border-[#DADADA] px-3.75 py-0.75 font-['Martel_Sans'] text-[14px] font-normal text-white transition-colors hover:bg-white/10"
+            className="shrink-0 rounded-full border border-[#DADADA] font-['Martel_Sans'] font-normal text-white transition-colors hover:bg-white/10"
+            style={{ fontSize: 'clamp(0.75rem, 0.9vw, 0.875rem)', padding: '0.2rem 0.75rem' }}
           >
             Select Options
           </Link>
         </div>
-
-        {/* Add to bag */}
         <button
           type="button"
           onClick={addToCart}
           disabled={isAdding}
           aria-busy={isAdding}
           aria-label={isAdding ? 'Adding to bag' : 'Add to bag'}
-          className="mt-auto flex h-11.75 w-full shrink-0 items-center justify-center gap-2.5 rounded-full bg-[#F5F1E8] px-4 py-px font-['Martel_Sans'] text-[16px] font-semibold leading-none text-[#3B3B3B] transition-opacity enabled:hover:opacity-90 disabled:cursor-wait disabled:opacity-100"
+          className="mt-3 flex min-h-11 w-full min-w-0 shrink-0 items-center justify-center gap-2.5 rounded-full bg-[#F5F1E8] px-4 py-2.5 font-['Martel_Sans'] font-semibold leading-none text-[#3B3B3B] transition-opacity enabled:hover:opacity-90 disabled:cursor-wait disabled:opacity-100"
+          style={{ fontSize: 'clamp(0.875rem,1.11vw,1rem)' }}
         >
           {isAdding && (
             <span

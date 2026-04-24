@@ -4,8 +4,6 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useCart } from '@/contexts/CartContext'
 
-const FREE_SHIPPING_MIN = 75
-
 export default function CartPage() {
   const { items, ready, subtotal, setQuantity, removeItem, itemCount } = useCart()
 
@@ -46,17 +44,6 @@ export default function CartPage() {
           </div>
         ) : (
           <>
-            {subtotal >= FREE_SHIPPING_MIN && (
-              <div className="mt-6 flex items-center gap-2 rounded-lg border border-[#627E5C]/30 bg-white px-4 py-3 sm:px-5">
-                <span className="text-[#627E5C]" aria-hidden>
-                  <CheckIcon className="h-5 w-5 shrink-0" />
-                </span>
-                <p className="font-['Host_Grotesk'] text-sm font-medium text-[#4a6b45]">
-                  You&apos;ve qualified for free delivery
-                </p>
-              </div>
-            )}
-
             <div className="mt-8 flex flex-col gap-8 lg:mt-10 lg:flex-row lg:items-start lg:gap-10 xl:gap-16">
               <div className="min-w-0 flex-1 space-y-4 lg:max-w-3xl">
                 {items.map((line) => (
@@ -175,7 +162,14 @@ export default function CartPage() {
 
 function CloseIcon({ className }: { className?: string }) {
   return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden>
+    <svg
+      className={className}
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth="2"
+      aria-hidden
+    >
       <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
     </svg>
   )
@@ -191,14 +185,25 @@ function BagOutline({ className }: { className?: string }) {
       strokeWidth="1"
       aria-hidden
     >
-      <path strokeLinecap="round" strokeLinejoin="round" d="M16 8V4a4 4 0 00-8 0v4M4 8h16l1 12H3L4 8z" />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M16 8V4a4 4 0 00-8 0v4M4 8h16l1 12H3L4 8z"
+      />
     </svg>
   )
 }
 
 function CheckIcon({ className }: { className?: string }) {
   return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden>
+    <svg
+      className={className}
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth="2"
+      aria-hidden
+    >
       <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
     </svg>
   )
@@ -206,7 +211,14 @@ function CheckIcon({ className }: { className?: string }) {
 
 function InfoIcon({ className }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden>
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      aria-hidden
+    >
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -218,7 +230,14 @@ function InfoIcon({ className }: { className?: string }) {
 
 function TagIcon({ className }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden>
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      aria-hidden
+    >
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -230,7 +249,14 @@ function TagIcon({ className }: { className?: string }) {
 
 function LockIcon({ className }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden>
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      aria-hidden
+    >
       <path
         strokeLinecap="round"
         strokeLinejoin="round"

@@ -114,11 +114,11 @@ export default function FeaturedProducts({ products }: { products: Product[] }) 
     stepPx > 0 ? `translate3d(${-mobileIndex * stepPx}px,0,0)` : 'translate3d(0,0,0)'
 
   return (
-    <section className="bg-[#F5F1E8] py-16 lg:py-20">
-      <div className="w-full px-6 sm:px-10 lg:px-[6.94%]">
+    <section className="bg-[#F5F1E8] py-[clamp(2.5rem,4.2vw,5rem)] lg:py-[clamp(3rem,5vw,5rem)]">
+      <div className="app-container w-full min-w-0 max-w-full">
         <h2
-          className="mb-7 font-['Cormorant_Garamond'] font-bold leading-[1.21] text-black lg:mb-[clamp(32px,6.25vw,90px)]"
-          style={{ fontSize: 'clamp(32px, 3.47vw, 50px)' }}
+          className="mb-7 font-['Cormorant_Garamond'] font-bold leading-[1.21] text-black lg:mb-[clamp(2rem,6.25vw,5.625rem)]"
+          style={{ fontSize: 'clamp(1.5rem, 3.47vw, 3.125rem)' }}
         >
           Our Products
         </h2>
@@ -137,7 +137,7 @@ export default function FeaturedProducts({ products }: { products: Product[] }) 
             >
               {items.map((product, i) => (
                 <div key={product.id} className="w-full min-w-0 shrink-0">
-                  <ProductCard product={product} index={i} />
+                  <FeaturedProductCard product={product} index={i} />
                 </div>
               ))}
             </div>
@@ -161,9 +161,10 @@ export default function FeaturedProducts({ products }: { products: Product[] }) 
         </div>
 
         <div
-          className="hidden lg:grid"
+          className="hidden min-w-0 gap-x-[clamp(0.5rem,1.4vw,1.75rem)] gap-y-8 lg:grid"
           style={{
-            gridTemplateColumns: '400fr 20fr 400fr 28fr 400fr',
+            gridTemplateColumns:
+              'minmax(0,1fr) minmax(0,0.05fr) minmax(0,1fr) minmax(0,0.07fr) minmax(0,1fr)',
           }}
         >
           {pageItems.map((product, index) => (
@@ -173,7 +174,7 @@ export default function FeaturedProducts({ products }: { products: Product[] }) 
                 gridColumn: index === 0 ? 1 : index === 1 ? 3 : 5,
               }}
             >
-              <ProductCard product={product} index={activePage * CARDS_PER_PAGE + index} />
+              <FeaturedProductCard product={product} index={activePage * CARDS_PER_PAGE + index} />
             </div>
           ))}
         </div>
@@ -197,14 +198,14 @@ export default function FeaturedProducts({ products }: { products: Product[] }) 
   )
 }
 
-function ProductCard({ product, index }: { product: Product; index: number }) {
+function FeaturedProductCard({ product, index }: { product: Product; index: number }) {
   return (
     <div
-      className="flex h-full flex-col overflow-hidden rounded-[20px] bg-white"
+      className="flex h-full w-full min-w-0 max-w-full flex-col overflow-hidden rounded-[20px] bg-white"
       style={{ boxShadow: '4px 4px 10px 0px rgba(0,0,0,0.12)' }}
     >
       <div
-        className="relative w-full overflow-hidden rounded-t-[20px] bg-[#efefef]"
+        className="relative w-full min-w-0 overflow-hidden rounded-t-[20px] bg-[#efefef]"
         style={{ aspectRatio: '400/352' }}
       >
         <Image
@@ -212,35 +213,45 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
           alt={product.image?.alt ?? product.name}
           fill
           className="object-cover"
-          sizes="(min-width: 1024px) 28vw, (min-width: 640px) 46vw, 100vw"
+          sizes="(min-width: 1024px) min(28vw, 400px), (min-width: 640px) 46vw, 100vw"
         />
       </div>
-      <div className="flex flex-1 flex-col rounded-b-[20px] px-[22px] py-[18px]">
-        <h3 className="font-['Cormorant'] text-[30px] font-bold leading-[1.21] text-black">
+      <div className="flex min-w-0 flex-1 flex-col rounded-b-[20px] px-4 py-4 sm:px-5 sm:py-[1.125rem] md:px-[1.375rem]">
+        <h3
+          className="min-w-0 font-['Cormorant'] font-bold leading-[1.21] text-black"
+          style={{ fontSize: 'clamp(1.25rem, 2.08vw, 1.875rem)' }}
+        >
           {product.name}
         </h3>
         <p
-          className="mt-1 line-clamp-2 font-['Martel_Sans'] text-[14px] leading-[1.14]"
-          style={{ color: 'rgba(0,0,0,0.5)' }}
+          className="mt-1 line-clamp-2 min-w-0 font-['Martel_Sans'] leading-[1.14]"
+          style={{ fontSize: 'clamp(0.8125rem,0.97vw,0.875rem)', color: 'rgba(0,0,0,0.5)' }}
         >
           {product.description}
         </p>
-        <div className="mb-3 mt-4 flex items-center justify-between">
-          <span className="font-['Martel_Sans'] text-[16px] font-normal leading-[1.824] text-black">
+        <div className="mb-2 mt-4 flex min-w-0 flex-wrap items-center justify-between gap-2">
+          <span
+            className="font-['Martel_Sans'] font-normal leading-[1.824] text-black"
+            style={{ fontSize: 'clamp(0.875rem,1.11vw,1rem)' }}
+          >
             ${Number(product.price).toFixed(2)}
           </span>
           <Link
             href="#"
-            className="inline-flex items-center rounded-full font-['Martel_Sans'] text-[12px] font-normal text-black"
-            style={{ border: '1px solid #DADADA', padding: '3px 15px' }}
+            className="inline-flex shrink-0 items-center rounded-full font-['Martel_Sans'] font-normal text-black"
+            style={{
+              border: '1px solid #DADADA',
+              fontSize: 'clamp(0.6875rem,0.9vw,0.75rem)',
+              padding: '0.2rem 0.75rem',
+            }}
           >
             Select Options
           </Link>
         </div>
         <Link
           href="#"
-          className="mt-auto inline-flex w-full items-center justify-center self-center whitespace-nowrap rounded-full bg-[#627E5C] font-['Martel_Sans'] text-[15px] font-extrabold text-white transition-opacity hover:opacity-90"
-          style={{ padding: '10px 80px' }}
+          className="mt-auto inline-flex w-full min-w-0 max-w-full items-center justify-center self-center rounded-full bg-[#627E5C] px-6 py-2.5 font-['Martel_Sans'] font-extrabold text-white transition-opacity hover:opacity-90 sm:px-10"
+          style={{ fontSize: 'clamp(0.875rem,1.04vw,0.9375rem)' }}
         >
           Shop Now
         </Link>

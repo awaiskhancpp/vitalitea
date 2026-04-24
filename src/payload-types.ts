@@ -575,6 +575,7 @@ export interface Homepage {
   };
   newsletter?: {
     heading?: string | null;
+    subtext?: string | null;
     backgroundImage?: (number | null) | Media;
   };
   updatedAt?: string | null;
@@ -649,6 +650,7 @@ export interface HomepageSelect<T extends boolean = true> {
     | T
     | {
         heading?: T;
+        subtext?: T;
         backgroundImage?: T;
       };
   updatedAt?: T;
