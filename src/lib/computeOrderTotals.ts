@@ -45,11 +45,23 @@ export async function computeOrderTotals(
 
   const { lines, subtotal } = resolved
 
-  const reg = await payload.findByID({
-    collection: 'shipping-regions',
-    id: input.shippingRegionId,
-    overrideAccess: true,
-  })
+  let reg = await payload
+    .findByID({
+      collection: 'shipping-regions',
+      id: input.shippingRegionId,
+      overrideAccess: true,
+    })
+    .catch(() => null)
+  const n = Number(input.shippingRegionId)
+  if (!reg && !Number.isNaN(n)) {
+    reg = await payload
+      .findByID({
+        collection: 'shipping-regions',
+        id: n,
+        overrideAccess: true,
+      })
+      .catch(() => null)
+  }
   if (!reg || !(reg as RegionDoc).isActive) {
     return { ok: false, error: 'Invalid shipping region' }
   }

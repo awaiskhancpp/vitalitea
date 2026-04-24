@@ -98,6 +98,16 @@ function InputError({ id, message }: { id: string; message?: string }) {
   )
 }
 
+function parseApiError(body: string, status: number, fallback: string) {
+  try {
+    const j = JSON.parse(body) as { error?: string }
+    if (j.error) return j.error
+  } catch {
+    if (body?.trim()) return `${fallback} (${status}): ${body.trim().slice(0, 240)}`
+  }
+  return `${fallback} (HTTP ${status})`
+}
+
 export default function CheckoutClient() {
   const router = useRouter()
   const { items, ready, subtotal, itemCount, clear } = useCart()
@@ -363,23 +373,23 @@ export default function CheckoutClient() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(buildDraftBody('stripe')),
       })
+      const draftText = await draftRes.text()
       if (!draftRes.ok) {
-        const j = (await draftRes.json().catch(() => ({}))) as { error?: string }
-        setPayError(j.error || 'Could not start checkout')
+        setPayError(parseApiError(draftText, draftRes.status, 'Could not start checkout'))
         return
       }
-      const { orderId } = (await draftRes.json()) as { orderId: string }
+      const { orderId } = JSON.parse(draftText) as { orderId: string }
       const sessionRes = await fetch('/api/checkout/stripe-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ orderId }),
       })
+      const sessionText = await sessionRes.text()
       if (!sessionRes.ok) {
-        const j = (await sessionRes.json().catch(() => ({}))) as { error?: string }
-        setPayError(j.error || 'Could not start Stripe')
+        setPayError(parseApiError(sessionText, sessionRes.status, 'Could not start Stripe'))
         return
       }
-      const { url } = (await sessionRes.json()) as { url: string }
+      const { url } = JSON.parse(sessionText) as { url: string }
       if (url) window.location.href = url
     } catch (e) {
       setPayError(e instanceof Error ? e.message : 'Payment failed to start')
