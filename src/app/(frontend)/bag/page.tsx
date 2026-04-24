@@ -154,14 +154,12 @@ export default function CartPage() {
                   </p>
                 </div>
 
-                <button
-                  type="button"
-                  className="mt-5 flex h-12 w-full items-center justify-center rounded-full bg-[#F2EBE1] font-['Host_Grotesk'] text-sm font-bold text-[#3B3B3B] transition-opacity disabled:opacity-50"
-                  disabled
-                  title="Connect payments to enable checkout"
+                <Link
+                  href="/checkout"
+                  className="mt-5 flex h-12 w-full items-center justify-center rounded-full bg-[#627E5C] font-['Host_Grotesk'] text-sm font-bold text-white transition-opacity hover:opacity-90"
                 >
                   Proceed to checkout
-                </button>
+                </Link>
                 <p className="mt-3 flex items-center justify-center gap-1.5 text-xs text-neutral-500">
                   <LockIcon className="h-3.5 w-3.5" />
                   <span className="font-['Host_Grotesk']">Secure checkout</span>

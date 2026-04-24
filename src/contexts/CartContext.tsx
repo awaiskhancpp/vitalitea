@@ -22,6 +22,8 @@ type CartContextValue = {
   setQuantity: (id: string, quantity: number) => void
   removeItem: (id: string) => void
   clear: () => void
+  /** Last add-to-bag for navbar confirmation; auto-clears after a few seconds */
+  lastAddedName: string | null
   drawerOpen: boolean
   openCartDrawer: () => void
   closeCartDrawer: () => void
@@ -53,6 +55,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([])
   const [ready, setReady] = useState(false)
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const [lastAddedName, setLastAddedName] = useState<string | null>(null)
 
   const openCartDrawer = useCallback(() => setDrawerOpen(true), [])
   const closeCartDrawer = useCallback(() => setDrawerOpen(false), [])
@@ -72,6 +75,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   }, [items, ready])
 
+  useEffect(() => {
+    if (lastAddedName == null) return
+    const t = setTimeout(() => setLastAddedName(null), 4500)
+    return () => clearTimeout(t)
+  }, [lastAddedName])
+
   const addItem = useCallback((line: Omit<CartItem, 'quantity'>) => {
     setItems((prev) => {
       const i = prev.findIndex((p) => p.id === line.id)
@@ -82,6 +91,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       }
       return [...prev, { ...line, quantity: 1 }]
     })
+    setLastAddedName(line.name)
   }, [])
 
   const setQuantity = useCallback((id: string, quantity: number) => {
@@ -117,6 +127,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       setQuantity,
       removeItem,
       clear,
+      lastAddedName,
       drawerOpen,
       openCartDrawer,
       closeCartDrawer,
@@ -131,6 +142,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       setQuantity,
       removeItem,
       clear,
+      lastAddedName,
       drawerOpen,
       openCartDrawer,
       closeCartDrawer,

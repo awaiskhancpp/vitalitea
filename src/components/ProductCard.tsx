@@ -1,7 +1,7 @@
 'use client'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useCallback } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { useCart } from '@/contexts/CartContext'
 
 interface ProductCardProps {
@@ -23,7 +23,9 @@ export default function ProductCard({
   image,
   fallbackImage = '/product-black-velvet.png',
 }: ProductCardProps) {
-  const { addItem, openCartDrawer } = useCart()
+  const { addItem } = useCart()
+  const [isAdding, setIsAdding] = useState(false)
+  const addInFlight = useRef(false)
 
   const raw = typeof image?.url === 'string' ? image.url.trim() : ''
   const normalized = !raw
@@ -35,55 +37,61 @@ export default function ProductCard({
   const imageAlt = image?.alt ?? name
 
   const addToCart = useCallback(
-    (e: React.MouseEvent) => {
+    async (e: React.MouseEvent) => {
       e.preventDefault()
-      addItem({
-        id: String(id),
-        slug,
-        name,
-        price: Number(price),
-        imageUrl: imageSrc,
-        imageAlt,
-      })
-      openCartDrawer()
+      if (addInFlight.current) return
+      addInFlight.current = true
+      setIsAdding(true)
+      try {
+        // Minimum time so the in-button loading state is visible (e‑commerce style “processing”)
+        const minDisplay = new Promise((r) => setTimeout(r, 520))
+        const line = {
+          id: String(id),
+          slug,
+          name,
+          price: Number(price),
+          imageUrl: imageSrc,
+          imageAlt,
+        }
+        await minDisplay
+        addItem(line)
+      } finally {
+        addInFlight.current = false
+        setIsAdding(false)
+      }
     },
-    [addItem, openCartDrawer, id, slug, name, price, imageSrc, imageAlt],
+    [addItem, id, slug, name, price, imageSrc, imageAlt],
   )
 
   return (
     /* No overflow-hidden here — shadow renders freely without clipping the image */
-    <div className="flex w-full max-w-[400px] flex-col rounded-[20px]">
+    <div className="w-full max-w-[400px] rounded-[20px] overflow-hidden">
       {/* Image — overflow-hidden + top radius here only, so image fills 400×352 fully */}
-      <div className="relative h-[352px] w-full shrink-0 overflow-hidden rounded-t-[20px] bg-[#e8e4dd]">
-        <Image
-          src={imageSrc}
-          alt={imageAlt}
-          className="object-cover object-center w-[400px] h-[352px]"
-          fill
-        />
+      <div className="relative w-full aspect-[400/352]">
+        <Image src={imageSrc} alt={imageAlt} className="object-cover object-center" fill />
       </div>
 
       {/* Content — 216px tall, green gradient, bottom radius */}
-      <div className="flex h-[216px] w-full flex-col rounded-b-[20px] bg-[linear-gradient(180deg,rgba(24,23,23,0.2)_0%,rgba(84,101,125,0.16)_51.92%,rgba(102,102,102,0.2)_66.35%),linear-gradient(0deg,#627E5C,#627E5C)] px-[17px] pb-4 pt-[17px]">
+      <div className="flex h-54 flex-col bg-[linear-gradient(180deg,rgba(24,23,23,0.2)_0%,rgba(84,101,125,0.16)_51.92%,rgba(102,102,102,0.2)_66.35%),linear-gradient(0deg,#627E5C,#627E5C)] px-5 pb-4 pt-4">
         {/* Name */}
-        <h3 className="line-clamp-2 max-w-[341px] font-['Cormorant_Garamond'] text-[30px] font-bold leading-none tracking-normal text-white">
+        <h3 className="line-clamp-2 font-['Cormorant_Garamond'] text-[30px] font-bold leading-none text-white">
           {name}
         </h3>
 
         {/* Description */}
-        <p className="mt-[6px] line-clamp-2 max-w-[341px] font-['Martel_Sans'] text-[14px] font-normal leading-[16px] tracking-normal text-white/70">
+        <p className="mt-1.5 line-clamp-2 font-['Martel_Sans'] text-[14px] font-normal leading-[1.3] tracking-normal text-white/70">
           {description}
         </p>
 
         {/* Price + Select Options */}
-        <div className="mt-[25px] flex items-center justify-between">
-          <span className="font-['Martel_Sans'] text-[16px] font-normal leading-none text-white">
+        <div className="mt-6.25 flex items-center justify-between">
+          <span className="font-['Martel_Sans'] text-[16px] text-white">
             ${Number(price).toFixed(2)}
           </span>
 
           <Link
             href={`/shop/${encodeURIComponent(slug)}`}
-            className="rounded-full border border-[#DADADA] px-[15px] py-[3px] font-['Martel_Sans'] text-[14px] font-normal leading-none text-white transition-colors hover:bg-white/10"
+            className="rounded-full border border-[#DADADA] px-3.75 py-0.75 font-['Martel_Sans'] text-[14px] font-normal text-white transition-colors hover:bg-white/10"
           >
             Select Options
           </Link>
@@ -93,9 +101,18 @@ export default function ProductCard({
         <button
           type="button"
           onClick={addToCart}
-          className="mt-auto h-[47px] w-full shrink-0 rounded-full bg-[#F5F1E8] px-20 py-[1px] font-['Martel_Sans'] text-[16px] font-semibold leading-none text-[#3B3B3B] transition-opacity hover:opacity-90"
+          disabled={isAdding}
+          aria-busy={isAdding}
+          aria-label={isAdding ? 'Adding to bag' : 'Add to bag'}
+          className="mt-auto flex h-11.75 w-full shrink-0 items-center justify-center gap-2.5 rounded-full bg-[#F5F1E8] px-4 py-px font-['Martel_Sans'] text-[16px] font-semibold leading-none text-[#3B3B3B] transition-opacity enabled:hover:opacity-90 disabled:cursor-wait disabled:opacity-100"
         >
-          Add to bag
+          {isAdding && (
+            <span
+              className="inline-block size-5 shrink-0 animate-spin rounded-full border-2 border-[#3B3B3B]/25 border-t-[#627E5C]"
+              aria-hidden
+            />
+          )}
+          <span className="truncate">{isAdding ? 'Adding…' : 'Add to bag'}</span>
         </button>
       </div>
     </div>

@@ -19,7 +19,7 @@ export default function Navbar({ links }: NavbarProps) {
   const [searchOpen, setSearchOpen] = useState(false)
   const searchBarRef = useRef<HTMLDivElement | null>(null)
   const pathname = usePathname()
-  const { itemCount, openCartDrawer } = useCart()
+  const { itemCount, openCartDrawer, lastAddedName } = useCart()
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent | ReactMouseEvent) => {
@@ -37,13 +37,14 @@ export default function Navbar({ links }: NavbarProps) {
   const handleLinkClick = () => setMenuOpen(false)
 
   const isShop = pathname === '/shop' || pathname?.startsWith('/shop/')
+  const isCreamPage = isShop || pathname === '/bag' || pathname === '/checkout'
   // Home/landing: transparent so the hero (`-mt-[105px]` in HeroSection) shows under the bar again.
-  // Shop: cream to match the page.
-  const navBarBg = isShop ? 'bg-[#F5F1E8]' : 'bg-transparent'
-  const mobileMenuBg = isShop ? 'bg-[#F5F1E8]' : 'bg-white/95'
+  // Shop, bag, checkout: same cream as those pages.
+  const navBarBg = isCreamPage ? 'bg-[#F5F1E8]' : 'bg-transparent'
+  const mobileMenuBg = isCreamPage ? 'bg-[#F5F1E8]' : 'bg-white/95'
 
   return (
-    <nav className={`relative inset-x-0 top-0 z-40 w-full ${navBarBg}`}>
+    <nav className={`sticky top-0 z-50 w-full ${navBarBg}`}>
       <div className="flex w-full items-center justify-between px-6 pt-[42px] sm:px-10 lg:px-[6.94%]">
         <Link href="/" className="flex flex-shrink-0 items-center">
           <Image
@@ -93,11 +94,16 @@ export default function Navbar({ links }: NavbarProps) {
             type="button"
             onClick={openCartDrawer}
             aria-label="Open shopping bag"
-            className="relative inline-flex cursor-pointer rounded-full border-0 bg-transparent p-0 transition-opacity hover:opacity-80"
+            className={`relative inline-flex cursor-pointer rounded-full border-0 bg-transparent p-0 transition-[transform,opacity] duration-300 hover:opacity-80 ${
+              lastAddedName ? 'scale-110' : ''
+            }`}
           >
             <Image src="/cart.png" alt="" width={23} height={23} />
             {itemCount > 0 && (
-              <span className="absolute -right-1 -top-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[#627E5C] px-1 text-[11px] font-medium text-white">
+              <span
+                key={itemCount}
+                className="absolute -right-1 -top-1 flex h-[18px] min-w-[18px] animate-pop items-center justify-center rounded-full bg-[#627E5C] px-1 text-[11px] font-medium text-white"
+              >
                 {itemCount > 99 ? '99+' : itemCount}
               </span>
             )}
@@ -122,11 +128,16 @@ export default function Navbar({ links }: NavbarProps) {
             type="button"
             onClick={openCartDrawer}
             aria-label="Open shopping bag"
-            className="relative flex rounded-full p-2 transition-colors hover:bg-gray-100"
+            className={`relative flex rounded-full p-2 transition-transform duration-300 hover:bg-gray-100 ${
+              lastAddedName ? 'scale-110' : ''
+            }`}
           >
             <Image src="/cart.png" alt="" width={23} height={23} />
             {itemCount > 0 && (
-              <span className="absolute right-0 top-1 flex h-[16px] min-w-[16px] items-center justify-center rounded-full bg-[#627E5C] px-0.5 text-[10px] font-medium text-white">
+              <span
+                key={itemCount}
+                className="absolute right-0 top-1 flex h-[16px] min-w-[16px] animate-pop items-center justify-center rounded-full bg-[#627E5C] px-0.5 text-[10px] font-medium text-white"
+              >
                 {itemCount > 99 ? '99+' : itemCount}
               </span>
             )}

@@ -8,8 +8,7 @@ import { useCart } from '@/contexts/CartContext'
 const overlayBase = 'fixed inset-0 z-[100] bg-black/50'
 const panelBase =
   'fixed right-0 top-0 z-[101] flex h-full w-full max-w-[420px] flex-col bg-white shadow-[-4px_0_24px_rgba(0,0,0,0.12)]'
-const overlayMotion =
-  'transition-opacity duration-300 ease-out motion-reduce:transition-none'
+const overlayMotion = 'transition-opacity duration-300 ease-out motion-reduce:transition-none'
 const panelMotion =
   'transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] motion-reduce:transition-none will-change-transform'
 
@@ -97,7 +96,9 @@ export default function CartDrawer() {
             <div className="text-neutral-300">
               <BagIcon className="h-20 w-20" />
             </div>
-            <p className="font-['Host_Grotesk'] text-lg font-semibold text-[#3B3B3B]">Your bag is empty</p>
+            <p className="font-['Host_Grotesk'] text-lg font-semibold text-[#3B3B3B]">
+              Your bag is empty
+            </p>
             <p className="max-w-xs font-['Host_Grotesk'] text-sm text-neutral-500">
               Add some products to get started
             </p>
@@ -190,20 +191,19 @@ export default function CartDrawer() {
               </p>
               <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
                 <Link
-                  href="/cart"
+                  href="/bag"
                   onClick={closeCartDrawer}
                   className="flex h-12 flex-1 items-center justify-center rounded-lg border border-[#A3A3A3] bg-transparent font-['Host_Grotesk'] text-sm font-medium text-[#3B3B3B] transition-colors hover:bg-[#F5F1E8]"
                 >
                   View bag
                 </Link>
-                <button
-                  type="button"
-                  className="flex h-12 flex-1 items-center justify-center rounded-lg bg-[#F5F1E8] font-['Host_Grotesk'] text-sm font-semibold text-[#3B3B3B] transition-opacity hover:opacity-90 disabled:opacity-50"
-                  disabled
-                  title="Connect payments to enable checkout"
+                <Link
+                  href="/checkout"
+                  onClick={closeCartDrawer}
+                  className="flex h-12 flex-1 items-center justify-center rounded-lg bg-[#627E5C] font-['Host_Grotesk'] text-sm font-semibold text-white transition-opacity hover:opacity-90"
                 >
                   Checkout
-                </button>
+                </Link>
               </div>
             </div>
           </>
@@ -215,7 +215,14 @@ export default function CartDrawer() {
 
 function CloseIcon({ className }: { className?: string }) {
   return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden>
+    <svg
+      className={className}
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth="2"
+      aria-hidden
+    >
       <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
     </svg>
   )
@@ -224,7 +231,14 @@ function CloseIcon({ className }: { className?: string }) {
 function BagIcon({ className, small }: { className?: string; small?: boolean }) {
   if (small) {
     return (
-      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden>
+      <svg
+        className={className}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        aria-hidden
+      >
         <path
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -234,7 +248,14 @@ function BagIcon({ className, small }: { className?: string; small?: boolean }) 
     )
   }
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" aria-hidden>
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1"
+      aria-hidden
+    >
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
