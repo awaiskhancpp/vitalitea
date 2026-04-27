@@ -20,6 +20,7 @@ export default function Navbar({ links }: NavbarProps) {
   const searchBarRef = useRef<HTMLDivElement | null>(null)
   const pathname = usePathname()
   const { itemCount, openCartDrawer, lastAddedName } = useCart()
+  const [scrolled, setScrolled] = useState(false)
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent | ReactMouseEvent) => {
@@ -28,11 +29,20 @@ export default function Navbar({ links }: NavbarProps) {
         setSearchOpen(false)
       }
     }
+
     if (searchOpen) {
       document.addEventListener('mousedown', handleClickOutside)
       return () => document.removeEventListener('mousedown', handleClickOutside)
     }
   }, [searchOpen])
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20)
+    }
+
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   const handleLinkClick = () => setMenuOpen(false)
 
@@ -43,8 +53,11 @@ export default function Navbar({ links }: NavbarProps) {
   const mobileMenuBg = isShop ? 'bg-[#F5F1E8]' : 'bg-white/95'
 
   return (
-    <nav className={`relative inset-x-0 top-0 z-40 w-full ${navBarBg}`}>
-      <div className="flex w-full items-center justify-between px-6 pt-[32px] sm:px-10 lg:px-[6.94%]">
+    <nav
+      className={`fixed inset-x-0 top-0 z-50 w-full transition-all duration-300
+  ${scrolled ? 'bg-white shadow-md' : isShop ? 'bg-[#F5F1E8]' : 'bg-transparent'}`}
+    >
+      <div className="flex w-full items-center justify-between px-6 pt-6 sm:px-10 lg:px-[6.94%]">
         <Link href="/" className="flex shrink-0 items-center">
           <Image
             src="/logo.png"

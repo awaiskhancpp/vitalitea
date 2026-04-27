@@ -22,6 +22,7 @@ export default function ShopClient({ products }: { products: Product[] }) {
               price={product.price}
               slug={product.slug}
               image={product.image}
+              variantLabel={product.variantLabel}
             />
           </div>
         ))}

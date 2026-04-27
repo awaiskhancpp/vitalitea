@@ -17,10 +17,11 @@ type CouponDoc = {
   expiresAt?: string | null
   maxRedemptions?: number | null
   usedCount?: number | null
-  allowedRegions?: (string | number)[] | { id: string }[] | null
+  /** Empty / unset = all countries. Otherwise must include the shipping region's `country` code. */
+  allowedCountryCodes?: string[] | null
 }
 
-type RegionDoc = { id: string | number; rate: number; isActive: boolean }
+type RegionDoc = { id: string | number; rate: number; isActive: boolean; country: string }
 
 export type TotalsResult = {
   lines: ClientCartLine[]
@@ -30,10 +31,6 @@ export type TotalsResult = {
   total: number
   shippingRegionId: string
   coupon: { id: string | number; code: string } | null
-}
-
-function normId(id: string | number): string {
-  return String(id)
 }
 
 export async function computeOrderTotals(
@@ -65,7 +62,10 @@ export async function computeOrderTotals(
   if (!reg || !(reg as RegionDoc).isActive) {
     return { ok: false, error: 'Invalid shipping region' }
   }
-  const shipping = Math.round((reg as RegionDoc).rate * 100) / 100
+  const rate = Math.round((reg as RegionDoc).rate * 100) / 100
+  /** Free standard shipping on orders at or above this subtotal (before discount). */
+  const FREE_SHIPPING_MIN_USD = 75
+  const shipping = subtotal >= FREE_SHIPPING_MIN_USD ? 0 : rate
 
   let discount = 0
   let coupon: TotalsResult['coupon'] = null
@@ -92,17 +92,12 @@ export async function computeOrderTotals(
     if (c.maxRedemptions != null && c.maxRedemptions > 0 && (c.usedCount ?? 0) >= c.maxRedemptions) {
       return { ok: false, error: 'Coupon is no longer available' }
     }
-    const allowed = c.allowedRegions
-    if (allowed && Array.isArray(allowed) && allowed.length > 0) {
-      const regionStr = normId((reg as { id: string | number }).id)
-      const okRegion = allowed.some((r) => {
-        if (r == null) return false
-        if (typeof r === 'object' && r !== null && 'id' in r) {
-          return normId((r as { id: string | number }).id) === regionStr
-        }
-        return normId(r as string | number) === regionStr
-      })
-      if (!okRegion) return { ok: false, error: 'This coupon is not valid for your region' }
+    const allowedCountries = c.allowedCountryCodes
+    if (allowedCountries && Array.isArray(allowedCountries) && allowedCountries.length > 0) {
+      const regCountry = (reg as RegionDoc).country
+      if (!regCountry || !allowedCountries.includes(regCountry)) {
+        return { ok: false, error: 'This coupon is not valid for your shipping country' }
+      }
     }
     if (c.discountType === 'percent') {
       discount = applyPercentDiscount(subtotal, c.value, c.maxDiscount)

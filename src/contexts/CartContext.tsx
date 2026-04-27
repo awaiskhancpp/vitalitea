@@ -10,6 +10,8 @@ export type CartItem = {
   price: number
   imageUrl: string
   imageAlt: string
+  /** e.g. "Size: 120mL" — shown under the product title in the bag */
+  variantLabel?: string
   quantity: number
 }
 
@@ -22,8 +24,9 @@ type CartContextValue = {
   setQuantity: (id: string, quantity: number) => void
   removeItem: (id: string) => void
   clear: () => void
-  /** Last add-to-bag for navbar confirmation; auto-clears after a few seconds */
+  /** Last add-to-bag for toast + navbar confirmation; auto-clears after a few seconds */
   lastAddedName: string | null
+  dismissAddFeedback: () => void
   drawerOpen: boolean
   openCartDrawer: () => void
   closeCartDrawer: () => void
@@ -60,6 +63,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const openCartDrawer = useCallback(() => setDrawerOpen(true), [])
   const closeCartDrawer = useCallback(() => setDrawerOpen(false), [])
   const toggleCartDrawer = useCallback(() => setDrawerOpen((o) => !o), [])
+  const dismissAddFeedback = useCallback(() => setLastAddedName(null), [])
 
   useEffect(() => {
     setItems(loadFromStorage())
@@ -128,6 +132,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       removeItem,
       clear,
       lastAddedName,
+      dismissAddFeedback,
       drawerOpen,
       openCartDrawer,
       closeCartDrawer,
@@ -143,6 +148,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       removeItem,
       clear,
       lastAddedName,
+      dismissAddFeedback,
       drawerOpen,
       openCartDrawer,
       closeCartDrawer,

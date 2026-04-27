@@ -54,5 +54,21 @@ export async function POST(request: Request) {
     await markOrderAsPaid(payload, o.id, pi || session.id)
   }
 
+  if (event.type === 'payment_intent.succeeded') {
+    const intent = event.data.object as Stripe.PaymentIntent
+    const orderId = intent.metadata?.orderId
+    if (orderId && typeof intent.amount === 'number') {
+      const payload = await getPayload({ config: configPromise })
+      const order = await payload.findByID({ collection: 'orders', id: orderId, overrideAccess: true })
+      if (order) {
+        const o = order as { total: number; id: string | number; status: string }
+        const expected = Math.round(o.total * 100)
+        if (expected === intent.amount) {
+          await markOrderAsPaid(payload, o.id, intent.id)
+        }
+      }
+    }
+  }
+
   return NextResponse.json({ received: true })
 }

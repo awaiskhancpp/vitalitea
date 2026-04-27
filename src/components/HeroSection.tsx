@@ -25,7 +25,7 @@ export default function HeroSection({
     'Everyday essentials that help people slow down, reset, and reconnect. From proper skin wellness and teas, to movement tools and sensory products.'
 
   return (
-    <section className="-mt-[95px] relative min-h-screen w-full overflow-hidden bg-[#F5F1E8]">
+    <section className="relative min-h-screen w-full overflow-hidden bg-[#F5F1E8]">
       <div className="absolute inset-0">
         <Image
           src={image?.url ?? '/hero-bg-521122.png'}

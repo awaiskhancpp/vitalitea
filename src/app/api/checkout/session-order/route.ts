@@ -13,8 +13,43 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const sessionId = searchParams.get('session_id')
   const orderId = searchParams.get('orderId')
+  const paymentIntentId = searchParams.get('payment_intent')
 
   const payload = await getPayload({ config: configPromise })
+
+  if (orderId && paymentIntentId) {
+    const stripe = getStripe()
+    if (!stripe) {
+      return NextResponse.json({ error: 'Stripe not configured' }, { status: 503 })
+    }
+    const intent = await stripe.paymentIntents.retrieve(paymentIntentId)
+    const meta = intent.metadata?.orderId
+    if (meta !== orderId) {
+      return NextResponse.json({ error: 'Payment does not match order' }, { status: 400 })
+    }
+    let o = (await payload.findByID({ collection: 'orders', id: orderId, overrideAccess: true })) as
+      | null
+      | { orderNumber: string; status: string; total: number; id: string | number }
+    if (!o) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    const expected = Math.round(o.total * 100)
+    if (expected !== intent.amount) {
+      return NextResponse.json({ error: 'Amount mismatch' }, { status: 400 })
+    }
+    if (o.status === 'awaiting_payment' && intent.status === 'succeeded') {
+      await markOrderAsPaid(payload, o.id, intent.id)
+      o = (await payload.findByID({ collection: 'orders', id: orderId, overrideAccess: true })) as {
+        orderNumber: string
+        status: string
+        total: number
+        id: string | number
+      }
+    }
+    return NextResponse.json({
+      orderNumber: o.orderNumber,
+      status: o.status,
+      total: o.total,
+    })
+  }
 
   if (orderId) {
     const o = await payload.findByID({ collection: 'orders', id: orderId, overrideAccess: true })

@@ -279,7 +279,7 @@ export interface Coupon {
   code: string;
   discountType: 'percent' | 'fixed';
   /**
-   * Percent 0–100 or fixed rupees
+   * Percent 0–100 or fixed amount in USD
    */
   value: number;
   minSubtotal?: number | null;
@@ -292,9 +292,9 @@ export interface Coupon {
   maxRedemptions?: number | null;
   usedCount?: number | null;
   /**
-   * Empty = valid for all regions
+   * Empty = valid in all countries. Otherwise only when the selected shipping region's country is one of these.
    */
-  allowedRegions?: (number | ShippingRegion)[] | null;
+  allowedCountryCodes?: ('US' | 'CA' | 'PK')[] | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -592,7 +592,7 @@ export interface CouponsSelect<T extends boolean = true> {
   expiresAt?: T;
   maxRedemptions?: T;
   usedCount?: T;
-  allowedRegions?: T;
+  allowedCountryCodes?: T;
   updatedAt?: T;
   createdAt?: T;
 }

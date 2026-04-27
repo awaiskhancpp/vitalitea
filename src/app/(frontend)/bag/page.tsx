@@ -2,14 +2,19 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useCart } from '@/contexts/CartContext'
 
 export default function CartPage() {
+  const router = useRouter()
   const { items, ready, subtotal, setQuantity, removeItem, itemCount } = useCart()
+  const freeShipAt = 75
+  const qualifiesFreeDelivery = itemCount > 0 && subtotal >= freeShipAt
+  const amountToFree = Math.max(0, freeShipAt - subtotal)
 
   if (!ready) {
     return (
-      <div className="min-h-[50vh] w-full bg-[#F5F1E8] px-4 py-20 sm:px-6">
+      <div className="min-h-[50vh] w-full bg-white px-4 py-20 sm:px-6">
         <div className="mx-auto max-w-[min(100%,100rem)] text-center font-['Host_Grotesk'] text-neutral-500">
           Loading cart…
         </div>
@@ -18,11 +23,29 @@ export default function CartPage() {
   }
 
   return (
-    <div className="min-h-screen w-full bg-[#F5F1E8] px-4 py-10 sm:px-6 sm:py-12 lg:px-[6.94%]">
-      <div className="mx-auto w-full max-w-[min(100%,100rem)]">
-        <h1 className="font-['Cormorant_Garamond'] text-[clamp(1.75rem,4vw,2.5rem)] font-bold text-[#3B3B3B]">
-          Shopping bag
-        </h1>
+    <div className="min-h-screen w-full bg-white px-4 py-8 sm:px-6 sm:py-10 lg:px-[6.94%]">
+      <div className="mx-auto w-full max-w-[min(100%,100rem)] pt-12 sm:pt-14">
+        {itemCount > 0 && (
+          <div className="mb-6 flex items-center justify-between gap-3 sm:mb-8">
+            <h1 className="font-['Cormorant_Garamond'] text-[clamp(1.875rem,4vw,2.75rem)] font-bold text-neutral-900">
+              Shopping Bag
+            </h1>
+            <button
+              type="button"
+              onClick={() => router.refresh()}
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#627E5C] text-white opacity-90 transition-opacity hover:opacity-100"
+              aria-label="Refresh"
+            >
+              <RefreshIcon className="h-5 w-5" />
+            </button>
+          </div>
+        )}
+
+        {itemCount === 0 && (
+          <h1 className="mb-0 font-['Cormorant_Garamond'] text-[clamp(1.875rem,4vw,2.75rem)] font-bold text-neutral-900">
+            Shopping Bag
+          </h1>
+        )}
 
         {itemCount === 0 ? (
           <div className="mt-16 flex flex-col items-center text-center sm:mt-20">
@@ -44,112 +67,142 @@ export default function CartPage() {
           </div>
         ) : (
           <>
-            <div className="mt-8 flex flex-col gap-8 lg:mt-10 lg:flex-row lg:items-start lg:gap-10 xl:gap-16">
-              <div className="min-w-0 flex-1 space-y-4 lg:max-w-3xl">
-                {items.map((line) => (
-                  <article
-                    key={line.id}
-                    className="overflow-hidden rounded-xl border border-[#D1C9BE] bg-white p-4 sm:p-5"
-                  >
-                    <div className="flex gap-4">
-                      <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-[#e8e4dd] sm:h-28 sm:w-28">
-                        <Image
-                          src={line.imageUrl}
-                          alt={line.imageAlt}
-                          fill
-                          className="object-cover"
-                          sizes="112px"
-                        />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-start justify-between gap-2">
-                          <h2 className="font-['Host_Grotesk'] text-base font-semibold text-[#3B3B3B] sm:text-lg">
-                            {line.name}
-                          </h2>
-                          <button
-                            type="button"
-                            onClick={() => removeItem(line.id)}
-                            className="shrink-0 text-neutral-400 transition-colors hover:text-[#3B3B3B]"
-                            aria-label={`Remove ${line.name}`}
-                          >
-                            <CloseIcon className="h-4 w-4" />
-                          </button>
-                        </div>
+            {itemCount > 0 && !qualifiesFreeDelivery && amountToFree > 0 && (
+              <div
+                className="mb-6 rounded-2xl bg-sky-50 px-4 py-3.5 text-center sm:mb-8 sm:px-5"
+                role="status"
+              >
+                <p className="font-['Host_Grotesk'] text-sm font-medium text-sky-900 sm:text-base">
+                  Add ${amountToFree.toFixed(2)} more for free shipping!
+                </p>
+              </div>
+            )}
+            {itemCount > 0 && qualifiesFreeDelivery && (
+              <div
+                className="mb-6 flex items-center gap-3 rounded-2xl bg-[#F0EDE4] px-4 py-3.5 sm:mb-8 sm:px-5"
+                role="status"
+              >
+                <div
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#627E5C] text-white"
+                  aria-hidden
+                >
+                  <CheckIcon className="h-4 w-4" />
+                </div>
+                <p className="font-['Host_Grotesk'] text-sm font-medium text-[#627E5C] sm:text-base">
+                  You&apos;ve Qualified for Free Delivery
+                </p>
+              </div>
+            )}
 
-                        <div className="mt-4 flex flex-col gap-2 border-t border-[#E5E0D8] pt-3 sm:flex-row sm:items-center sm:justify-between">
-                          <p className="font-['Host_Grotesk'] text-sm text-neutral-600">
-                            <span className="text-neutral-500">Each</span>{' '}
-                            <span className="text-[#3B3B3B]">${line.price.toFixed(2)}</span>
-                          </p>
-                        </div>
+            <div className="mt-0 flex flex-col gap-8 lg:flex-row lg:items-start lg:gap-10 xl:gap-12">
+              <div className="min-w-0 flex-1 lg:max-w-[min(100%,46rem)] lg:flex-[1.1]">
+                <ul className="divide-y divide-neutral-200">
+                  {items.map((line) => {
+                    const lineTotal = line.price * line.quantity
+                    const canDecrease = line.quantity > 1
+                    return (
+                      <li key={line.id} className="py-5 first:pt-0 sm:py-6">
+                        <article className="rounded-2xl bg-[#F5F2ED] p-4 sm:p-5">
+                          <div className="flex gap-3 sm:gap-5">
+                            <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-[#e8e4dd] sm:h-28 sm:w-28">
+                              <Image
+                                src={line.imageUrl}
+                                alt={line.imageAlt}
+                                fill
+                                className="object-cover"
+                                sizes="(max-width: 640px) 96px, 112px"
+                              />
+                            </div>
+                            <div className="flex min-w-0 flex-1 flex-col justify-center">
+                              <div className="flex items-start justify-between gap-3">
+                                <div className="min-w-0 flex-1">
+                                  <h2 className="line-clamp-2 font-['Cormorant_Garamond'] text-base font-bold leading-tight text-neutral-900 sm:text-lg">
+                                    {line.name}
+                                  </h2>
+                                  {line.variantLabel && (
+                                    <p className="mt-1 font-['Host_Grotesk'] text-sm text-neutral-500">
+                                      {line.variantLabel}
+                                    </p>
+                                  )}
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => removeItem(line.id)}
+                                  className="shrink-0 p-0.5 text-red-500 transition-colors hover:text-red-600"
+                                  aria-label={`Remove ${line.name}`}
+                                >
+                                  <TrashIcon className="h-5 w-5" />
+                                </button>
+                              </div>
 
-                        <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-                          <p className="font-['Host_Grotesk'] text-sm text-neutral-500">Quantity</p>
-                          <div className="inline-flex items-stretch overflow-hidden rounded-md border border-[#D1C9BE]">
-                            <button
-                              type="button"
-                              className="flex h-9 w-9 items-center justify-center font-['Host_Grotesk'] text-base text-[#3B3B3B] transition-colors hover:bg-[#F5F1E8]"
-                              onClick={() => setQuantity(line.id, line.quantity - 1)}
-                            >
-                              −
-                            </button>
-                            <span className="flex h-9 min-w-[2.25rem] items-center justify-center border-x border-[#D1C9BE] font-['Host_Grotesk'] text-sm text-[#3B3B3B]">
-                              {line.quantity}
-                            </span>
-                            <button
-                              type="button"
-                              className="flex h-9 w-9 items-center justify-center font-['Host_Grotesk'] text-base text-[#3B3B3B] transition-colors hover:bg-[#F5F1E8]"
-                              onClick={() => setQuantity(line.id, line.quantity + 1)}
-                            >
-                              +
-                            </button>
+                              <div className="mt-3 flex min-w-0 flex-row items-center justify-between gap-2 sm:mt-4">
+                                <div className="inline-flex shrink-0 items-stretch overflow-hidden rounded-md border border-neutral-200 bg-white">
+                                  <button
+                                    type="button"
+                                    disabled={!canDecrease}
+                                    onClick={() =>
+                                      canDecrease && setQuantity(line.id, line.quantity - 1)
+                                    }
+                                    className="flex h-9 w-8 items-center bg-[#F5F2ED] justify-center font-['Host_Grotesk'] text-base text-neutral-900 transition-colors hover:bg-neutral-50 disabled:cursor-not-allowed disabled:text-neutral-300 disabled:hover:bg-white"
+                                    aria-label="Decrease quantity"
+                                  >
+                                    −
+                                  </button>
+                                  <span className="flex h-9 min-w-[2.5rem] bg-[#F5F2ED] items-center justify-center border-x border-neutral-200 px-1 font-['Host_Grotesk'] text-sm font-medium text-neutral-900">
+                                    {line.quantity}
+                                  </span>
+                                  <button
+                                    type="button"
+                                    className="flex h-9 w-8 items-center bg-[#F5F2ED] justify-center font-['Host_Grotesk'] text-base text-neutral-900 transition-colors hover:bg-neutral-50"
+                                    onClick={() => setQuantity(line.id, line.quantity + 1)}
+                                    aria-label="Increase quantity"
+                                  >
+                                    +
+                                  </button>
+                                </div>
+                                <p className="shrink-0 pl-1 text-right font-['Host_Grotesk'] text-base font-semibold text-neutral-900 sm:text-lg">
+                                  ${lineTotal.toFixed(2)}
+                                </p>
+                              </div>
+                            </div>
                           </div>
-                        </div>
-
-                        <div className="mt-3 flex items-center justify-between border-t border-[#E5E0D8] pt-3">
-                          <span className="font-['Host_Grotesk'] text-sm font-semibold text-[#3B3B3B]">
-                            Line total
-                          </span>
-                          <span className="font-['Martel_Sans'] text-base font-semibold text-[#3B3B3B]">
-                            ${(line.price * line.quantity).toFixed(2)}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </article>
-                ))}
+                        </article>
+                      </li>
+                    )
+                  })}
+                </ul>
               </div>
 
-              <aside className="w-full shrink-0 rounded-xl border border-[#D1C9BE] bg-white p-5 sm:p-6 lg:sticky lg:top-28 lg:max-w-md lg:flex-1">
-                <div className="flex items-center justify-between border-b border-[#E5E0D8] pb-4 font-['Host_Grotesk'] text-sm text-[#3B3B3B]">
-                  <span>Subtotal</span>
-                  <span className="font-semibold">${subtotal.toFixed(2)}</span>
-                </div>
-                <div className="mt-3 flex items-center justify-between font-['Host_Grotesk'] text-base font-bold text-[#3B3B3B]">
-                  <span>Total</span>
-                  <span>${subtotal.toFixed(2)}</span>
+              <aside className="w-full shrink-0 rounded-2xl bg-[#F5F2ED] p-5 sm:p-6 lg:sticky lg:top-28 lg:max-w-md lg:min-w-[18rem] lg:flex-1">
+                <div className="flex items-baseline justify-between gap-2 border-b border-neutral-200 pb-4">
+                  <span className="font-['Host_Grotesk'] text-sm text-neutral-800 sm:text-base">
+                    Subtotal
+                  </span>
+                  <span className="font-['Host_Grotesk'] text-2xl font-bold text-neutral-900 sm:text-3xl">
+                    ${subtotal.toFixed(2)}
+                  </span>
                 </div>
 
-                <div className="mt-4 space-y-2 border-t border-[#E5E0D8] pt-4 text-xs text-neutral-500">
-                  <p className="flex gap-2 font-['Host_Grotesk']">
-                    <InfoIcon className="mt-0.5 h-4 w-4 shrink-0" />
+                <div className="mt-4 space-y-2.5 text-xs text-neutral-500 sm:mt-5 sm:text-sm">
+                  <p className="flex items-start gap-2 font-['Host_Grotesk'] leading-relaxed">
+                    <InfoIcon className="mt-0.5 h-4 w-4 shrink-0 text-neutral-400" />
                     Shipping &amp; taxes calculated at checkout
                   </p>
-                  <p className="flex gap-2 font-['Host_Grotesk']">
-                    <TagIcon className="mt-0.5 h-4 w-4 shrink-0" />
+                  <p className="flex items-start gap-2 font-['Host_Grotesk'] leading-relaxed">
+                    <TagIcon className="mt-0.5 h-4 w-4 shrink-0 text-neutral-400" />
                     Discount codes applied at checkout
                   </p>
                 </div>
 
                 <Link
                   href="/checkout"
-                  className="mt-5 flex h-12 w-full items-center justify-center rounded-full bg-[#627E5C] font-['Host_Grotesk'] text-sm font-bold text-white transition-opacity hover:opacity-90"
+                  className="mt-6 flex h-12 w-full items-center justify-center rounded-full bg-[#627E5C] py-3.5 font-['Host_Grotesk'] text-sm font-bold text-white transition-opacity hover:opacity-90 sm:mt-7"
                 >
-                  Proceed to checkout
+                  Proceed to Checkout
                 </Link>
-                <p className="mt-3 flex items-center justify-center gap-1.5 text-xs text-neutral-500">
-                  <LockIcon className="h-3.5 w-3.5" />
-                  <span className="font-['Host_Grotesk']">Secure checkout</span>
+                <p className="mt-3 flex items-center justify-center gap-1.5 text-xs text-neutral-500 sm:mt-4">
+                  <LockIcon className="h-3.5 w-3.5 shrink-0" />
+                  <span className="font-['Host_Grotesk']">Secure Checkout</span>
                 </p>
               </aside>
             </div>
@@ -160,17 +213,36 @@ export default function CartPage() {
   )
 }
 
-function CloseIcon({ className }: { className?: string }) {
+function CheckIcon({ className }: { className?: string }) {
   return (
     <svg
       className={className}
       fill="none"
       viewBox="0 0 24 24"
       stroke="currentColor"
+      strokeWidth="2.5"
+      aria-hidden
+    >
+      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+    </svg>
+  )
+}
+
+function RefreshIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
       strokeWidth="2"
       aria-hidden
     >
-      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+      />
     </svg>
   )
 }
@@ -194,17 +266,23 @@ function BagOutline({ className }: { className?: string }) {
   )
 }
 
-function CheckIcon({ className }: { className?: string }) {
+function TrashIcon({ className }: { className?: string }) {
   return (
     <svg
       className={className}
-      fill="none"
       viewBox="0 0 24 24"
+      fill="none"
       stroke="currentColor"
-      strokeWidth="2"
+      strokeWidth="1.75"
+      strokeLinecap="round"
+      strokeLinejoin="round"
       aria-hidden
     >
-      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+      <path d="M3 6h18" />
+      <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+      <path d="M10 11v6" />
+      <path d="M14 11v6" />
     </svg>
   )
 }

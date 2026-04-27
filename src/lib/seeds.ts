@@ -5,6 +5,8 @@ export interface Product {
   price: number
   slug: string
   image?: { url: string; alt: string } | null
+  /** Shown in cart (e.g. "Size: 120mL") */
+  variantLabel?: string
 }
 
 // ─────────────────────────────────────────────
@@ -29,6 +31,7 @@ export const SEED_PRODUCTS: Product[] = [
       'Embark on an enchanting journey. Smoky black tea, fresh bergamot and spicy bay leaves....',
     price: 35.96,
     slug: 'black-velvet-room-spray',
+    variantLabel: 'Size: 120mL',
     image: { url: '/rectangle2.png', alt: 'Black Velvet Room Spray bottle' },
   },
   {

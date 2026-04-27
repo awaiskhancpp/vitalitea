@@ -38,7 +38,7 @@ export default async function Shop() {
   const products = await getProducts()
   return (
     <div className="w-full min-w-0 overflow-x-hidden bg-[#F5F1E8]">
-      <section className="w-full pt-6 pb-4 sm:pt-8 sm:pb-6 lg:pt-10">
+      <section className="w-full pt-6 pb-4 sm:pt-8 sm:pb-6 lg:pt-30">
         <div className="app-container w-full min-w-0 max-w-full">
           <div className="relative w-full min-w-0 overflow-hidden rounded-[1.5rem] border border-[#A3A3A3] sm:rounded-[1.75rem]">
             <div className="relative aspect-[4/3] w-full min-h-[11rem] sm:aspect-[16/7] sm:min-h-[14rem] lg:min-h-[min(20rem,22vw)]">

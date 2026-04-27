@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { SHIPPING_COUNTRY_SELECT_OPTIONS } from '@/lib/shippingCountryOptions'
 
 export const Coupons: CollectionConfig = {
   slug: 'coupons',
@@ -24,7 +25,7 @@ export const Coupons: CollectionConfig = {
       required: true,
       options: [
         { label: 'Percent', value: 'percent' },
-        { label: 'Fixed (Pkr)', value: 'fixed' },
+        { label: 'Fixed (USD)', value: 'fixed' },
       ],
       defaultValue: 'percent',
     },
@@ -33,7 +34,7 @@ export const Coupons: CollectionConfig = {
       type: 'number',
       required: true,
       min: 0,
-      admin: { description: 'Percent 0–100 or fixed rupees' },
+      admin: { description: 'Percent 0–100 or fixed amount in USD' },
     },
     { name: 'minSubtotal', type: 'number', min: 0, defaultValue: 0 },
     {
@@ -47,11 +48,13 @@ export const Coupons: CollectionConfig = {
     { name: 'maxRedemptions', type: 'number', min: 0 },
     { name: 'usedCount', type: 'number', min: 0, defaultValue: 0, admin: { readOnly: true } },
     {
-      name: 'allowedRegions',
-      type: 'relationship',
-      relationTo: 'shipping-regions',
+      name: 'allowedCountryCodes',
+      type: 'select',
       hasMany: true,
-      admin: { description: 'Empty = valid for all regions' },
+      options: [...SHIPPING_COUNTRY_SELECT_OPTIONS],
+      admin: {
+        description: "Empty = valid in all countries. Otherwise only when the selected shipping region's country is one of these.",
+      },
     },
   ],
   hooks: {

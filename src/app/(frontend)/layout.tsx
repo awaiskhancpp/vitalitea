@@ -40,10 +40,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   }
 
   return (
-    <html
-      lang="en"
-      className={`${cormorant.variable} ${hostGrotesk.variable} ${martel.variable}`}
-    >
+    <html lang="en" className={`${cormorant.variable} ${hostGrotesk.variable} ${martel.variable}`}>
       <body>
         <Providers>
           <Navbar links={(header.navLinks as { label: string; href: string }[]) ?? []} />
