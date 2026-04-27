@@ -12,7 +12,6 @@ interface ProductCardProps {
   slug: string
   image?: { url: string; alt: string } | null
   fallbackImage?: string
-  /** Cart line detail, e.g. "Size: 120mL" */
   variantLabel?: string
 }
 
@@ -53,8 +52,8 @@ export default function ProductCard({
       addInFlight.current = true
       setIsAdding(true)
       try {
-        const minDisplay = new Promise((r) => setTimeout(r, 520))
-        const line = {
+        await new Promise((r) => setTimeout(r, 520))
+        addItem({
           id: String(id),
           slug,
           name,
@@ -62,9 +61,7 @@ export default function ProductCard({
           imageUrl: imageSrc,
           imageAlt,
           ...(variantLabel ? { variantLabel } : {}),
-        }
-        await minDisplay
-        addItem(line)
+        })
         setShowAdded(true)
       } finally {
         addInFlight.current = false
@@ -75,69 +72,83 @@ export default function ProductCard({
   )
 
   return (
-    <div className="flex h-full min-h-0 w-full min-w-0 max-w-full flex-col overflow-hidden rounded-[20px] bg-white shadow-[4px_4px_10px_0px_#0000001F]">
-      <div className="relative h-[220px] w-full shrink-0 overflow-hidden rounded-t-[20px] bg-[#e8e4dd] xl:h-[280px]">
+    <div className="flex h-full w-full min-w-0 flex-col overflow-hidden rounded-[20px] shadow-[4px_4px_10px_0px_#0000001F]">
+      {/* ── IMAGE — Figma: 400×352, ratio = 400/352 ── */}
+      <div
+        className="relative w-full shrink-0 overflow-hidden rounded-t-[20px] bg-[#e8e4dd]"
+        style={{ aspectRatio: '400 / 352' }}
+      >
         <Image
           src={imageSrc}
           alt={imageAlt}
-          className="object-cover object-center"
           fill
-          sizes="(min-width: 1280px) 400px, (min-width: 1024px) min(28vw, 400px), (min-width: 640px) 45vw, 100vw"
+          className="object-cover object-center"
+          sizes="(min-width: 1280px) 400px, (min-width: 1024px) 28vw, (min-width: 640px) 45vw, 100vw"
         />
       </div>
 
+      {/* ── GREEN SECTION — Figma: 400×216, ratio = 400/216 ── */}
+      {/* aspectRatio maintains the 400:216 proportion at any card width   */}
+      {/* flex-col + justify-between spaces name/desc away from price/btn  */}
       <div
-        className="flex w-full min-h-0 flex-1 flex-col justify-between p-4 sm:min-h-[230px] rounded-b-[20px] bg-[linear-gradient(180deg,rgba(24,23,23,0.2)_0%,rgba(84,101,125,0.16)_51.92%,rgba(102,102,102,0.2)_66.35%),linear-gradient(0deg,#627E5C,#627E5C)]"
+        className="flex w-full min-w-0 flex-col justify-between rounded-b-[20px] px-5 py-4 bg-red-500 shadow-[4px_4px_10px_0px_#0000001F]"
+        style={{
+          aspectRatio: '400 / 216',
+          background:
+            'linear-gradient(180deg, rgba(24,23,23,0.2) 0%, rgba(84,101,125,0.16) 51.92%, rgba(102,102,102,0.2) 66.35%), linear-gradient(0deg, #627E5C, #627E5C)',
+        }}
       >
+        {/* Top: name + description */}
         <div className="min-w-0">
           <h3
-            className="line-clamp-2 font-['Cormorant_Garamond'] font-bold leading-tight text-white"
-            style={{ fontSize: 'clamp(1.25rem, 2.08vw, 1.875rem)' }}
+            className="line-clamp-1 font-['Cormorant_Garamond'] font-bold leading-tight text-white"
+            style={{ fontSize: 'clamp(1.1rem, 1.8vw, 1.875rem)' }}
           >
             {name}
           </h3>
           <p
-            className="mt-1.5 line-clamp-2 font-['Martel_Sans'] font-normal leading-[1.3] text-white/70"
-            style={{ fontSize: 'clamp(0.8125rem, 0.97vw, 0.875rem)' }}
+            className="mt-1 line-clamp-2 font-['Martel_Sans'] font-normal leading-snug text-white/70"
+            style={{ fontSize: 'clamp(0.75rem, 0.9vw, 0.875rem)' }}
           >
             {description}
           </p>
         </div>
 
-        <div className="w-full min-w-0">
-          <div className="flex min-w-0 flex-wrap items-center justify-between gap-2">
+        {/* Bottom: price row + button */}
+        <div className="min-w-0">
+          {/* Price + Select Options */}
+          <div className="flex min-w-0 items-center justify-between gap-2">
             <span
               className="font-['Martel_Sans'] font-bold text-white"
-              style={{ fontSize: 'clamp(0.875rem, 1.11vw, 1rem)' }}
+              style={{ fontSize: 'clamp(0.875rem, 1vw, 1rem)' }}
             >
               ${Number(price).toFixed(2)}
             </span>
             <Link
               href={`/shop/${encodeURIComponent(slug)}`}
-              className="shrink-0 rounded-full border border-white/90 font-['Martel_Sans'] font-normal text-white transition-colors hover:bg-white/10"
-              style={{ fontSize: 'clamp(0.75rem, 0.9vw, 0.875rem)', padding: '0.2rem 0.75rem' }}
+              className="shrink-0 rounded-full border border-white/80 font-['Martel_Sans'] text-white transition-colors hover:bg-white/10"
+              style={{ fontSize: 'clamp(0.7rem, 0.85vw, 0.875rem)', padding: '0.2rem 0.85rem' }}
             >
               Select Options
             </Link>
           </div>
+
+          {/* Add to bag */}
           <button
             type="button"
             onClick={addToCart}
             disabled={isAdding || showAdded}
             aria-busy={isAdding}
-            aria-label={
-              isAdding ? 'Adding to bag' : showAdded ? 'Added to bag' : 'Add to bag'
-            }
-            className={`mt-3 flex min-h-11 w-full min-w-0 items-center justify-center gap-2.5 rounded-full bg-[#F3EFE0] px-4 py-2.5 font-['Martel_Sans'] font-semibold leading-none text-[#3B3B3B] transition-opacity enabled:hover:opacity-90 disabled:opacity-100 ${
-              isAdding ? 'disabled:cursor-wait' : 'disabled:cursor-default'
+            className={`mt-2 flex w-full min-w-0 items-center justify-center gap-2 rounded-full bg-[#F3EFE0] font-['Martel_Sans'] font-semibold leading-none text-[#3B3B3B] transition-opacity enabled:hover:opacity-90 ${
+              isAdding ? 'cursor-wait' : 'cursor-pointer'
             }`}
-            style={{ fontSize: 'clamp(0.875rem,1.11vw,1rem)' }}
+            style={{
+              fontSize: 'clamp(0.8rem, 1vw, 1rem)',
+              padding: 'clamp(0.5rem, 0.8vw, 0.7rem) 1rem',
+            }}
           >
             {isAdding && (
-              <span
-                className="inline-block size-5 shrink-0 animate-spin rounded-full border-2 border-[#3B3B3B]/25 border-t-[#627E5C]"
-                aria-hidden
-              />
+              <span className="inline-block size-4 shrink-0 animate-spin rounded-full border-2 border-[#3B3B3B]/25 border-t-[#627E5C]" />
             )}
             <span className="truncate">
               {isAdding ? 'Adding…' : showAdded ? '✓ Added to Bag' : 'Add to bag'}
