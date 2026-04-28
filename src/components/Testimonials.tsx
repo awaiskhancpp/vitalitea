@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import { FALLBACK_TESTIMONIALS, type UiTestimonial } from '@/lib/homeFallbacks'
 
 interface Testimonial {
   id: string | number
@@ -8,40 +9,16 @@ interface Testimonial {
   rating: string | number
 }
 
-const FALLBACK: Testimonial[] = [
-  {
-    id: '1',
-    author: 'Sarah M.',
-    quote:
-      "VitaliTea has completely transformed my morning ritual. The teas are incredible and the skincare line is unlike anything I've tried before.",
-    rating: '5',
-  },
-  {
-    id: '2',
-    author: 'James K.',
-    quote:
-      "I've been using the Zen Skincare line for 3 months and my skin has never looked better. Highly recommend!",
-    rating: '5',
-  },
-  {
-    id: '3',
-    author: 'Priya L.',
-    quote:
-      'The candles and essential oils create the perfect atmosphere for yoga and meditation. Love this brand.',
-    rating: '5',
-  },
-]
-
 export default function Testimonials({
   testimonials,
   backgroundClassName = 'bg-[#F5F1E8]',
 }: {
-  testimonials: Testimonial[]
+  testimonials: Testimonial[] | UiTestimonial[]
   /** Optional override; default matches shop/home cream surface. */
   backgroundClassName?: string
 }) {
   const [active, setActive] = useState(0)
-  const items = testimonials.length > 0 ? testimonials : FALLBACK
+  const items = testimonials.length > 0 ? testimonials : [...FALLBACK_TESTIMONIALS]
   const total = items.length
 
   const prev = () => setActive((a) => (a - 1 + total) % total)
@@ -83,13 +60,13 @@ export default function Testimonials({
                 className="font-['Inter'] font-medium leading-relaxed text-[#202020]"
                 style={{ fontSize: 'clamp(15px, 1.4vw, 20px)' }}
               >
-                {items[active].quote}
+                {items[active]?.quote ?? ''}
               </blockquote>
               <p
                 className="mt-3 font-['Host_Grotesk'] font-medium leading-[1.33] text-[#8D8C8C]"
                 style={{ fontSize: 'clamp(14px, 1.2vw, 20px)' }}
               >
-                - {items[active].author}
+                - {items[active]?.author ?? ''}
               </p>
             </div>
             <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
@@ -109,6 +86,7 @@ export default function Testimonials({
               </div>
               <div className="flex items-center gap-4">
                 <button
+                  type="button"
                   onClick={prev}
                   aria-label="Previous"
                   className="flex h-10 w-10 items-center justify-center rounded-full transition-opacity hover:opacity-60"
@@ -124,6 +102,7 @@ export default function Testimonials({
                   {active + 1}&nbsp;/&nbsp;{total}
                 </span>
                 <button
+                  type="button"
                   onClick={next}
                   aria-label="Next"
                   className="flex h-10 w-10 items-center justify-center rounded-full transition-opacity hover:opacity-60"

@@ -7,6 +7,8 @@ export interface Product {
   image?: { url: string; alt: string } | null
   /** Shown in cart (e.g. "Size: 120mL") */
   variantLabel?: string
+  /** Mirrors Payload `featured` — used for ordering / labels on shop */
+  featured?: boolean
 }
 
 export const SEED_PRODUCTS: Product[] = [

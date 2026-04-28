@@ -1,14 +1,31 @@
 import Link from 'next/link'
 
+export type FooterSocialLink = { platform?: string | null; url?: string | null }
+
 interface FooterProps {
   about?: string
   quickLinks?: { label: string; href: string }[]
   phone?: string
   email?: string
   hours?: string
+  /** From Payload `footer`; falls back to static placeholders if empty */
+  socialLinks?: FooterSocialLink[] | null
 }
 
-export default function Footer({ about, quickLinks, phone, email, hours }: FooterProps) {
+const FALLBACK_SOCIAL: { platform: string; url: string }[] = [
+  { platform: 'instagram', url: '#' },
+  { platform: 'facebook', url: '#' },
+  { platform: 'twitter', url: '#' },
+  { platform: 'tiktok', url: '#' },
+]
+
+function platformLabel(platform: string) {
+  const p = platform.toLowerCase()
+  if (p === 'twitter') return 'X / Twitter'
+  return p.slice(0, 1).toUpperCase() + p.slice(1)
+}
+
+export default function Footer({ about, quickLinks, phone, email, hours, socialLinks }: FooterProps) {
   const links = quickLinks?.length
     ? quickLinks
     : [
@@ -26,6 +43,18 @@ export default function Footer({ about, quickLinks, phone, email, hours }: Foote
         .map((s) => s.trim())
         .filter(Boolean)
     : ['Monday to Thursday 9:00AM – 4:30PM PST,', 'Friday 9:00AM – 2:30PM PST.']
+
+  const fromCms =
+    socialLinks?.filter(
+      (s) => Boolean((s?.url ?? '').trim()) && Boolean((s?.platform ?? '').trim()),
+    ) ?? []
+  const socials =
+    fromCms.length > 0
+      ? fromCms.map((s) => ({
+          platform: String(s.platform).trim(),
+          url: String(s.url).trim() || '#',
+        }))
+      : FALLBACK_SOCIAL
 
   return (
     <footer className="w-full min-w-0 overflow-x-hidden bg-[#483326] text-white">
@@ -89,6 +118,20 @@ export default function Footer({ about, quickLinks, phone, email, hours }: Foote
         </div>
       </div>
       <div className="mt-12 w-full border-t border-white/30" />
+
+      <div className="app-container flex flex-wrap items-center justify-center gap-x-6 gap-y-2 py-4">
+        {socials.map((s) => (
+          <Link
+            key={`${s.platform}-${s.url}`}
+            href={s.url}
+            className="font-['Inter'] text-sm text-white/90 underline-offset-4 transition-opacity hover:opacity-80 hover:underline"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {platformLabel(s.platform)}
+          </Link>
+        ))}
+      </div>
 
       <div className="app-container py-6 text-center">
         <p

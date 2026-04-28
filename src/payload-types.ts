@@ -740,6 +740,22 @@ export interface Footer {
   phone?: string | null;
   email?: string | null;
   hours?: string | null;
+  /**
+   * Social profiles shown above the copyright line.
+   */
+  socialLinks?:
+    | {
+        /**
+         * Used to pick icon styling
+         */
+        platform: 'instagram' | 'facebook' | 'twitter' | 'tiktok';
+        /**
+         * Full URL including https://
+         */
+        url: string;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -767,6 +783,44 @@ export interface Homepage {
     body?: string | null;
     image?: (number | null) | Media;
   };
+  marketSection?: {
+    /**
+     * Market section heading (Shop page)
+     */
+    heading?: string | null;
+    /**
+     * Market section body
+     */
+    body?: string | null;
+    /**
+     * Market CTA button
+     */
+    ctaLabel?: string | null;
+    /**
+     * Market section image (right column on large screens)
+     */
+    image?: (number | null) | Media;
+  };
+  /**
+   * Homepage bento tiles — up to 6; empty slots use built-in static artwork.
+   */
+  bentoGrid?:
+    | {
+        /**
+         * Tile image
+         */
+        image?: (number | null) | Media;
+        /**
+         * Shown on the tile
+         */
+        label?: string | null;
+        /**
+         * Layout hint (large = tall column on desktop).
+         */
+        size?: ('small' | 'large') | null;
+        id?: string | null;
+      }[]
+    | null;
   newsletter?: {
     heading?: string | null;
     subtext?: string | null;
@@ -807,6 +861,13 @@ export interface FooterSelect<T extends boolean = true> {
   phone?: T;
   email?: T;
   hours?: T;
+  socialLinks?:
+    | T
+    | {
+        platform?: T;
+        url?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -839,6 +900,22 @@ export interface HomepageSelect<T extends boolean = true> {
         heading?: T;
         body?: T;
         image?: T;
+      };
+  marketSection?:
+    | T
+    | {
+        heading?: T;
+        body?: T;
+        ctaLabel?: T;
+        image?: T;
+      };
+  bentoGrid?:
+    | T
+    | {
+        image?: T;
+        label?: T;
+        size?: T;
+        id?: T;
       };
   newsletter?:
     | T

@@ -59,6 +59,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             phone={footer.phone as string}
             email={footer.email as string}
             hours={footer.hours as string}
+            socialLinks={
+              (footer as { socialLinks?: { platform?: string | null; url?: string | null }[] | null })
+                .socialLinks
+            }
           />
         </Providers>
       </body>

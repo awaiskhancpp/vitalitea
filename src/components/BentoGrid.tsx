@@ -2,6 +2,8 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
+import type { BentoUiTile } from '@/lib/homeFallbacks'
+import { FALLBACK_BENTO_TILES } from '@/lib/homeFallbacks'
 
 const TileLabel = ({ label }: { label: string }) => (
   <span className="absolute left-5 top-[15px] font-['Cormorant_Garamond'] text-[clamp(18px,2.08vw,30px)] font-bold leading-[1.21] text-black drop-shadow-sm">
@@ -28,28 +30,21 @@ const TileArrowWhite = () => (
   </div>
 )
 
-export default function BentoGrid() {
-  const TILES = [
-    { src: '/cat-herbal-tea.png', alt: 'Herbal Tea', label: 'Herbal Tea' },
-    { src: '/cat-manuka-honey-7887dc.png', alt: 'Manuka Honey', label: 'Manuka Honey' },
-    { src: '/cat-yoga.png', alt: 'Yoga', label: 'Yoga' },
-    { src: '/cat-teaware-63561d.png', alt: 'Teaware', label: 'Teaware' },
-    { src: '/cat-oil-candles.png', alt: 'Oil & Candles', label: 'Oil & Candles' },
-    { src: '/cat-skin-wellness-6d4092.png', alt: 'Skin Wellness', label: 'Skin Wellness' },
-  ]
+export default function BentoGrid({ tiles }: { tiles?: BentoUiTile[] }) {
+  const data = tiles && tiles.length === 6 ? tiles : FALLBACK_BENTO_TILES
 
   return (
     <section className="bg-[#F5F1E8] py-16 lg:py-20">
       <div className="w-full px-6 sm:px-10 lg:pl-[6.94%] lg:pr-[6.39%]">
         <div className="flex flex-col gap-3 sm:hidden">
-          {TILES.map((tile) => (
+          {data.map((tile, i) => (
             <Link
-              key={tile.alt}
+              key={`${tile.alt}-${i}`}
               href="#"
               className="group relative aspect-video w-full overflow-hidden rounded-[22px]"
             >
               <Image
-                src={tile.src}
+                src={tile.imageUrl}
                 alt={tile.alt}
                 fill
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
@@ -75,14 +70,10 @@ export default function BentoGrid() {
         </div>
 
         <div className="hidden gap-3 sm:grid sm:grid-cols-2 lg:hidden">
-          {TILES.map((tile) => (
-            <Link
-              key={tile.alt}
-              href="#"
-              className="group relative aspect-video overflow-hidden rounded-[22px]"
-            >
+          {data.map((tile, i) => (
+            <Link key={`sm-${tile.alt}-${i}`} href="#" className="group relative aspect-video overflow-hidden rounded-[22px]">
               <Image
-                src={tile.src}
+                src={tile.imageUrl}
                 alt={tile.alt}
                 fill
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
@@ -91,10 +82,7 @@ export default function BentoGrid() {
               <TileArrow />
             </Link>
           ))}
-          <Link
-            href="#"
-            className="group relative col-span-2 flex h-36 items-center justify-center rounded-[22px] bg-[#627E5C]"
-          >
+          <Link href="#" className="group relative col-span-2 flex h-36 items-center justify-center rounded-[22px] bg-[#627E5C]">
             <p
               className="text-center font-['Cormorant_Garamond'] font-bold leading-none text-white"
               style={{ fontSize: 'clamp(1.625rem,4.5vw,2.5rem)' }}
@@ -115,67 +103,51 @@ export default function BentoGrid() {
               rowGap: 'clamp(10px, 1.25vw, 18px)',
             }}
           >
-            <Link
-              href="#"
-              className="group relative z-0 row-span-2 block h-full min-h-0 w-full min-w-0 overflow-hidden rounded-[22px]"
-              style={{ gridColumn: '1', gridRow: '1 / 3' }}
-            >
+            <Link href="#" className="group relative z-0 row-span-2 block h-full min-h-0 w-full min-w-0 overflow-hidden rounded-[22px]" style={{ gridColumn: '1', gridRow: '1 / 3' }}>
               <Image
-                src="/cat-herbal-tea.png"
-                alt="Herbal Tea"
+                src={data[0].imageUrl}
+                alt={data[0].alt}
                 fill
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
                 sizes="(min-width: 1024px) 22vw, 100vw"
               />
-              <TileLabel label="Herbal Tea" />
+              <TileLabel label={data[0].label} />
               <TileArrow />
             </Link>
 
-            <Link
-              href="#"
-              className="group relative z-0 row-span-2 block h-full min-h-0 w-full min-w-0 overflow-hidden rounded-[22px]"
-              style={{ gridColumn: '2', gridRow: '1 / 3' }}
-            >
+            <Link href="#" className="group relative z-0 row-span-2 block h-full min-h-0 w-full min-w-0 overflow-hidden rounded-[22px]" style={{ gridColumn: '2', gridRow: '1 / 3' }}>
               <Image
-                src="/cat-manuka-honey-7887dc.png"
-                alt="Manuka Honey"
+                src={data[1].imageUrl}
+                alt={data[1].alt}
                 fill
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
                 sizes="(min-width: 1024px) 22vw, 100vw"
               />
-              <TileLabel label="Manuka Honey" />
+              <TileLabel label={data[1].label} />
               <TileArrow />
             </Link>
 
-            <Link
-              href="#"
-              className="group relative z-0 block h-full min-h-0 w-full min-w-0 overflow-hidden rounded-[22px]"
-              style={{ gridColumn: '3', gridRow: '1' }}
-            >
+            <Link href="#" className="group relative z-0 block h-full min-h-0 w-full min-w-0 overflow-hidden rounded-[22px]" style={{ gridColumn: '3', gridRow: '1' }}>
               <Image
-                src="/cat-yoga.png"
-                alt="Yoga"
+                src={data[2].imageUrl}
+                alt={data[2].alt}
                 fill
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
                 sizes="(min-width: 1024px) 24vw, 100vw"
               />
-              <TileLabel label="Yoga" />
+              <TileLabel label={data[2].label} />
               <TileArrow />
             </Link>
 
-            <Link
-              href="#"
-              className="group relative z-0 block h-full min-h-0 w-full min-w-0 overflow-hidden rounded-[22px]"
-              style={{ gridColumn: '3', gridRow: '2' }}
-            >
+            <Link href="#" className="group relative z-0 block h-full min-h-0 w-full min-w-0 overflow-hidden rounded-[22px]" style={{ gridColumn: '3', gridRow: '2' }}>
               <Image
-                src="/cat-teaware-63561d.png"
-                alt="Teaware"
+                src={data[3].imageUrl}
+                alt={data[3].alt}
                 fill
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
                 sizes="(min-width: 1024px) 24vw, 100vw"
               />
-              <TileLabel label="Teaware" />
+              <TileLabel label={data[3].label} />
               <TileArrow />
             </Link>
           </div>
@@ -188,40 +160,31 @@ export default function BentoGrid() {
               minHeight: 'clamp(160px, 15.56vw, 224px)',
             }}
           >
-            <Link
-              href="#"
-              className="group relative z-0 block h-full min-h-[clamp(8rem,15.56vw,14rem)] w-full min-w-0 overflow-hidden rounded-[22px]"
-            >
+            <Link href="#" className="group relative z-0 block h-full min-h-[clamp(8rem,15.56vw,14rem)] w-full min-w-0 overflow-hidden rounded-[22px]">
               <Image
-                src="/cat-oil-candles.png"
-                alt="Oil & Candles"
+                src={data[4].imageUrl}
+                alt={data[4].alt}
                 fill
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
                 sizes="(min-width: 1024px) 30vw, 100vw"
               />
-              <TileLabel label="Oil & Candles" />
+              <TileLabel label={data[4].label} />
               <TileArrow />
             </Link>
 
-            <Link
-              href="#"
-              className="group relative z-0 block h-full min-h-[clamp(8rem,15.56vw,14rem)] w-full min-w-0 overflow-hidden rounded-[22px]"
-            >
+            <Link href="#" className="group relative z-0 block h-full min-h-[clamp(8rem,15.56vw,14rem)] w-full min-w-0 overflow-hidden rounded-[22px]">
               <Image
-                src="/cat-skin-wellness-6d4092.png"
-                alt="Skin Wellness"
+                src={data[5].imageUrl}
+                alt={data[5].alt}
                 fill
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
                 sizes="(min-width: 1024px) 30vw, 100vw"
               />
-              <TileLabel label="Skin Wellness" />
+              <TileLabel label={data[5].label} />
               <TileArrow />
             </Link>
 
-            <Link
-              href="#"
-              className="group relative flex items-center justify-center rounded-[22px] bg-[#627E5C] transition-opacity hover:opacity-90"
-            >
+            <Link href="#" className="group relative flex items-center justify-center rounded-[22px] bg-[#627E5C] transition-opacity hover:opacity-90">
               <p
                 className="text-center font-['Cormorant_Garamond'] font-bold leading-none text-white"
                 style={{ fontSize: 'clamp(28px, 2.78vw, 40px)' }}

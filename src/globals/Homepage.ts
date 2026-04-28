@@ -35,6 +35,58 @@ export const Homepage: GlobalConfig = {
       ],
     },
     {
+      name: 'marketSection',
+      type: 'group',
+      fields: [
+        {
+          name: 'heading',
+          type: 'text',
+          defaultValue: 'The Expanding Health-Conscious Consumer Market',
+          admin: { description: 'Market section heading (Shop page)' },
+        },
+        {
+          name: 'body',
+          type: 'textarea',
+          defaultValue:
+            'An increasing focus on mental health and wellness with at-home natural remedies, combined with a significant rise in the preference for spa therapies due to hectic lifestyles, drives the demand for health-conscious and organic products.',
+          admin: { description: 'Market section body' },
+        },
+        { name: 'ctaLabel', type: 'text', defaultValue: 'Learn More', admin: { description: 'Market CTA button' } },
+        {
+          name: 'image',
+          type: 'upload',
+          relationTo: 'media',
+          admin: { description: 'Market section image (right column on large screens)' },
+        },
+      ],
+    },
+    {
+      name: 'bentoGrid',
+      type: 'array',
+      maxRows: 6,
+      admin: { description: 'Homepage bento tiles — up to 6; empty slots use built-in static artwork.' },
+      labels: { singular: 'Tile', plural: 'Tiles' },
+      fields: [
+        {
+          name: 'image',
+          type: 'upload',
+          relationTo: 'media',
+          admin: { description: 'Tile image' },
+        },
+        { name: 'label', type: 'text', defaultValue: '', admin: { description: 'Shown on the tile' } },
+        {
+          name: 'size',
+          type: 'select',
+          defaultValue: 'small',
+          admin: { description: 'Layout hint (large = tall column on desktop).' },
+          options: [
+            { label: 'Small', value: 'small' },
+            { label: 'Large', value: 'large' },
+          ],
+        },
+      ],
+    },
+    {
       name: 'newsletter',
       type: 'group',
       fields: [

@@ -1,4 +1,10 @@
-import { getHomepage, getFeaturedProducts, getCategories, getTestimonials } from '@/lib/payload'
+import type { Homepage } from '@/payload-types'
+import {
+  getHomepage,
+  getFeaturedProducts,
+  getCategories,
+  getTestimonials,
+} from '@/lib/payload'
 import HeroSection from '@/components/HeroSection'
 import SkincareSection from '@/components/SkincareSection'
 import CategoryCarousel from '@/components/CategoryCarousel'
@@ -6,14 +12,16 @@ import BentoGrid from '@/components/BentoGrid'
 import FeaturedProducts from '@/components/FeaturedProducts'
 import BrandStory from '@/components/BrandStory'
 import Testimonials from '@/components/Testimonials'
+import { testimonialsWithFallback, bentoTilesWithFallback } from '@/lib/homeFallbacks'
 
 export default async function HomePage() {
-  const [homepage, products, categories, testimonials] = await Promise.all([
+  const [homepageRaw, products, categories, testimonialDocs] = await Promise.all([
     getHomepage(),
     getFeaturedProducts(),
     getCategories(),
     getTestimonials(),
   ])
+  const homepage = homepageRaw as Homepage
 
   const hero = homepage.hero as {
     heading: string
@@ -33,6 +41,9 @@ export default async function HomePage() {
     body: string
     image?: { url: string; alt: string } | null
   }
+
+  const bentoTiles = bentoTilesWithFallback(homepage?.bentoGrid)
+  const testimonials = testimonialsWithFallback(testimonialDocs)
 
   return (
     <>
@@ -58,7 +69,7 @@ export default async function HomePage() {
           }[]
         }
       />
-      <BentoGrid />
+      <BentoGrid tiles={bentoTiles} />
       <FeaturedProducts
         products={
           products as {
@@ -76,16 +87,7 @@ export default async function HomePage() {
         body={brandStory?.body ?? ''}
         image={brandStory?.image as { url: string; alt: string } | null}
       />
-      <Testimonials
-        testimonials={
-          testimonials as {
-            id: string | number
-            author: string
-            quote: string
-            rating: string | number
-          }[]
-        }
-      />
+      <Testimonials testimonials={testimonials} />
     </>
   )
 }

@@ -65,24 +65,42 @@ async function backfillShippingRegionDisplayNames(payload: Payload): Promise<voi
   }
 }
 
-const CHECKOUT_COUNTRIES = [
+const SHIPPING_SEED_ROWS = [
   {
     country: 'US',
-    name: 'United States (standard)',
-    rate: 8,
+    name: 'United States — Standard',
+    rate: 8.99,
     sort: 10,
     code: 'us',
     deliveryEta: '5–7 business days',
-    summaryHint: 'US Standard',
+    summaryHint: 'Standard',
+  },
+  {
+    country: 'US',
+    name: 'United States — Express',
+    rate: 19.99,
+    sort: 11,
+    code: 'us-express',
+    deliveryEta: '2–3 business days',
+    summaryHint: 'Express',
   },
   {
     country: 'CA',
-    name: 'Canada (standard)',
-    rate: 10,
-    sort: 11,
+    name: 'Canada — Standard',
+    rate: 12.99,
+    sort: 20,
     code: 'ca',
-    deliveryEta: '5–7 business days',
-    summaryHint: 'Canada',
+    deliveryEta: '7–10 business days',
+    summaryHint: 'Standard',
+  },
+  {
+    country: 'CA',
+    name: 'Canada — Express',
+    rate: 24.99,
+    sort: 21,
+    code: 'ca-express',
+    deliveryEta: '3–5 business days',
+    summaryHint: 'Express',
   },
 ] as const
 
@@ -91,17 +109,17 @@ const CHECKOUT_COUNTRIES = [
  */
 export async function seedOrderCommerce(payload: Payload): Promise<void> {
   try {
-    for (const c of CHECKOUT_COUNTRIES) {
+    for (const row of SHIPPING_SEED_ROWS) {
       const existing = await payload.find({
         collection: 'shipping-regions',
-        where: { and: [{ country: { equals: c.country } }, { isActive: { equals: true } }] },
+        where: { code: { equals: row.code } },
         limit: 1,
         overrideAccess: true,
       })
       if (existing.docs.length === 0) {
         await payload.create({
           collection: 'shipping-regions',
-          data: { ...c, isActive: true },
+          data: { ...row, isActive: true },
         } as any)
       }
     }

@@ -16,5 +16,31 @@ export const Footer: GlobalConfig = {
     { name: 'phone', type: 'text' },
     { name: 'email', type: 'text' },
     { name: 'hours', type: 'text' },
+    {
+      name: 'socialLinks',
+      type: 'array',
+      labels: { singular: 'Social link', plural: 'Social links' },
+      admin: { description: 'Social profiles shown above the copyright line.' },
+      fields: [
+        {
+          name: 'platform',
+          type: 'select',
+          required: true,
+          admin: { description: 'Used to pick icon styling' },
+          options: [
+            { label: 'Instagram', value: 'instagram' },
+            { label: 'Facebook', value: 'facebook' },
+            { label: 'Twitter / X', value: 'twitter' },
+            { label: 'TikTok', value: 'tiktok' },
+          ],
+        },
+        {
+          name: 'url',
+          type: 'text',
+          required: true,
+          admin: { description: 'Full URL including https://' },
+        },
+      ],
+    },
   ],
 }

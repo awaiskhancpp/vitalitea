@@ -2,7 +2,10 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import { NextResponse } from 'next/server'
 
-/** Public storefront-only list; does not shadow Payload REST at /api/shipping-regions. */
+/**
+ * Storefront GET — active shipping rows from Payload (same DB as admin).
+ * Do not add a second route at `/api/shipping-regions` with GET-only: it blocks Payload REST POST for the admin UI.
+ */
 export const dynamic = 'force-dynamic'
 
 export async function GET() {
