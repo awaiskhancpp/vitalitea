@@ -8,6 +8,7 @@ import { useCart } from '@/contexts/CartContext'
 import { useCheckoutQuote } from '@/hooks/useCheckoutQuote'
 import { useShippingRegions } from '@/hooks/useShippingRegions'
 import { FREE_SHIPPING_AT, SHIPPING_METHOD_BY_COUNTRY } from '@/lib/checkout/constants'
+import { pickShippingRegionForCountry } from '@/lib/checkout/pickShippingRegion'
 import {
   postOrderDraft,
   postPaypalCapture,
@@ -90,8 +91,8 @@ export default function CheckoutClient() {
 
   useEffect(() => {
     if (!regions.length) return
-    const match = regions.find((r) => r.country === country)
-    if (match) setShippingRegionId(match.id)
+    const match = pickShippingRegionForCountry(regions, country)
+    setShippingRegionId(match ? match.id : '')
   }, [country, regions])
 
   useEffect(() => {
@@ -113,6 +114,7 @@ export default function CheckoutClient() {
       city,
       state,
       zip,
+      shippingCountry: country,
       phone,
       sameAsShipping,
       billFirst,
@@ -131,6 +133,7 @@ export default function CheckoutClient() {
     city,
     state,
     zip,
+    country,
     phone,
     sameAsShipping,
     billFirst,

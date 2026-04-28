@@ -21,6 +21,7 @@ export async function GET() {
         country: string
         stateCode?: string | null
         rate: number
+        sort?: number | null
       }
       return {
         id: String(r.id),
@@ -28,6 +29,7 @@ export async function GET() {
         country: r.country,
         stateCode: r.stateCode ?? null,
         rate: r.rate,
+        sort: typeof r.sort === 'number' ? r.sort : 0,
       }
     }),
   })

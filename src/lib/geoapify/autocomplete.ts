@@ -10,6 +10,9 @@ export type GeoapifyCitySuggestion = {
   city: string
   state: string | null
   postcode: string | null
+  /** GeoJSON centroid/point coordinates — ZIP filled via reverse geocode if `postcode` is missing */
+  lat?: number
+  lon?: number
 }
 
 type FeatureProps = {
@@ -21,16 +24,77 @@ type FeatureProps = {
   state?: string | null
   state_code?: string | null
   postcode?: string | null
+  postal_code?: string | null
+  postalcode?: string | null
+}
+
+type GeoapifyGeometry =
+  | { type: 'Point'; coordinates: [number, number] | number[] }
+  | { type?: string; coordinates?: unknown }
+
+/** Best-effort USPS / CA postal codes from Geoapify `properties`. */
+function postcodeFromProps(p: FeatureProps): string | null {
+  for (const v of [
+    p.postcode,
+    p.postal_code,
+    p.postalcode,
+  ]) {
+    if (typeof v === 'string' && v.trim()) return v.trim()
+  }
+  return null
+}
+
+/** Approximate center of Polygon / MultiPolygon for reverse geocode (city polygons often omit `postcode`). */
+function centroidFromPolygonishGeometry(g: Record<string, unknown>): { lat: number; lon: number } | null {
+  let ring: unknown
+  const t = typeof g.type === 'string' ? g.type : ''
+  if (t === 'Polygon' && Array.isArray(g.coordinates)) ring = g.coordinates[0]
+  else if (t === 'MultiPolygon' && Array.isArray(g.coordinates) && (g.coordinates as unknown[][])[0]?.length)
+    ring = (g.coordinates as unknown[][][])[0][0]
+  else return null
+  if (!Array.isArray(ring) || ring.length < 2) return null
+  let sumLon = 0
+  let sumLat = 0
+  let n = 0
+  for (const pt of ring) {
+    if (!Array.isArray(pt) || pt.length < 2) continue
+    sumLon += Number(pt[0])
+    sumLat += Number(pt[1])
+    n++
+  }
+  const lon = n ? sumLon / n : NaN
+  const lat = n ? sumLat / n : NaN
+  if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null
+  return { lat, lon }
+}
+
+function lonLatFromFeature(raw?: {
+  geometry?: GeoapifyGeometry
+}): { lat?: number; lon?: number } {
+  const g = raw?.geometry as (GeoapifyGeometry & Record<string, unknown>) | undefined
+  if (!g) return {}
+  if (g.type === 'Point' && Array.isArray(g.coordinates)) {
+    const coords = g.coordinates as number[]
+    const [a0, a1] = coords
+    const lon = Number(a0)
+    const lat = Number(a1)
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) return {}
+    return { lat, lon }
+  }
+  const polyCentroid = centroidFromPolygonishGeometry(g as Record<string, unknown>)
+  return polyCentroid ?? {}
 }
 
 type AutocompleteResponse = {
-  features?: { properties?: FeatureProps }[]
+  features?: Array<{ properties?: FeatureProps; geometry?: GeoapifyGeometry }>
   /** `format=json` returns this instead of GeoJSON `features` (see Geoapify docs). */
   results?: FeatureProps[]
 }
 
 /** Normalize Geoapify autocomplete/search JSON: GeoJSON uses `features[].properties`, JSON uses `results[]`. */
-function collectGeoapifyFeatureRows(data: AutocompleteResponse): { properties?: FeatureProps }[] {
+function collectGeoapifyFeatureRows(
+  data: AutocompleteResponse,
+): Array<{ properties?: FeatureProps; geometry?: GeoapifyGeometry }> {
   if (Array.isArray(data.features) && data.features.length) return data.features
   if (Array.isArray(data.results) && data.results.length) {
     return data.results.map((properties) => ({ properties }))
@@ -40,7 +104,7 @@ function collectGeoapifyFeatureRows(data: AutocompleteResponse): { properties?: 
 
 /** Map one GeoJSON feature to a dropdown row (or skip). */
 export function featureToGeoapifyCitySuggestion(
-  raw: { properties?: FeatureProps } | undefined,
+  raw: { properties?: FeatureProps; geometry?: GeoapifyGeometry } | undefined,
 ): GeoapifyCitySuggestion | null {
   const p = raw?.properties ?? {}
   const city =
@@ -56,15 +120,22 @@ export function featureToGeoapifyCitySuggestion(
   const label = display || city
   const state =
     typeof p.state_code === 'string' ? p.state_code : typeof p.state === 'string' ? p.state : null
-  const postcode = typeof p.postcode === 'string' ? p.postcode : null
+  const postcode = postcodeFromProps(p)
+
+  const { lat, lon } = lonLatFromFeature(raw)
 
   if (!city && !label) return null
-  return {
+  const row: GeoapifyCitySuggestion = {
     label: label || city,
     city: city || label,
     state,
     postcode,
   }
+  if (lat != null && lon != null) {
+    row.lat = lat
+    row.lon = lon
+  }
+  return row
 }
 
 /**
@@ -77,6 +148,29 @@ export function geoapifyCountryFilter(iso: string): string {
   if (c === 'US') return 'us'
   if (c === 'CA') return 'ca'
   return 'us'
+}
+
+/**
+ * City autocomplete rarely includes a single ZIP (`postcode` empty). Reverse-geocode the
+ * feature centroid server-side (`/api/geoapify/reverse`) to populate ZIP when possible.
+ */
+export async function enrichCitySuggestionPostcode(
+  suggestion: GeoapifyCitySuggestion,
+  signal?: AbortSignal,
+): Promise<GeoapifyCitySuggestion> {
+  if (suggestion.postcode?.trim()) return suggestion
+  if (typeof suggestion.lat !== 'number' || typeof suggestion.lon !== 'number') return suggestion
+  if (typeof window === 'undefined') return suggestion
+  try {
+    const u = `/api/geoapify/reverse?lat=${encodeURIComponent(String(suggestion.lat))}&lon=${encodeURIComponent(String(suggestion.lon))}`
+    const res = await fetch(u, { signal, credentials: 'same-origin' })
+    if (!res.ok) return suggestion
+    const data = (await res.json()) as { postcode?: string | null }
+    const pc = typeof data.postcode === 'string' ? data.postcode.trim() : ''
+    return pc ? { ...suggestion, postcode: pc } : suggestion
+  } catch {
+    return suggestion
+  }
 }
 
 /**

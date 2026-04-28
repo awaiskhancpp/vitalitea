@@ -246,6 +246,10 @@ export function CheckoutShippingSection({
           className={fieldClass(inputClass, !!fieldErrors.phone)}
         />
         <InputError id="phone" message={fieldErrors.phone} />
+        <p className="mt-1 font-['Host_Grotesk'] text-xs text-neutral-500">
+          Use a number for your selected country: US or Canada (+1 — 10 digits; not another country code
+          such as +92).
+        </p>
       </div>
     </section>
   )

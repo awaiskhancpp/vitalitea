@@ -4,6 +4,7 @@ import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from 
 import { fieldClass, inputClass, labelClass } from '@/components/checkout/form-classes'
 import { InputError } from '@/components/checkout/InputError'
 import {
+  enrichCitySuggestionPostcode,
   fetchGeoapifyCitySuggestions,
   type GeoapifyCitySuggestion,
 } from '@/lib/geoapify/autocomplete'
@@ -111,10 +112,11 @@ export function CityAutocompleteField({
   }, [checkoutCountryIso])
 
   const pickRow = useCallback(
-    (suggestion: GeoapifyCitySuggestion) => {
+    async (suggestion: GeoapifyCitySuggestion) => {
       onCityChange(suggestion.city)
       onClearFieldErrorCity?.()
-      applySuggestionExtras?.(suggestion)
+      const enriched = await enrichCitySuggestionPostcode(suggestion)
+      applySuggestionExtras?.(enriched)
       setRows([])
       setOpen(false)
     },

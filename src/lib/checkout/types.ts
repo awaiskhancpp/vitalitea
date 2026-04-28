@@ -5,6 +5,8 @@ export type ShippingRegionDto = {
   name: string
   rate: number
   country?: string
+  stateCode?: string | null
+  sort?: number
 }
 
 export type CheckoutQuote = {
@@ -28,6 +30,8 @@ export type ValidateCheckoutInput = {
   city: string
   state: string
   zip: string
+  /** Shipping country (US / CA) — drives phone (+1 NANP only). */
+  shippingCountry: string
   phone: string
   sameAsShipping: boolean
   billFirst: string

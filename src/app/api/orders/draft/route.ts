@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server'
 import { computeOrderTotals } from '@/lib/computeOrderTotals'
 import { verifyCheckoutPostalAddresses } from '@/lib/geoapify/verifyCheckoutAddresses'
 import type { ClientCartLine } from '@/lib/order-pricing'
+import { isPhoneValidForCountry, PHONE_ERROR_US_CA } from '@/lib/checkout/phoneForCountry'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
@@ -59,6 +60,15 @@ export async function POST(request: Request) {
     }
     if (!body.shippingAddress?.firstName?.trim() || !body.shippingAddress?.lastName?.trim()) {
       return NextResponse.json({ error: 'Shipping name is required' }, { status: 400 })
+    }
+
+    const shipCountry = (body.shippingAddress?.country ?? 'US').trim()
+    const shipPhone = (body.shippingAddress?.phone ?? '').trim()
+    if (!shipPhone) {
+      return NextResponse.json({ error: 'Phone number is required' }, { status: 400 })
+    }
+    if (!isPhoneValidForCountry(shipPhone, shipCountry)) {
+      return NextResponse.json({ error: PHONE_ERROR_US_CA }, { status: 400 })
     }
 
     const same = body.sameAsShipping !== false

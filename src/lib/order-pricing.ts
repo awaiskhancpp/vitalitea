@@ -14,7 +14,56 @@ export type ClientCartLine = {
 type ProductDoc = { id: string | number; name: string; price: number; slug: string }
 
 /**
- * Re-price cart from products collection. Rejects if slug/price hijack.
+ * Locate the CMS row for one cart line. Slug is authoritative (what the shop showed);
+ * numeric `id` alone is unsafe — seed ids and Payload auto-ids can collide (e.g. both "2",
+ * different products).
+ */
+async function findProductDocForLine(
+  payload: Payload,
+  line: ClientCartLine,
+): Promise<ProductDoc | undefined> {
+  const slugTrim = line.slug.trim()
+
+  if (slugTrim) {
+    const bySlug = await payload.find({
+      collection: 'products',
+      where: { slug: { equals: slugTrim } },
+      limit: 1,
+      depth: 0,
+      overrideAccess: true,
+    })
+    const d = bySlug.docs[0] as ProductDoc | undefined
+    if (d) return d
+  }
+
+  const n = Number(line.id)
+  let res = await payload.find({
+    collection: 'products',
+    where: { id: { equals: line.id } },
+    limit: 1,
+    depth: 0,
+    overrideAccess: true,
+  })
+  if (!res.docs[0] && !Number.isNaN(n)) {
+    res = await payload.find({
+      collection: 'products',
+      where: { id: { equals: n } },
+      limit: 1,
+      depth: 0,
+      overrideAccess: true,
+    })
+  }
+  const doc = res.docs[0] as ProductDoc | undefined
+  if (!doc) return undefined
+  // Reject lookup-by-id when it points at another product (same numeric id collision).
+  if (slugTrim && String(doc.slug) !== slugTrim) return undefined
+  return doc
+}
+
+/**
+ * Re-price cart from the products collection. Resolves each line by **slug first**, then by
+ * **id only if the CMS row’s slug matches** the line (avoids id collision between storefront
+ * seeds and Payload). Emits canonical `id` from Payload when a CMS row is used.
  */
 export async function resolveCartLines(
   payload: Payload,
@@ -26,34 +75,17 @@ export async function resolveCartLines(
   const out: ClientCartLine[] = []
   let subtotal = 0
   for (const line of lines) {
-    const n = Number(line.id)
-    let res = await payload.find({
-      collection: 'products',
-      where: { id: { equals: line.id } },
-      limit: 1,
-      depth: 0,
-      overrideAccess: true,
-    })
-    if (!res.docs[0] && !Number.isNaN(n)) {
-      res = await payload.find({
-        collection: 'products',
-        where: { id: { equals: n } },
-        limit: 1,
-        depth: 0,
-        overrideAccess: true,
-      })
-    }
-    const doc = res.docs[0] as ProductDoc | undefined
+    const doc = await findProductDocForLine(payload, line)
     if (doc) {
-      if (doc.slug !== line.slug) return { ok: false, error: 'Product mismatch' }
-      const price = doc.price
-      if (Number(price) !== Number(line.price)) {
-        return { ok: false, error: 'Prices changed — please refresh the page' }
+      const price = Number(doc.price)
+      if (!Number.isFinite(price)) {
+        return { ok: false, error: `Invalid price for: ${line.name}` }
       }
       const q = Math.max(1, Math.floor(line.quantity))
       subtotal += price * q
       out.push({
         ...line,
+        id: String(doc.id),
         name: doc.name,
         price,
         slug: doc.slug,
@@ -61,14 +93,11 @@ export async function resolveCartLines(
       })
       continue
     }
-    // Fallback when the storefront used SEED_PRODUCTS (no row in DB yet) — same id + slug + price checks
-    const seed = SEED_PRODUCTS.find(
-      (p) => String(p.id) === String(line.id) && p.slug === line.slug,
-    )
+    const seed =
+      SEED_PRODUCTS.find(
+        (p) => String(p.id) === String(line.id) && p.slug === line.slug,
+      ) ?? SEED_PRODUCTS.find((p) => String(p.id) === String(line.id))
     if (seed) {
-      if (Number(seed.price) !== Number(line.price)) {
-        return { ok: false, error: 'Prices changed — please refresh the page' }
-      }
       const q = Math.max(1, Math.floor(line.quantity))
       subtotal += seed.price * q
       out.push({

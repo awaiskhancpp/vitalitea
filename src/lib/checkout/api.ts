@@ -1,4 +1,9 @@
-import type { CheckoutLine, CheckoutQuote, OrderDraftResponse } from './types'
+import type {
+  CheckoutLine,
+  CheckoutQuote,
+  OrderDraftResponse,
+  ShippingRegionDto,
+} from './types'
 import { parseApiError } from './parseApiError'
 
 type Ok<T> = { ok: true; data: T }
@@ -9,14 +14,12 @@ function readError(res: Response, bodyText: string, fallback: string): Err {
   return { ok: false, error: parseApiError(bodyText, res.status, fallback), status: res.status }
 }
 
-export async function fetchShippingRegions(): Promise<
-  Result<{ regions: { id: string; name: string; rate: number; country?: string }[] }>
-> {
+export async function fetchShippingRegions(): Promise<Result<{ regions: ShippingRegionDto[] }>> {
   const res = await fetch('/api/shipping-regions')
   const text = await res.text()
   if (!res.ok) return readError(res, text, 'Could not load shipping regions')
   try {
-    const d = JSON.parse(text) as { regions?: { id: string; name: string; rate: number; country?: string }[] }
+    const d = JSON.parse(text) as { regions?: ShippingRegionDto[] }
     return { ok: true, data: { regions: d.regions || [] } }
   } catch {
     return { ok: false, error: 'Invalid response', status: 500 }

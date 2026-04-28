@@ -1,4 +1,5 @@
 import type { ValidateCheckoutInput } from './types'
+import { isPhoneValidForCountry, PHONE_ERROR_US_CA } from './phoneForCountry'
 
 const emailOk = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim())
 const req = (v: string) => (v && v.trim().length > 0 ? v.trim() : '')
@@ -16,6 +17,9 @@ export function validateCheckoutFields(
   if (!args.state || !args.state.trim()) e.state = 'State / province is required'
   if (!req(args.zip)) e.zip = 'ZIP or postal code is required'
   if (!req(args.phone)) e.phone = 'Phone number is required'
+  else if (!isPhoneValidForCountry(args.phone, args.shippingCountry)) {
+    e.phone = PHONE_ERROR_US_CA
+  }
   if (!args.shippingRegionId) e.country = 'Select a country to set shipping'
   if (!args.sameAsShipping) {
     if (!req(args.billFirst)) e.billFirst = 'First name is required'
