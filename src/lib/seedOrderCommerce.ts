@@ -3,11 +3,10 @@ import type { Payload } from 'payload'
 const CHECKOUT_COUNTRIES = [
   { country: 'US', name: 'United States (standard)', rate: 8, sort: 10 },
   { country: 'CA', name: 'Canada (standard)', rate: 10, sort: 11 },
-  { country: 'PK', name: 'Pakistan (standard)', rate: 4.99, sort: 12 },
 ] as const
 
 /**
- * Ensure one active shipping region per checkout country (US, CA, PK). Idempotent.
+ * Ensure one active shipping region per checkout country (US, CA). Idempotent.
  * Sample coupon when none exist.
  */
 export async function seedOrderCommerce(payload: Payload): Promise<void> {

@@ -61,8 +61,7 @@ export function CheckoutFreeShippingCallout() {
       <div>
         <p className="font-['Host_Grotesk'] text-sm font-bold text-sky-900">Free shipping available!</p>
         <p className="mt-1 font-['Host_Grotesk'] text-xs leading-relaxed text-sky-900/90 sm:text-sm">
-          Orders over $75.00 ship free on standard delivery to the United States, Canada, and
-          Pakistan.
+          Orders over $75.00 ship free on standard delivery to the United States and Canada.
         </p>
       </div>
     </div>

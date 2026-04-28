@@ -9,11 +9,6 @@ export interface Product {
   variantLabel?: string
 }
 
-// ─────────────────────────────────────────────
-// SEED DATA — matches the 3×3 grid in screenshot
-// CHANGE: remove SEED_PRODUCTS and use real DB/API
-//         data once your Payload collection is live.
-// ─────────────────────────────────────────────
 export const SEED_PRODUCTS: Product[] = [
   {
     id: '1',

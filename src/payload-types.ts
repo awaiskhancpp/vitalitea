@@ -294,7 +294,7 @@ export interface Coupon {
   /**
    * Empty = valid in all countries. Otherwise only when the selected shipping region's country is one of these.
    */
-  allowedCountryCodes?: ('US' | 'CA' | 'PK')[] | null;
+  allowedCountryCodes?: ('US' | 'CA')[] | null;
   updatedAt: string;
   createdAt: string;
 }

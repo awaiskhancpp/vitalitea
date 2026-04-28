@@ -8,7 +8,6 @@ export const SHIPPING_METHOD_BY_COUNTRY: Record<
 > = {
   US: { title: 'US Standard Shipping', eta: '5-7 business days', summaryHint: 'US Standard' },
   CA: { title: 'Canada Standard Shipping', eta: '5-7 business days', summaryHint: 'Canada' },
-  PK: { title: 'International Shipping', eta: '8-10 business days', summaryHint: 'International' },
 }
 
 /** Scroll/focus first invalid field in this order */

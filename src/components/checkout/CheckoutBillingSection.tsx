@@ -197,7 +197,6 @@ export function CheckoutBillingSection({
             >
               <option value="US">United States</option>
               <option value="CA">Canada</option>
-              <option value="PK">Pakistan</option>
             </select>
           </div>
         </div>
