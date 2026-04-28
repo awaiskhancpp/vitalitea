@@ -57,7 +57,7 @@ export default function Navbar({ links }: NavbarProps) {
       className={`fixed inset-x-0 top-0 z-50 w-full transition-all duration-300
   ${scrolled ? 'bg-white shadow-md' : isShop ? 'bg-[#F5F1E8]' : 'bg-transparent'}`}
     >
-      <div className="flex w-full items-center justify-between px-6 pt-6 sm:px-10 lg:px-[6.94%]">
+      <div className="flex w-full items-center pb-5 justify-between px-6 pt-6 sm:px-10 lg:px-[6.94%]">
         <Link href="/" className="flex shrink-0 items-center">
           <Image
             src="/logo.png"
