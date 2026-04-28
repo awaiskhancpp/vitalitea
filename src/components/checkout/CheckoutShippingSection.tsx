@@ -7,7 +7,9 @@ import {
   sectionFormHeadingClass,
   selectClass,
 } from '@/components/checkout/form-classes'
+import { CityAutocompleteField } from '@/components/checkout/CityAutocompleteField'
 import { InputError } from '@/components/checkout/InputError'
+import type { GeoapifyCitySuggestion } from '@/lib/geoapify/autocomplete'
 
 type FieldErrors = Record<string, string | undefined>
 
@@ -54,6 +56,17 @@ export function CheckoutShippingSection({
   fieldErrors: FieldErrors
   clearFieldError: (k: string) => void
 }) {
+  const onGeoPick = (s: GeoapifyCitySuggestion) => {
+    if (s.state != null && s.state !== '') {
+      setState(String(s.state))
+      clearFieldError('state')
+    }
+    if (s.postcode != null && s.postcode !== '') {
+      setZip(String(s.postcode))
+      clearFieldError('zip')
+    }
+  }
+
   return (
     <section className="space-y-4">
       <h2 className={sectionFormHeadingClass}>Shipping Address</h2>
@@ -131,25 +144,46 @@ export function CheckoutShippingSection({
           className={inputClass}
         />
       </div>
+      <div>
+        <label htmlFor="country" className={labelClass}>
+          Country <span className="text-red-600">*</span>
+        </label>
+        <select
+          id="country"
+          name="country"
+          autoComplete="shipping country"
+          value={country}
+          onChange={(e) => {
+            setCountry(e.target.value)
+            clearFieldError('country')
+          }}
+          className={fieldClass(selectClass, !!fieldErrors.country)}
+        >
+          <option value="US">United States</option>
+          <option value="CA">Canada</option>
+        </select>
+        <InputError id="country" message={fieldErrors.country} />
+        <p className="mt-1.5 font-['Host_Grotesk'] text-xs text-neutral-500">
+          Choose country first — city search is limited to the US or Canada matching this choice.
+        </p>
+      </div>
       <div className="grid gap-4 sm:grid-cols-3">
-        <div>
-          <label htmlFor="city" className={labelClass}>
-            City <span className="text-red-600">*</span>
-          </label>
-          <input
-            id="city"
+        <div className="min-w-0 sm:col-span-1">
+          <CityAutocompleteField
+            validationFieldMarker="shipping-city-checkout"
             name="city"
-            autoComplete="shipping address-level2"
+            label={
+              <>
+                City <span className="text-red-600">*</span>
+              </>
+            }
             value={city}
-            onChange={(e) => {
-              setCity(e.target.value)
-              clearFieldError('city')
-            }}
-            aria-invalid={!!fieldErrors.city}
-            aria-describedby={fieldErrors.city ? 'err-city' : undefined}
-            className={fieldClass(inputClass, !!fieldErrors.city)}
+            onCityChange={setCity}
+            checkoutCountryIso={country}
+            fieldErrorCity={fieldErrors.city}
+            onClearFieldErrorCity={() => clearFieldError('city')}
+            applySuggestionExtras={onGeoPick}
           />
-          <InputError id="city" message={fieldErrors.city} />
         </div>
         <div>
           <label htmlFor="state" className={labelClass}>
@@ -191,26 +225,6 @@ export function CheckoutShippingSection({
           />
           <InputError id="zip" message={fieldErrors.zip} />
         </div>
-      </div>
-      <div>
-        <label htmlFor="country" className={labelClass}>
-          Country <span className="text-red-600">*</span>
-        </label>
-        <select
-          id="country"
-          name="country"
-          autoComplete="shipping country"
-          value={country}
-          onChange={(e) => {
-            setCountry(e.target.value)
-            clearFieldError('country')
-          }}
-          className={fieldClass(selectClass, !!fieldErrors.country)}
-        >
-          <option value="US">United States</option>
-          <option value="CA">Canada</option>
-        </select>
-        <InputError id="country" message={fieldErrors.country} />
       </div>
       <div>
         <label htmlFor="phone" className={labelClass}>

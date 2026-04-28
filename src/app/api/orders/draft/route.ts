@@ -2,6 +2,7 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import { NextResponse } from 'next/server'
 import { computeOrderTotals } from '@/lib/computeOrderTotals'
+import { verifyCheckoutPostalAddresses } from '@/lib/geoapify/verifyCheckoutAddresses'
 import type { ClientCartLine } from '@/lib/order-pricing'
 
 export const dynamic = 'force-dynamic'
@@ -60,6 +61,28 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Shipping name is required' }, { status: 400 })
     }
 
+    const same = body.sameAsShipping !== false
+    const addrCheck = await verifyCheckoutPostalAddresses({
+      shipping: {
+        city: body.shippingAddress.city,
+        state: body.shippingAddress.state,
+        zip: body.shippingAddress.zip,
+        country: body.shippingAddress.country,
+      },
+      billing: body.billingAddress
+        ? {
+            city: body.billingAddress.city,
+            state: body.billingAddress.state,
+            zip: body.billingAddress.zip,
+            country: body.billingAddress.country,
+          }
+        : undefined,
+      sameAsShipping: same,
+    })
+    if (!addrCheck.ok) {
+      return NextResponse.json({ error: addrCheck.error }, { status: 400 })
+    }
+
     const payload = await getPayload({ config: configPromise })
     const tot = await computeOrderTotals(payload, {
       lines: body.items,
@@ -71,7 +94,6 @@ export async function POST(request: Request) {
     }
     const d = tot.data
 
-    const same = body.sameAsShipping !== false
     const shippingJson = { ...body.shippingAddress, email: body.shippingAddress.email || email }
     const billingJson = same
       ? shippingJson

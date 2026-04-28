@@ -7,7 +7,9 @@ import {
   labelClass,
   selectClass,
 } from '@/components/checkout/form-classes'
+import { CityAutocompleteField } from '@/components/checkout/CityAutocompleteField'
 import { InputError } from '@/components/checkout/InputError'
+import type { GeoapifyCitySuggestion } from '@/lib/geoapify/autocomplete'
 
 type FieldErrors = Record<string, string | undefined>
 
@@ -52,6 +54,17 @@ export function CheckoutBillingSection({
   fieldErrors: FieldErrors
   clearFieldError: (k: string) => void
 }) {
+  const onBillingGeoPick = (s: GeoapifyCitySuggestion) => {
+    if (s.state != null && s.state !== '') {
+      setBillState(String(s.state))
+      clearFieldError('billState')
+    }
+    if (s.postcode != null && s.postcode !== '') {
+      setBillZip(String(s.postcode))
+      clearFieldError('billZip')
+    }
+  }
+
   return (
     <section className="space-y-4">
       <h2 className="border-b border-neutral-200 pb-2 font-['Cormorant_Garamond'] text-lg font-bold text-neutral-900">
@@ -132,23 +145,41 @@ export function CheckoutBillingSection({
             />
             <InputError id="billAddress" message={fieldErrors.billAddress} />
           </div>
+          <div>
+            <label htmlFor="billCountry" className={labelClass}>
+              Country <span className="text-red-600">*</span>
+            </label>
+            <select
+              id="billCountry"
+              value={billCountry}
+              onChange={(e) => {
+                setBillCountry(e.target.value)
+                clearFieldError('billCountry')
+              }}
+              className={selectClass}
+            >
+              <option value="US">United States</option>
+              <option value="CA">Canada</option>
+            </select>
+          </div>
           <div className="grid gap-4 sm:grid-cols-3">
-            <div>
-              <label htmlFor="billCity" className={labelClass}>
-                City <span className="text-red-600">*</span>
-              </label>
-              <input
-                id="billCity"
+            <div className="min-w-0 sm:col-span-1">
+              <CityAutocompleteField
+                validationFieldMarker="billing-city-checkout"
+                name="billingCityDisplay"
+                label={
+                  <>
+                    City <span className="text-red-600">*</span>
+                  </>
+                }
                 value={billCity}
-                onChange={(e) => {
-                  setBillCity(e.target.value)
-                  clearFieldError('billCity')
-                }}
-                aria-invalid={!!fieldErrors.billCity}
-                aria-describedby={fieldErrors.billCity ? 'err-billCity' : undefined}
-                className={fieldClass(inputClass, !!fieldErrors.billCity)}
+                onCityChange={setBillCity}
+                checkoutCountryIso={billCountry}
+                fieldErrorCity={fieldErrors.billCity}
+                onClearFieldErrorCity={() => clearFieldError('billCity')}
+                applySuggestionExtras={onBillingGeoPick}
+                inputAutoComplete="billing address-level2"
               />
-              <InputError id="billCity" message={fieldErrors.billCity} />
             </div>
             <div>
               <label htmlFor="billState" className={labelClass}>
@@ -184,20 +215,6 @@ export function CheckoutBillingSection({
               />
               <InputError id="billZip" message={fieldErrors.billZip} />
             </div>
-          </div>
-          <div>
-            <label htmlFor="billCountry" className={labelClass}>
-              Country <span className="text-red-600">*</span>
-            </label>
-            <select
-              id="billCountry"
-              value={billCountry}
-              onChange={(e) => setBillCountry(e.target.value)}
-              className={selectClass}
-            >
-              <option value="US">United States</option>
-              <option value="CA">Canada</option>
-            </select>
           </div>
         </div>
       )}

@@ -1,7 +1,8 @@
 'use client'
-import { useState, useRef, useLayoutEffect, useCallback } from 'react'
+import { useState, useRef, useLayoutEffect, useCallback, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useCart } from '@/contexts/CartContext'
 
 interface Product {
   id: string | number
@@ -10,6 +11,7 @@ interface Product {
   price: number
   slug: string
   image?: { url: string; alt: string } | null
+  variantLabel?: string
 }
 
 const FALLBACK_PRODUCTS: Product[] = [
@@ -199,6 +201,66 @@ export default function FeaturedProducts({ products }: { products: Product[] }) 
 }
 
 function FeaturedProductCard({ product, index }: { product: Product; index: number }) {
+  const { addItem, ready } = useCart()
+  const [isAdding, setIsAdding] = useState(false)
+  const [showAdded, setShowAdded] = useState(false)
+  const addInFlight = useRef(false)
+
+  useEffect(() => {
+    if (!showAdded) return
+    const t = setTimeout(() => setShowAdded(false), 3200)
+    return () => clearTimeout(t)
+  }, [showAdded])
+
+  const raw = typeof product.image?.url === 'string' ? product.image.url.trim() : ''
+  const imageSrc = !raw
+    ? FALLBACK_IMAGES[index % FALLBACK_IMAGES.length]
+    : raw.startsWith('http://') || raw.startsWith('https://') || raw.startsWith('/')
+      ? raw
+      : `/${raw}`
+  const imageAlt = product.image?.alt?.trim() || product.name
+
+  const priceNum = Number(product.price)
+  const safePrice = Number.isFinite(priceNum) ? priceNum : 0
+
+  const addToCart = useCallback(
+    async (e: React.MouseEvent) => {
+      e.preventDefault()
+      if (!ready || addInFlight.current) return
+      const id = String(product.id)
+      if (!id || !product.slug) return
+      addInFlight.current = true
+      setIsAdding(true)
+      try {
+        await new Promise((r) => setTimeout(r, 520))
+        addItem({
+          id,
+          slug: product.slug,
+          name: product.name,
+          price: safePrice,
+          imageUrl: imageSrc,
+          imageAlt,
+          ...(product.variantLabel ? { variantLabel: product.variantLabel } : {}),
+        })
+        setShowAdded(true)
+      } finally {
+        addInFlight.current = false
+        setIsAdding(false)
+      }
+    },
+    [
+      ready,
+      product.id,
+      product.slug,
+      product.name,
+      product.variantLabel,
+      safePrice,
+      imageSrc,
+      imageAlt,
+      addItem,
+    ],
+  )
+
   return (
     <div
       className="flex h-full w-full min-w-0 max-w-full flex-col overflow-hidden rounded-[20px] bg-white"
@@ -209,8 +271,8 @@ function FeaturedProductCard({ product, index }: { product: Product; index: numb
         style={{ aspectRatio: '400/352' }}
       >
         <Image
-          src={product.image?.url || FALLBACK_IMAGES[index % FALLBACK_IMAGES.length]}
-          alt={product.image?.alt ?? product.name}
+          src={imageSrc}
+          alt={imageAlt}
           fill
           className="object-cover"
           sizes="(min-width: 1024px) min(28vw, 400px), (min-width: 640px) 46vw, 100vw"
@@ -234,11 +296,11 @@ function FeaturedProductCard({ product, index }: { product: Product; index: numb
             className="font-['Martel_Sans'] font-normal leading-[1.824] text-black"
             style={{ fontSize: 'clamp(0.875rem,1.11vw,1rem)' }}
           >
-            ${Number(product.price).toFixed(2)}
+            ${safePrice.toFixed(2)}
           </span>
           <Link
-            href="#"
-            className="inline-flex shrink-0 items-center rounded-full font-['Martel_Sans'] font-normal text-black"
+            href="/shop"
+            className="inline-flex shrink-0 items-center rounded-full font-['Martel_Sans'] font-normal text-black transition-colors hover:bg-black/5"
             style={{
               border: '1px solid #DADADA',
               fontSize: 'clamp(0.6875rem,0.9vw,0.75rem)',
@@ -248,13 +310,21 @@ function FeaturedProductCard({ product, index }: { product: Product; index: numb
             Select Options
           </Link>
         </div>
-        <Link
-          href="#"
-          className="mt-auto inline-flex w-full min-w-0 max-w-full items-center justify-center self-center rounded-full bg-[#627E5C] px-6 py-2.5 font-['Martel_Sans'] font-extrabold text-white transition-opacity hover:opacity-90 sm:px-10"
+        <button
+          type="button"
+          onClick={addToCart}
+          disabled={isAdding || showAdded || !product.slug}
+          aria-busy={isAdding}
+          className={`mt-auto inline-flex w-full min-w-0 max-w-full cursor-pointer items-center justify-center self-center rounded-full bg-[#627E5C] px-6 py-2.5 font-['Martel_Sans'] font-extrabold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60 sm:px-10 ${
+            isAdding ? 'cursor-wait' : ''
+          }`}
           style={{ fontSize: 'clamp(0.875rem,1.04vw,0.9375rem)' }}
         >
-          Shop Now
-        </Link>
+          {isAdding && (
+            <span className="mr-2 inline-block size-4 shrink-0 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+          )}
+          {isAdding ? 'Adding…' : showAdded ? '✓ Added to Bag' : 'Shop Now'}
+        </button>
       </div>
     </div>
   )
