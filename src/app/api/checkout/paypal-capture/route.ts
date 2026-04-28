@@ -1,6 +1,7 @@
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import { NextResponse } from 'next/server'
+import { sendOrderConfirmationEmail } from '@/lib/email/sendOrderConfirmation'
 import { paypalCaptureOrder } from '@/lib/paypalServer'
 import type { Payload } from 'payload'
 
@@ -84,6 +85,10 @@ export async function POST(request: Request) {
   const c = o.coupon
   const couponId = typeof c === 'object' && c && 'id' in c ? c.id : typeof c === 'number' ? c : null
   if (couponId) await incrementCouponUse(payload, couponId)
+
+  void sendOrderConfirmationEmail(payload, o.id).catch((err) => {
+    console.error('[paypal-capture] confirmation email:', err)
+  })
 
   const updated = await payload.findByID({ collection: 'orders', id: o.id, overrideAccess: true })
   return NextResponse.json({

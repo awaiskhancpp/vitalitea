@@ -1,4 +1,5 @@
 import type { Payload } from 'payload'
+import { sendOrderConfirmationEmail } from '@/lib/email/sendOrderConfirmation'
 
 /**
  * Idempotent: sets order to paid, increments coupon use once. Used by webhook + success-page sync.
@@ -32,4 +33,7 @@ export async function markOrderAsPaid(
       })
     }
   }
+  void sendOrderConfirmationEmail(payload, orderId).catch((err) => {
+    console.error('[markOrderAsPaid] confirmation email:', err)
+  })
 }
