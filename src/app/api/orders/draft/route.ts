@@ -6,6 +6,7 @@ import { verifyCheckoutPostalAddresses } from '@/lib/geoapify/verifyCheckoutAddr
 import type { ClientCartLine } from '@/lib/order-pricing'
 import { snapshotShippingRegion } from '@/lib/orderShippingSnapshots'
 import { isPhoneValidForCountry, PHONE_ERROR_US_CA } from '@/lib/checkout/phoneForCountry'
+import { resolveOptionalOrderCustomerRelationship } from '@/lib/orderCustomerLink'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
@@ -152,6 +153,13 @@ export async function POST(request: Request) {
       const n = typeof cid === 'number' ? cid : Number(cid)
       if (!Number.isNaN(n)) orderData.coupon = n
     }
+
+    const customerRel = await resolveOptionalOrderCustomerRelationship(
+      payload,
+      request.headers,
+      email,
+    )
+    if (customerRel !== undefined) orderData.customer = customerRel
 
     const order = await payload.create({
       collection: 'orders',

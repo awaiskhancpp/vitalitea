@@ -1,4 +1,7 @@
+'use client'
+
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 
 export type FooterSocialLink = { platform?: string | null; url?: string | null }
 
@@ -25,7 +28,22 @@ function platformLabel(platform: string) {
   return p.slice(0, 1).toUpperCase() + p.slice(1)
 }
 
-export default function Footer({ about, quickLinks, phone, email, hours, socialLinks }: FooterProps) {
+export default function Footer({
+  about,
+  quickLinks,
+  phone,
+  email,
+  hours,
+  socialLinks,
+}: FooterProps) {
+  const pathname = usePathname()
+  if (
+    pathname === '/login' ||
+    pathname === '/register' ||
+    pathname === '/forgot-password'
+  ) {
+    return null
+  }
   const links = quickLinks?.length
     ? quickLinks
     : [
@@ -118,20 +136,6 @@ export default function Footer({ about, quickLinks, phone, email, hours, socialL
         </div>
       </div>
       <div className="mt-12 w-full border-t border-white/30" />
-
-      <div className="app-container flex flex-wrap items-center justify-center gap-x-6 gap-y-2 py-4">
-        {socials.map((s) => (
-          <Link
-            key={`${s.platform}-${s.url}`}
-            href={s.url}
-            className="font-['Inter'] text-sm text-white/90 underline-offset-4 transition-opacity hover:opacity-80 hover:underline"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {platformLabel(s.platform)}
-          </Link>
-        ))}
-      </div>
 
       <div className="app-container py-6 text-center">
         <p

@@ -11,6 +11,7 @@ import { Header } from './globals/Header'
 import { Footer } from './globals/Footer'
 import { Homepage } from './globals/Homepage'
 import { Users } from './collections/Users'
+import { Customers } from './collections/Customers'
 import { ShippingRegions } from './collections/ShippingRegions'
 import { Coupons } from './collections/Coupons'
 import { Orders } from './collections/Orders'
@@ -27,6 +28,7 @@ export default buildConfig({
     Categories,
     Testimonials,
     Users,
+    Customers,
     ShippingRegions,
     Coupons,
     Orders,

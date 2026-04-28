@@ -56,6 +56,7 @@ export async function postOrderDraft(
   const res = await fetch('/api/orders/draft', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     body: JSON.stringify(body),
     signal,
   })
@@ -95,6 +96,7 @@ export async function postPaypalPrepare(
   const res = await fetch('/api/checkout/paypal-prepare', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     body: JSON.stringify(body),
     signal,
   })

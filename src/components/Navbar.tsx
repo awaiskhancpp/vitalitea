@@ -5,6 +5,7 @@ import Image from 'next/image'
 import type { MouseEvent as ReactMouseEvent } from 'react'
 import { usePathname } from 'next/navigation'
 import { useCart } from '@/contexts/CartContext'
+import { useCustomerAuth } from '@/contexts/CustomerAuthContext'
 
 interface NavLink {
   label: string
@@ -20,6 +21,8 @@ export default function Navbar({ links }: NavbarProps) {
   const searchBarRef = useRef<HTMLDivElement | null>(null)
   const pathname = usePathname()
   const { itemCount, openCartDrawer, lastAddedName } = useCart()
+  const { customer } = useCustomerAuth()
+  const accountHref = customer ? '/account' : '/login'
   const [scrolled, setScrolled] = useState(false)
 
   useEffect(() => {
@@ -96,9 +99,13 @@ export default function Navbar({ links }: NavbarProps) {
             <Image src="/searchicon.png" alt="" width={20} height={20} className="shrink-0" />
           </div>
 
-          <button aria-label="Account" className="rounded-full transition-colors">
-            <Image src="/usericon.png" alt="Account" width={22} height={22} />
-          </button>
+          <Link
+            href={accountHref}
+            aria-label={customer ? 'Your account' : 'Sign in'}
+            className="rounded-full transition-colors hover:opacity-80"
+          >
+            <Image src="/usericon.png" alt="" width={22} height={22} />
+          </Link>
 
           <div className="h-4 w-px shrink-0 bg-black" />
 
@@ -122,6 +129,13 @@ export default function Navbar({ links }: NavbarProps) {
           </button>
         </div>
         <div className="flex items-center gap-2 md:hidden">
+          <Link
+            href={accountHref}
+            aria-label={customer ? 'Your account' : 'Sign in'}
+            className="rounded-full p-2 transition-colors hover:bg-gray-100"
+          >
+            <Image src="/usericon.png" alt="" width={22} height={22} />
+          </Link>
           <button
             aria-label="Search"
             onClick={() => setSearchOpen(!searchOpen)}

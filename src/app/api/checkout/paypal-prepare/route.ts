@@ -7,6 +7,7 @@ import type { ClientCartLine } from '@/lib/order-pricing'
 import { paypalCreateOrder } from '@/lib/paypalServer'
 import { snapshotShippingRegion } from '@/lib/orderShippingSnapshots'
 import { isPhoneValidForCountry, PHONE_ERROR_US_CA } from '@/lib/checkout/phoneForCountry'
+import { resolveOptionalOrderCustomerRelationship } from '@/lib/orderCustomerLink'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60
@@ -129,6 +130,12 @@ export async function POST(request: Request) {
   const countryIso = String(body.shippingAddress?.country ?? 'US').trim().toUpperCase()
   const regionSnap = await snapshotShippingRegion(payload, regionId)
 
+  const customerRel = await resolveOptionalOrderCustomerRelationship(
+    payload,
+    request.headers,
+    email,
+  )
+
   const order = await payload.create({
     collection: 'orders',
     data: {
@@ -156,6 +163,7 @@ export async function POST(request: Request) {
       shippingAddress: shippingJson,
       billingAddress: billingJson,
       paymentMethod: 'paypal',
+      ...(customerRel !== undefined ? { customer: customerRel } : {}),
     },
     overrideAccess: true,
   })

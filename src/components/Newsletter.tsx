@@ -1,9 +1,21 @@
+'use client'
+
+import { usePathname } from 'next/navigation'
+
 interface NewsletterProps {
   heading: string
   subtext: string
   backgroundImage?: { url: string } | null
 }
 export default function Newsletter({ heading, subtext, backgroundImage }: NewsletterProps) {
+  const pathname = usePathname()
+  if (
+    pathname === '/login' ||
+    pathname === '/register' ||
+    pathname === '/forgot-password'
+  ) {
+    return null
+  }
   const bgSrc = backgroundImage?.url ?? '/newsletterimage.png'
 
   return (

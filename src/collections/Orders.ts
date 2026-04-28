@@ -8,18 +8,39 @@ const statusOptions: { label: string; value: string }[] = [
   { label: 'Shipped', value: 'shipped' },
 ]
 
+const isStaff = (u: unknown): boolean =>
+  typeof u === 'object' &&
+  u !== null &&
+  'collection' in u &&
+  (u as { collection?: string }).collection === 'users'
+
 export const Orders: CollectionConfig = {
   slug: 'orders',
   admin: { useAsTitle: 'orderNumber', defaultColumns: ['orderNumber', 'email', 'status', 'total', 'createdAt'] },
   access: {
-    read: ({ req }) => Boolean(req.user),
+    read: ({ req }) => {
+      if (!req.user) return false
+      if (isStaff(req.user)) return true
+      if ('collection' in req.user && (req.user as { collection?: string }).collection === 'customers') {
+        const id = (req.user as { id: number | string }).id
+        return { customer: { equals: id } }
+      }
+      return false
+    },
     create: () => false,
-    update: ({ req }) => Boolean(req.user),
+    update: ({ req }) => Boolean(req.user && isStaff(req.user)),
     delete: () => false,
   },
   fields: [
     { name: 'orderNumber', type: 'text', unique: true, index: true, admin: { readOnly: true } },
     { name: 'status', type: 'select', options: statusOptions, defaultValue: 'awaiting_payment', required: true },
+    {
+      name: 'customer',
+      type: 'relationship',
+      relationTo: 'customers',
+      index: true,
+      admin: { description: 'Linked storefront account when checkout email matches.', position: 'sidebar' },
+    },
     { name: 'email', type: 'email', required: true },
     { name: 'shippingAddress', type: 'json', required: true },
     { name: 'billingAddress', type: 'json' },
