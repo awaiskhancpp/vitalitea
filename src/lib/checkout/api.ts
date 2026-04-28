@@ -15,7 +15,7 @@ function readError(res: Response, bodyText: string, fallback: string): Err {
 }
 
 export async function fetchShippingRegions(): Promise<Result<{ regions: ShippingRegionDto[] }>> {
-  const res = await fetch('/api/shipping-regions')
+  const res = await fetch('/api/checkout/shipping-regions')
   const text = await res.text()
   if (!res.ok) return readError(res, text, 'Could not load shipping regions')
   try {

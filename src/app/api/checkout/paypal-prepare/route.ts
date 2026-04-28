@@ -5,6 +5,7 @@ import { computeOrderTotals } from '@/lib/computeOrderTotals'
 import { verifyCheckoutPostalAddresses } from '@/lib/geoapify/verifyCheckoutAddresses'
 import type { ClientCartLine } from '@/lib/order-pricing'
 import { paypalCreateOrder } from '@/lib/paypalServer'
+import { snapshotShippingRegion } from '@/lib/orderShippingSnapshots'
 import { isPhoneValidForCountry, PHONE_ERROR_US_CA } from '@/lib/checkout/phoneForCountry'
 
 export const dynamic = 'force-dynamic'
@@ -62,12 +63,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Shipping name is required' }, { status: 400 })
   }
 
-  const shipCountry = (body.shippingAddress?.country ?? 'US').trim()
+  const addrCountry = (body.shippingAddress?.country ?? 'US').trim()
   const shipPhone = (body.shippingAddress?.phone ?? '').trim()
   if (!shipPhone) {
     return NextResponse.json({ error: 'Phone number is required' }, { status: 400 })
   }
-  if (!isPhoneValidForCountry(shipPhone, shipCountry)) {
+  if (!isPhoneValidForCountry(shipPhone, addrCountry)) {
     return NextResponse.json({ error: PHONE_ERROR_US_CA }, { status: 400 })
   }
 
@@ -125,6 +126,9 @@ export async function POST(request: Request) {
   if (Number.isNaN(regionId)) {
     return NextResponse.json({ error: 'Invalid shipping region' }, { status: 400 })
   }
+  const countryIso = String(body.shippingAddress?.country ?? 'US').trim().toUpperCase()
+  const regionSnap = await snapshotShippingRegion(payload, regionId)
+
   const order = await payload.create({
     collection: 'orders',
     data: {
@@ -137,6 +141,9 @@ export async function POST(request: Request) {
       total: d.total,
       currency: 'usd',
       shippingRegion: regionId,
+      shippingCountryCode: regionSnap?.shippingCountryCode ?? countryIso,
+      shippingRegionSnapshot: regionSnap?.snapshot,
+      shippingRegionCode: d.shippingRegionCode,
       coupon: d.coupon
         ? (typeof d.coupon.id === 'number'
             ? d.coupon.id

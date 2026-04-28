@@ -39,7 +39,12 @@ export function CheckoutShippingMethodCard({
   )
 }
 
-export function CheckoutFreeShippingCallout() {
+export function CheckoutFreeShippingCallout({
+  freeShippingMinUsd,
+}: {
+  /** Same threshold as cart quote / server (USD). */
+  freeShippingMinUsd: number
+}) {
   return (
     <div className="flex gap-3 rounded-xl border border-sky-200 bg-sky-50 px-3 py-3.5 sm:px-4">
       <svg
@@ -61,7 +66,7 @@ export function CheckoutFreeShippingCallout() {
       <div>
         <p className="font-['Host_Grotesk'] text-sm font-bold text-sky-900">Free shipping available!</p>
         <p className="mt-1 font-['Host_Grotesk'] text-xs leading-relaxed text-sky-900/90 sm:text-sm">
-          Orders over $75.00 ship free on standard delivery to the United States and Canada.
+          Orders over ${freeShippingMinUsd.toFixed(2)} ship free on standard delivery where offered.
         </p>
       </div>
     </div>

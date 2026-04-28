@@ -7,6 +7,10 @@ export type ShippingRegionDto = {
   country?: string
   stateCode?: string | null
   sort?: number
+  /** Shown as the second line under the method title on checkout. */
+  deliveryEta?: string | null
+  /** Short hint next to shipping in the order summary. */
+  summaryHint?: string | null
 }
 
 export type CheckoutQuote = {

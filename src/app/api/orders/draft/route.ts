@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server'
 import { computeOrderTotals } from '@/lib/computeOrderTotals'
 import { verifyCheckoutPostalAddresses } from '@/lib/geoapify/verifyCheckoutAddresses'
 import type { ClientCartLine } from '@/lib/order-pricing'
+import { snapshotShippingRegion } from '@/lib/orderShippingSnapshots'
 import { isPhoneValidForCountry, PHONE_ERROR_US_CA } from '@/lib/checkout/phoneForCountry'
 
 export const dynamic = 'force-dynamic'
@@ -126,6 +127,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid shipping region' }, { status: 400 })
     }
 
+    const regionSnap = await snapshotShippingRegion(payload, regionId)
+
     const orderData: Record<string, unknown> = {
       email: email.toLowerCase(),
       status: 'awaiting_payment',
@@ -136,6 +139,9 @@ export async function POST(request: Request) {
       total: d.total,
       currency: 'usd',
       shippingRegion: regionId,
+      shippingCountryCode: regionSnap?.shippingCountryCode ?? String(shipCountry).toUpperCase(),
+      shippingRegionSnapshot: regionSnap?.snapshot,
+      shippingRegionCode: d.shippingRegionCode,
       couponCodeSnapshot: d.coupon?.code ?? undefined,
       shippingAddress: shippingJson,
       billingAddress: billingJson,

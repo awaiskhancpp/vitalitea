@@ -2,12 +2,12 @@
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { loadStripe } from '@stripe/stripe-js'
 import { useCart } from '@/contexts/CartContext'
 import { useCheckoutQuote } from '@/hooks/useCheckoutQuote'
 import { useShippingRegions } from '@/hooks/useShippingRegions'
-import { FREE_SHIPPING_AT, SHIPPING_METHOD_BY_COUNTRY } from '@/lib/checkout/constants'
+import { FREE_SHIPPING_AT } from '@/lib/checkout/constants'
 import { pickShippingRegionForCountry } from '@/lib/checkout/pickShippingRegion'
 import {
   postOrderDraft,
@@ -103,7 +103,22 @@ export default function CheckoutClient() {
   const qDisc = quote?.discount ?? 0
   const qShip = quote?.shipping ?? 0
   const qTotal = quote?.total ?? subtotal
-  const shipMethodCopy = SHIPPING_METHOD_BY_COUNTRY[country] ?? SHIPPING_METHOD_BY_COUNTRY.US
+
+  const selectedShippingRegion = useMemo(
+    () => pickShippingRegionForCountry(regions, country),
+    [regions, country],
+  )
+  const shipMethodCopy = useMemo(
+    () => ({
+      title: selectedShippingRegion?.name?.trim() || 'Standard shipping',
+      eta: selectedShippingRegion?.deliveryEta?.trim() || '—',
+      summaryHint:
+        selectedShippingRegion?.summaryHint?.trim() ||
+        selectedShippingRegion?.name?.trim() ||
+        'Shipping',
+    }),
+    [selectedShippingRegion],
+  )
 
   const getValidationErrors = useCallback((): Record<string, string> => {
     return validateCheckoutFields({
@@ -399,7 +414,7 @@ export default function CheckoutClient() {
               priceLabel={qShip === 0 ? 'FREE' : `$${qShip.toFixed(2)}`}
             />
 
-            <CheckoutFreeShippingCallout />
+            <CheckoutFreeShippingCallout freeShippingMinUsd={FREE_SHIPPING_AT} />
 
             <div className="lg:hidden">
               <OrderSummaryBlock

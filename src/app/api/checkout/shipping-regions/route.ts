@@ -2,6 +2,7 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import { NextResponse } from 'next/server'
 
+/** Public storefront-only list; does not shadow Payload REST at /api/shipping-regions. */
 export const dynamic = 'force-dynamic'
 
 export async function GET() {
@@ -22,6 +23,8 @@ export async function GET() {
         stateCode?: string | null
         rate: number
         sort?: number | null
+        deliveryEta?: string | null
+        summaryHint?: string | null
       }
       return {
         id: String(r.id),
@@ -30,6 +33,8 @@ export async function GET() {
         stateCode: r.stateCode ?? null,
         rate: r.rate,
         sort: typeof r.sort === 'number' ? r.sort : 0,
+        deliveryEta: r.deliveryEta?.trim() || null,
+        summaryHint: r.summaryHint?.trim() || null,
       }
     }),
   })

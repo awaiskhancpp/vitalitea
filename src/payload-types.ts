@@ -255,15 +255,39 @@ export interface User {
  */
 export interface ShippingRegion {
   id: number;
+  /**
+   * e.g. United States (standard)
+   */
   name: string;
+  /**
+   * ISO country code, e.g. US, CA
+   */
   country: string;
+  /**
+   * Optional — leave blank for the whole country.
+   */
   stateCode?: string | null;
   /**
-   * USD
+   * Shipping cost in USD
    */
   rate: number;
+  /**
+   * e.g. 3–7 business days — shown on checkout
+   */
+  deliveryEta?: string | null;
+  /**
+   * Short label in the order summary sidebar
+   */
+  summaryHint?: string | null;
   isActive?: boolean | null;
+  /**
+   * Lower number = higher priority when auto-selecting
+   */
   sort?: number | null;
+  /**
+   * Stable key; auto-filled from country / state.
+   */
+  code?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -307,26 +331,6 @@ export interface Order {
   orderNumber?: string | null;
   status: 'awaiting_payment' | 'paid' | 'failed' | 'cancelled' | 'shipped';
   email: string;
-  lineItems?:
-    | {
-        productId?: string | null;
-        slug?: string | null;
-        name: string;
-        price: number;
-        quantity: number;
-        imageUrl?: string | null;
-        imageAlt?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  subtotal: number;
-  discount?: number | null;
-  shipping: number;
-  total: number;
-  currency?: string | null;
-  shippingRegion?: (number | null) | ShippingRegion;
-  coupon?: (number | null) | Coupon;
-  couponCodeSnapshot?: string | null;
   shippingAddress:
     | {
         [k: string]: unknown;
@@ -345,6 +349,29 @@ export interface Order {
     | number
     | boolean
     | null;
+  lineItems?:
+    | {
+        productId?: string | null;
+        slug?: string | null;
+        name: string;
+        price: number;
+        quantity: number;
+        imageUrl?: string | null;
+        imageAlt?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  subtotal: number;
+  discount?: number | null;
+  shipping: number;
+  total: number;
+  currency?: string | null;
+  shippingRegionSnapshot?: string | null;
+  shippingRegion?: (number | null) | ShippingRegion;
+  shippingCountryCode?: string | null;
+  shippingRegionCode?: string | null;
+  coupon?: (number | null) | Coupon;
+  couponCodeSnapshot?: string | null;
   paymentMethod?: ('stripe' | 'paypal') | null;
   stripePaymentIntentId?: string | null;
   stripeSessionId?: string | null;
@@ -573,8 +600,11 @@ export interface ShippingRegionsSelect<T extends boolean = true> {
   country?: T;
   stateCode?: T;
   rate?: T;
+  deliveryEta?: T;
+  summaryHint?: T;
   isActive?: T;
   sort?: T;
+  code?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -604,6 +634,8 @@ export interface OrdersSelect<T extends boolean = true> {
   orderNumber?: T;
   status?: T;
   email?: T;
+  shippingAddress?: T;
+  billingAddress?: T;
   lineItems?:
     | T
     | {
@@ -621,11 +653,12 @@ export interface OrdersSelect<T extends boolean = true> {
   shipping?: T;
   total?: T;
   currency?: T;
+  shippingRegionSnapshot?: T;
   shippingRegion?: T;
+  shippingCountryCode?: T;
+  shippingRegionCode?: T;
   coupon?: T;
   couponCodeSnapshot?: T;
-  shippingAddress?: T;
-  billingAddress?: T;
   paymentMethod?: T;
   stripePaymentIntentId?: T;
   stripeSessionId?: T;

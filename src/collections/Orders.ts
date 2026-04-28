@@ -21,6 +21,8 @@ export const Orders: CollectionConfig = {
     { name: 'orderNumber', type: 'text', unique: true, index: true, admin: { readOnly: true } },
     { name: 'status', type: 'select', options: statusOptions, defaultValue: 'awaiting_payment', required: true },
     { name: 'email', type: 'email', required: true },
+    { name: 'shippingAddress', type: 'json', required: true },
+    { name: 'billingAddress', type: 'json' },
     {
       name: 'lineItems',
       type: 'array',
@@ -41,14 +43,29 @@ export const Orders: CollectionConfig = {
     { name: 'total', type: 'number', required: true },
     { name: 'currency', type: 'text', defaultValue: 'usd' },
     {
+      name: 'shippingRegionSnapshot',
+      type: 'text',
+      label: 'Shipping rate',
+      admin: { readOnly: true },
+    },
+    {
       name: 'shippingRegion',
       type: 'relationship',
       relationTo: 'shipping-regions',
+      label: 'Shipping region',
+    },
+    {
+      name: 'shippingCountryCode',
+      type: 'text',
+      admin: { hidden: true },
+    },
+    {
+      name: 'shippingRegionCode',
+      type: 'text',
+      admin: { hidden: true },
     },
     { name: 'coupon', type: 'relationship', relationTo: 'coupons' },
-    { name: 'couponCodeSnapshot', type: 'text' },
-    { name: 'shippingAddress', type: 'json', required: true },
-    { name: 'billingAddress', type: 'json' },
+    { name: 'couponCodeSnapshot', type: 'text', admin: { hidden: true } },
     {
       name: 'paymentMethod',
       type: 'select',
@@ -57,10 +74,10 @@ export const Orders: CollectionConfig = {
         { label: 'PayPal', value: 'paypal' },
       ],
     },
-    { name: 'stripePaymentIntentId', type: 'text' },
-    { name: 'stripeSessionId', type: 'text' },
-    { name: 'paypalOrderId', type: 'text' },
-    { name: 'paypalCaptureId', type: 'text' },
+    { name: 'stripePaymentIntentId', type: 'text', admin: { hidden: true } },
+    { name: 'stripeSessionId', type: 'text', admin: { hidden: true } },
+    { name: 'paypalOrderId', type: 'text', admin: { hidden: true } },
+    { name: 'paypalCaptureId', type: 'text', admin: { hidden: true } },
   ],
   hooks: {
     beforeChange: [

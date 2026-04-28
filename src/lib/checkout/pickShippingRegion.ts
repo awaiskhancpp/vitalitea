@@ -1,16 +1,11 @@
 import type { ShippingRegionDto } from '@/lib/checkout/types'
 
-/**
- * Resolves the shipping row for checkout: match ISO country, prefer national (no state) rows, then by sort.
- */
 export function pickShippingRegionForCountry(
   regions: ShippingRegionDto[],
   countryIso: string,
 ): ShippingRegionDto | undefined {
   const cc = countryIso.trim().toUpperCase()
-  const forCountry = regions.filter(
-    (r) => (r.country ?? '').trim().toUpperCase() === cc,
-  )
+  const forCountry = regions.filter((r) => (r.country ?? '').trim().toUpperCase() === cc)
   if (forCountry.length === 0) return undefined
   return [...forCountry].sort((a, b) => {
     const sa = a.sort ?? 0

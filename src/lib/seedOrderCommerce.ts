@@ -1,13 +1,93 @@
 import type { Payload } from 'payload'
+import { resolvedShippingRegionTitle } from './shippingRegionDisplayName'
+import { repairOrphanedOrderShippingRegions } from './repairOrderShippingRegions'
+
+async function backfillShippingRegionDisplayNames(payload: Payload): Promise<void> {
+  const { docs } = await payload.find({
+    collection: 'shipping-regions',
+    limit: 1000,
+    depth: 0,
+    overrideAccess: true,
+  })
+  const usedCodes = new Set<string>()
+  for (const doc of docs) {
+    const c = String((doc as { code?: string | null }).code ?? '').trim().toLowerCase()
+    if (c) usedCodes.add(c)
+  }
+  const sorted = [...docs].sort((a, b) => Number((a as { id: unknown }).id) - Number((b as { id: unknown }).id))
+
+  for (const raw of sorted) {
+    const d = raw as {
+      id: string | number
+      name?: string | null
+      country?: string | null
+      rate?: number | null
+      code?: string | null
+      stateCode?: string | null
+    }
+    const cc =
+      typeof d.country === 'string' ? d.country.replace(/\s/g, '').slice(0, 3).toUpperCase() : ''
+    const st =
+      typeof d.stateCode === 'string' && d.stateCode.trim().length > 0
+        ? String(d.stateCode).replace(/\s/g, '').toUpperCase().slice(0, 12)
+        : ''
+    const computedCode = cc ? (st ? `${cc}-${st}` : cc).toLowerCase() : ''
+    const nameTrim = typeof d.name === 'string' ? d.name.trim() : ''
+    const patch: Record<string, unknown> = {}
+    const synthesized = resolvedShippingRegionTitle({
+      id: d.id,
+      name: d.name,
+      country: d.country,
+      rate: d.rate,
+    })
+    if (synthesized !== nameTrim) patch.name = synthesized
+
+    const de = typeof (d as { deliveryEta?: string | null }).deliveryEta === 'string'
+      ? (d as { deliveryEta?: string }).deliveryEta?.trim() ?? ''
+      : ''
+    if (!de) patch.deliveryEta = '5–7 business days'
+
+    const hadCode = String(d.code ?? '').trim().length > 0
+    if (!hadCode && computedCode) {
+      let candidate = computedCode
+      if (usedCodes.has(candidate)) candidate = `${computedCode}-${String(d.id)}`
+      usedCodes.add(candidate)
+      patch.code = candidate
+    }
+
+    if (Object.keys(patch).length === 0) continue
+    await payload.update({
+      collection: 'shipping-regions',
+      id: d.id,
+      data: patch as Record<string, unknown>,
+      overrideAccess: true,
+    })
+  }
+}
 
 const CHECKOUT_COUNTRIES = [
-  { country: 'US', name: 'United States (standard)', rate: 8, sort: 10 },
-  { country: 'CA', name: 'Canada (standard)', rate: 10, sort: 11 },
+  {
+    country: 'US',
+    name: 'United States (standard)',
+    rate: 8,
+    sort: 10,
+    code: 'us',
+    deliveryEta: '5–7 business days',
+    summaryHint: 'US Standard',
+  },
+  {
+    country: 'CA',
+    name: 'Canada (standard)',
+    rate: 10,
+    sort: 11,
+    code: 'ca',
+    deliveryEta: '5–7 business days',
+    summaryHint: 'Canada',
+  },
 ] as const
 
 /**
- * Ensure one active shipping region per checkout country (US, CA). Idempotent.
- * Sample coupon when none exist.
+ * Ensure seeded shipping catalog rows exist, then repair orders. Idempotent.
  */
 export async function seedOrderCommerce(payload: Payload): Promise<void> {
   try {
@@ -25,6 +105,9 @@ export async function seedOrderCommerce(payload: Payload): Promise<void> {
         } as any)
       }
     }
+
+    await backfillShippingRegionDisplayNames(payload)
+    await repairOrphanedOrderShippingRegions(payload)
 
     const { totalDocs: couponCount } = await payload.count({ collection: 'coupons' })
     if (couponCount > 0) return

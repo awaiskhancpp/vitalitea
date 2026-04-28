@@ -1,4 +1,5 @@
 import type { Payload } from 'payload'
+import { FREE_SHIPPING_AT } from './checkout/constants'
 import {
   applyFixedDiscount,
   applyPercentDiscount,
@@ -21,7 +22,27 @@ type CouponDoc = {
   allowedCountryCodes?: string[] | null
 }
 
-type RegionDoc = { id: string | number; rate: number; isActive: boolean; country: string }
+type RegionDoc = {
+  id: string | number
+  rate: number
+  isActive: boolean
+  country: string
+  code?: string | null
+  stateCode?: string | null
+}
+
+function stableRegionCode(reg: RegionDoc): string {
+  const fromCode = String(reg.code ?? '').trim().toLowerCase()
+  if (fromCode) return fromCode
+  const cc =
+    typeof reg.country === 'string' ? reg.country.replace(/\s/g, '').slice(0, 3).toUpperCase() : ''
+  const st =
+    typeof reg.stateCode === 'string' && reg.stateCode.trim().length > 0
+      ? String(reg.stateCode).replace(/\s/g, '').toUpperCase().slice(0, 12)
+      : ''
+  if (!cc) return ''
+  return (st ? `${cc}-${st}` : cc).toLowerCase()
+}
 
 export type TotalsResult = {
   lines: ClientCartLine[]
@@ -30,6 +51,7 @@ export type TotalsResult = {
   shipping: number
   total: number
   shippingRegionId: string
+  shippingRegionCode: string
   coupon: { id: string | number; code: string } | null
 }
 
@@ -59,13 +81,13 @@ export async function computeOrderTotals(
       })
       .catch(() => null)
   }
-  if (!reg || !(reg as RegionDoc).isActive) {
+  const regionDoc = reg as RegionDoc | null
+  if (!regionDoc || !regionDoc.isActive) {
     return { ok: false, error: 'Invalid shipping region' }
   }
-  const rate = Math.round((reg as RegionDoc).rate * 100) / 100
-  /** Free standard shipping on orders at or above this subtotal (before discount). */
-  const FREE_SHIPPING_MIN_USD = 75
-  const shipping = subtotal >= FREE_SHIPPING_MIN_USD ? 0 : rate
+  const rate = Math.round(regionDoc.rate * 100) / 100
+  const shippingRegionCode = stableRegionCode(regionDoc)
+  const shipping = subtotal >= FREE_SHIPPING_AT ? 0 : rate
 
   let discount = 0
   let coupon: TotalsResult['coupon'] = null
@@ -94,7 +116,7 @@ export async function computeOrderTotals(
     }
     const allowedCountries = c.allowedCountryCodes
     if (allowedCountries && Array.isArray(allowedCountries) && allowedCountries.length > 0) {
-      const regCountry = (reg as RegionDoc).country
+      const regCountry = regionDoc.country
       if (!regCountry || !allowedCountries.includes(regCountry)) {
         return { ok: false, error: 'This coupon is not valid for your shipping country' }
       }
@@ -118,6 +140,7 @@ export async function computeOrderTotals(
       shipping,
       total,
       shippingRegionId: input.shippingRegionId,
+      shippingRegionCode,
       coupon,
     },
   }
