@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import { getProducts, getTestimonials, getHomepage } from '@/lib/payload'
 import { marketSectionWithFallback, testimonialsWithFallback } from '@/lib/homeFallbacks'
+import { isPayloadBlobCdnUrl } from '@/lib/cmsUtils'
 import ShopClient from '@/components/ShopClient'
 import Testimonials from '@/components/Testimonials'
 
@@ -84,6 +85,7 @@ export default async function Shop() {
                 src={market.imageUrl}
                 alt={market.heading.slice(0, 80)}
                 fill
+                unoptimized={isPayloadBlobCdnUrl(market.imageUrl)}
                 className="object-cover object-right"
                 sizes="(min-width: 1024px) min(50vw, 45rem), 100vw"
               />

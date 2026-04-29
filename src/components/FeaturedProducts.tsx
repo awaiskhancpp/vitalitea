@@ -3,6 +3,7 @@ import { useState, useRef, useLayoutEffect, useCallback, useEffect } from 'react
 import Image from 'next/image'
 import Link from 'next/link'
 import { useCart } from '@/contexts/CartContext'
+import { isPayloadBlobCdnUrl } from '@/lib/cmsUtils'
 
 interface Product {
   id: string | number
@@ -274,6 +275,7 @@ function FeaturedProductCard({ product, index }: { product: Product; index: numb
           src={imageSrc}
           alt={imageAlt}
           fill
+          unoptimized={isPayloadBlobCdnUrl(imageSrc)}
           className="object-cover"
           sizes="(min-width: 1024px) min(28vw, 400px), (min-width: 640px) 46vw, 100vw"
         />

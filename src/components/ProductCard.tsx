@@ -3,6 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useCart } from '@/contexts/CartContext'
+import { isPayloadBlobCdnUrl } from '@/lib/cmsUtils'
 
 interface ProductCardProps {
   id: string | number
@@ -82,6 +83,7 @@ export default function ProductCard({
           src={imageSrc}
           alt={imageAlt}
           fill
+          unoptimized={isPayloadBlobCdnUrl(imageSrc)}
           className="object-cover object-center"
           sizes="(min-width: 1280px) 400px, (min-width: 1024px) 28vw, (min-width: 640px) 45vw, 100vw"
         />
