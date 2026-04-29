@@ -1,6 +1,7 @@
 import { put } from '@vercel/blob'
 import { randomBytes } from 'node:crypto'
 import { NextResponse } from 'next/server'
+import { mimeFromFilename } from '@/lib/imageMimeGuess'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
@@ -53,7 +54,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'File too large' }, { status: 413 })
   }
 
-  const mime = (file.type || '').toLowerCase()
+  const inferred = mimeFromFilename(typeof file.name === 'string' ? file.name : '')
+  const mime = ((file.type || '').trim() || inferred || '').toLowerCase()
   if (!mime.startsWith('image/')) {
     return NextResponse.json({ error: 'Only image files are allowed' }, { status: 415 })
   }
@@ -67,21 +69,13 @@ export async function POST(request: Request) {
   const pathname = `uploads/${Date.now()}-${randomBytes(8).toString('hex')}.${ext}`
 
   try {
-    const blobOptions =
-      file.size > 4 * 1024 * 1024
-        ? ({
-            access: 'public' as const,
-            token,
-            contentType: mime,
-            multipart: true,
-          } satisfies Parameters<typeof put>[2])
-        : ({
-            access: 'public' as const,
-            token,
-            contentType: mime,
-          } satisfies Parameters<typeof put>[2])
+    const bodyBuf = Buffer.from(await file.arrayBuffer())
 
-    const result = await put(pathname, file, blobOptions)
+    const result = await put(pathname, bodyBuf, {
+      access: 'public',
+      token,
+      contentType: mime,
+    })
     return NextResponse.json({ url: result.url })
   } catch (err) {
     console.error('[api/upload]', err)

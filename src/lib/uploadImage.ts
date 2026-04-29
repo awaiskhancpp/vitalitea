@@ -1,8 +1,17 @@
+import { mimeFromFilename } from '@/lib/imageMimeGuess'
+
 export type UploadImageResult =
   | { ok: true; url: string }
   | { ok: false; error: string }
 
 const MAX_BYTES = 12 * 1024 * 1024
+
+function isProbablyImage(file: File): boolean {
+  const mime = (file.type || '').trim().toLowerCase()
+  if (mime.startsWith('image/')) return true
+  const inferred = mimeFromFilename(file.name)
+  return !!(inferred && inferred.startsWith('image/'))
+}
 
 /** Optional field name override if your form uses another key than `file` */
 export async function uploadImageFile(
@@ -15,8 +24,7 @@ export async function uploadImageFile(
   if (file.size > MAX_BYTES) {
     return { ok: false, error: 'File is too large' }
   }
-  const mime = (file.type || '').toLowerCase()
-  if (!mime.startsWith('image/')) {
+  if (!isProbablyImage(file)) {
     return { ok: false, error: 'Only image files can be uploaded' }
   }
 
@@ -28,6 +36,7 @@ export async function uploadImageFile(
     const res = await fetch('/api/upload', {
       method: 'POST',
       body: formData,
+      credentials: 'same-origin',
     })
 
     let json: unknown

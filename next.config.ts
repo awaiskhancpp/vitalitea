@@ -6,12 +6,42 @@ import { fileURLToPath } from 'url'
 const __filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(__filename)
 
+function hostnameFromEnv(value: string | undefined): string | null {
+  if (!value?.trim()) return null
+  const v = value.trim()
+  if (/^https?:\/\//i.test(v)) {
+    try {
+      return new URL(v).hostname
+    } catch {
+      return null
+    }
+  }
+  return v.replace(/\/.*$/, '') || null
+}
+
+/** Lets `next/image` optimize Payload `/api/media/...` and same-origin previews on Vercel. */
+function vercelHosts(): string[] {
+  const out = new Set<string>()
+  for (const c of [
+    process.env.VERCEL_PROJECT_PRODUCTION_URL,
+    process.env.VERCEL_BRANCH_URL,
+    process.env.VERCEL_URL,
+    process.env.NEXT_PUBLIC_APP_URL,
+    process.env.IMAGE_OPTIMIZE_HOSTNAME,
+  ]) {
+    const h = hostnameFromEnv(c ?? undefined)
+    if (h) out.add(h)
+  }
+  return [...out]
+}
+
 const nextConfig: NextConfig = {
   images: {
+    // Payload serves uploads at `/api/media/file/…` — explicit entries avoid INVALID_IMAGE_OPTIMIZE_REQUEST on Vercel.
     localPatterns: [
-      {
-        pathname: '/**',
-      },
+      { pathname: '/api/media/**' },
+      { pathname: '/api/media/file/**' },
+      { pathname: '/**' },
     ],
     remotePatterns: [
       {
@@ -20,10 +50,16 @@ const nextConfig: NextConfig = {
         port: '3000',
         pathname: '/api/media/**',
       },
+      // Production / preview deployments (INVALID `hostname: '**'` broke optimization)
+      ...vercelHosts().map((hostname) => ({
+        protocol: 'https' as const,
+        hostname,
+        pathname: '/api/media/**' as const,
+      })),
       {
-        protocol: 'https',
-        hostname: '**', // replace with your production domain
-        pathname: '/api/media/**',
+        protocol: 'https' as const,
+        hostname: '*.public.blob.vercel-storage.com',
+        pathname: '/**',
       },
     ],
   },

@@ -16,6 +16,8 @@ import { ShippingRegions } from './collections/ShippingRegions'
 import { Coupons } from './collections/Coupons'
 import { Orders } from './collections/Orders'
 import { seedOrderCommerce } from './lib/seedOrderCommerce'
+import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
+
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 const connectionString = process.env.DATABASE_URI || process.env.DATABASE_URL || ''
@@ -41,5 +43,14 @@ export default buildConfig({
   secret: process.env.PAYLOAD_SECRET || 'your-secret-here',
   typescript: { outputFile: path.resolve(dirname, 'payload-types.ts') },
   db: postgresAdapter({ pool: { connectionString } }),
-  upload: { limits: { fileSize: 5000000 } },
+  plugins: [
+    vercelBlobStorage({
+      enabled: Boolean(process.env.BLOB_READ_WRITE_TOKEN),
+      collections: {
+        media: true,
+      },
+      token: process.env.BLOB_READ_WRITE_TOKEN || '',
+    }),
+  ],
+  upload: { limits: { fileSize: 12 * 1024 * 1024 } },
 })

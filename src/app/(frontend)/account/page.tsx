@@ -2,8 +2,9 @@
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useCustomerAuth } from '@/contexts/CustomerAuthContext'
+import { useImageUpload } from '@/hooks/useImageUpload'
 
 type OrderRow = {
   id: string | number
@@ -24,6 +25,8 @@ function formatStatus(raw: string) {
 export default function AccountOrdersPage() {
   const router = useRouter()
   const { customer, loading, logout } = useCustomerAuth()
+  const blobInputRef = useRef<HTMLInputElement>(null)
+  const { url: blobUrl, error: blobErr, uploading: blobBusy, upload } = useImageUpload()
   const [orders, setOrders] = useState<OrderRow[] | null>(null)
   const [loadErr, setLoadErr] = useState<string | null>(null)
 
@@ -99,6 +102,49 @@ export default function AccountOrdersPage() {
             Continue shopping
           </Link>
         </div>
+
+        <section aria-label="Image upload (Vercel Blob)" className="mt-12 border-t border-[#ECECEC] pt-10">
+          <h2 className="font-['Cormorant_Garamond'] text-xl font-bold text-black">Photo upload</h2>
+          <p className="mt-1 font-['Host_Grotesk'] text-sm text-[#737373]">
+            Store images uploaded here live in Blob (not Payload /api/media).
+          </p>
+          <div className="mt-4">
+            <input
+              ref={blobInputRef}
+              type="file"
+              accept="image/*"
+              className="sr-only"
+              tabIndex={-1}
+              disabled={blobBusy || !customer}
+              onChange={async (ev) => {
+                const f = ev.target.files?.[0]
+                if (!f) return
+                await upload(f)
+                ev.target.value = ''
+              }}
+            />
+            <button
+              type="button"
+              disabled={blobBusy || !customer}
+              onClick={() => blobInputRef.current?.click()}
+              className="rounded-full bg-[#627E5C] px-5 py-2 font-['Martel_Sans'] text-sm font-semibold text-white disabled:opacity-60"
+            >
+              {blobBusy ? 'Uploading…' : 'Upload image'}
+            </button>
+          </div>
+          {blobErr ? (
+            <p className="mt-3 font-['Host_Grotesk'] text-sm text-red-600" role="alert">
+              {blobErr}
+            </p>
+          ) : null}
+          {blobUrl ? (
+            <div className="mt-4">
+              <p className="mb-2 break-all font-['Martel_Sans'] text-xs text-[#737373]">{blobUrl}</p>
+              {/* eslint-disable-next-line @next/next/no-img-element -- Blob CDN URL */}
+              <img src={blobUrl} alt="" className="h-40 max-w-full rounded-lg object-cover" />
+            </div>
+          ) : null}
+        </section>
 
         {loading ? (
           <p className="mt-10 font-['Host_Grotesk'] text-[#737373]">Loading…</p>
